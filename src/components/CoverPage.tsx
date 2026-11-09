@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import BrandName, { DEFAULT_LOGO } from '@/src/components/BrandName';
 import { useBusiness } from '@/src/context/BusinessContext';
+import HeroImageScroller from '@/src/components/HeroImageScroller';
+import HeroShowcase from '@/src/components/HeroShowcase';
+import HomeSections from '@/src/components/HomeSections';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import WholesaleAccess from '@/src/components/WholesaleAccess';
@@ -65,11 +68,11 @@ export default function CoverPage() {
     return () => window.removeEventListener('hashchange', go);
   }, [router]);
   return (
-    <div className="min-h-svh bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased flex flex-col">
-      <header className="sticky top-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md">
-        <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div className="min-h-svh bg-[#7A1414] text-white font-sans antialiased flex flex-col">
+      <header className="sticky top-0 z-50 bg-[#7A1414] text-white">
+        <div className="max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
-          <SiteNavLinks />
+          <SiteNavLinks light />
           <div className="flex items-center gap-3">
             <WholesaleAccess />
             <MobileNavMenu />
@@ -77,44 +80,15 @@ export default function CoverPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex px-3 md:px-6 pb-3 md:pb-6">
-        <section className="relative flex-1 w-full max-w-[1440px] mx-auto overflow-hidden rounded-3xl border border-[#2E7D32] bg-[#2E7D32] text-white flex items-end">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-cover bg-center hidden md:block"
-            style={{
-              backgroundImage:
-                'url(https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=2000&auto=format&fit=crop)',
-            }}
-          />
-          <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center md:hidden" style={{ backgroundImage: 'url(/hero-mobile.webp)', transform: 'translateY(-10%)' }} />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2E7D32]/95 via-[100%] to-[#2E7D32]"
-          />
-          <div className="relative w-full px-6 md:px-14 pt-12 pb-12 md:pb-16">
+      <main className="flex-1 flex px-0 pb-3 md:pb-6">
+        <section className="relative flex-1 w-full max-w-[1440px] mx-auto overflow-hidden rounded-3xl border border-transparent bg-transparent text-white flex">
+          <div className="relative w-full flex flex-col justify-center px-[10px] pt-0 pb-14 md:pb-16">
+            <HeroImageScroller className="-mx-[10px] px-[10px] scroll-pl-[10px]" dotsClassName="mt-3 mb-3" />
+            <HeroShowcase />
+            <div className="h-4 md:h-6" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logo || DEFAULT_LOGO} alt="" aria-hidden="true" className="hidden md:block md:-mt-12 md:-mb-4 md:mx-0 h-48 w-48 md:h-[269px] md:w-[269px] max-w-full object-contain drop-shadow-lg" />
-            <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
-              Distribución hortifrutícola B2B
-            </span>
-            <h1 className="mt-5 max-w-4xl text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.08]">
-              El distribuidor hortifrutícola para la gastronomía de Punta del Este.
-            </h1>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <Link
-                href="/items"
-                className="inline-flex items-center justify-center rounded-full bg-white text-[#1D1D1F] px-7 py-3.5 text-sm font-semibold hover:bg-white/90 active:scale-95 transition-all"
-              >
-                Acceder al Catálogo Mayorista
-              </Link>
-              <Link
-                href="/items#contact"
-                className="inline-flex items-center justify-center rounded-full border border-white/70 text-white px-7 py-3.5 text-sm font-semibold hover:bg-white/10 active:scale-95 transition-all"
-              >
-                Solicitar acceso mayorista
-              </Link>
-            </div>
+            <h1 className="sr-only">Manolo: La auténtica pizza por metro en Punta del Este</h1>
             <div className="hidden md:grid mt-10 md:mt-14 grid-cols-2 gap-6 md:gap-10 max-w-3xl border-t border-white/25 pt-6 md:pt-8">
               {[
                 { value: 100, label: 'Productos' },
@@ -135,6 +109,7 @@ export default function CoverPage() {
           </Link>
         </section>
       </main>
+      <HomeSections />
     </div>
   );
 }

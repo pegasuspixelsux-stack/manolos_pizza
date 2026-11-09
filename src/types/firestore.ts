@@ -280,7 +280,11 @@ export interface BusinessSettings {
   youtube: string;
   /** Logo shown next to the name in the header and footer (image URL); empty = the default Merkado logo. */
   logo: string;
+  /** Photos for the scroller at the top of the hero (image URLs, in order); empty = square placeholders. */
+  heroImages: string[];
 }
+
+export const MAX_HERO_IMAGES = 12;
 
 export const emptyBusiness: BusinessSettings = {
   businessName: '',
@@ -295,4 +299,5 @@ export const emptyBusiness: BusinessSettings = {
   facebook: '',
   youtube: '',
   logo: '',
+  heroImages: [],
 };

@@ -1,0 +1,87 @@
+'use client';
+
+import { useCallback, useRef, useState } from 'react';
+import { ImageIcon } from 'lucide-react';
+import { useBusiness } from '@/src/context/BusinessContext';
+import { useHeroFolderImages } from '@/src/context/HeroImagesContext';
+
+const tile =
+  'snap-start shrink-0 w-[90%] aspect-square rounded-2xl border border-white/25 bg-white/10 overflow-hidden';
+
+const GAP = 12; // px, matches gap-3
+
+/**
+ * Horizontal image scroller for the top of the hero, with one dot per slide below it. The photos are uploaded in
+ * Ajustes (Datos del negocio) or live in public/hero_images; until there are some it shows square placeholders.
+ * `className` styles the scroller itself; `dotsClassName` the row of dots (its bottom margin sets the space below).
+ */
+export default function HeroImageScroller({
+  placeholders = 3,
+  className = '',
+  dotsClassName = 'mt-3 mb-4 md:mb-5',
+}: {
+  placeholders?: number;
+  className?: string;
+  dotsClassName?: string;
+}) {
+  const business = useBusiness();
+  const folderImages = useHeroFolderImages();
+  // Photos from Ajustes win; otherwise every image in public/hero_images; otherwise placeholders.
+  const heroImages = business.heroImages.length > 0 ? business.heroImages : folderImages;
+  const count = heroImages.length > 0 ? heroImages.length : placeholders;
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const step = () => (ref.current?.firstElementChild as HTMLElement | null)?.offsetWidth ?? 0;
+
+  const onScroll = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const s = step() + GAP;
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
+    setActive(atEnd ? count - 1 : Math.min(count - 1, Math.round(el.scrollLeft / (s || 1))));
+  }, [count]);
+
+  const goTo = (i: number) => ref.current?.scrollTo({ left: i * (step() + GAP), behavior: 'smooth' });
+
+  return (
+    <>
+      <div
+        ref={ref}
+        onScroll={onScroll}
+        role="list"
+        aria-label="Galería de fotos"
+        className={`flex flex-nowrap gap-3 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+      >
+        {heroImages.length > 0
+          ? heroImages.map((src, i) => (
+              <div key={`${src}-${i}`} role="listitem" className={tile}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" loading={i === 0 ? 'eager' : 'lazy'} draggable={false} className="h-full w-full object-cover" />
+              </div>
+            ))
+          : Array.from({ length: placeholders }, (_, i) => (
+              <div key={i} role="listitem" className={`${tile} flex flex-col items-center justify-center gap-1.5 text-white/70`}>
+                <ImageIcon className="w-[4.5rem] h-[4.5rem] md:w-[5.25rem] md:h-[5.25rem]" aria-hidden="true" />
+                <span className="text-[11px] font-medium tabular-nums">{i + 1}</span>
+              </div>
+            ))}
+      </div>
+      {count > 1 && (
+        <div className={`flex items-center justify-center gap-2 ${dotsClassName}`}>
+          {Array.from({ length: count }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`Ir a la foto ${i + 1}`}
+              aria-current={i === active}
+              className={`h-2.5 rounded-full transition-all ${i === active ? 'w-6 bg-white' : 'w-2.5 bg-white/40 hover:bg-white/70'}`}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+}

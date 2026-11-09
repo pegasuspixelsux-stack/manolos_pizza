@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/src/context/AuthContext';
 import { useBusiness } from '@/src/context/BusinessContext';
 import { saveBusinessSettings } from '@/src/services/businessService';
-import type { BusinessSettings } from '@/src/types/firestore';
+import { MAX_HERO_IMAGES, type BusinessSettings } from '@/src/types/firestore';
 import { cardClass, inputClass, labelClass } from '@/src/components/dashboard/ui';
 import ImageUpload from '@/src/components/ImageUpload';
 import { DEFAULT_LOGO } from '@/src/components/BrandName';
@@ -21,8 +21,14 @@ export default function BusinessForm() {
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const canEdit = agent?.role === 'admin';
 
-  const set = <K extends keyof BusinessSettings>(key: K, value: string) => setForm((f) => ({ ...f, [key]: value }));
-  const dirty = (Object.keys(form) as (keyof BusinessSettings)[]).some((k) => form[k].trim() !== current[k]);
+  const set = <K extends Exclude<keyof BusinessSettings, 'heroImages'>>(key: K, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const addHeroImage = (url: string) => setForm((f) => ({ ...f, heroImages: [...f.heroImages, url].slice(0, MAX_HERO_IMAGES) }));
+  const removeHeroImage = (i: number) => setForm((f) => ({ ...f, heroImages: f.heroImages.filter((_, j) => j !== i) }));
+  const dirty =
+    (Object.keys(form) as (keyof BusinessSettings)[]).some((k) => {
+      const v = form[k];
+      return typeof v === 'string' ? v.trim() !== current[k] : JSON.stringify(v) !== JSON.stringify(current[k]);
+    });
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +85,35 @@ export default function BusinessForm() {
           </div>
         </div>
         <p className="text-xs text-[#86868B] mt-1.5">Sale al lado del nombre, arriba y en el pie del sitio. Mejor una imagen cuadrada con fondo transparente (PNG).</p>
+      </div>
+      <div>
+        <span className={labelClass}>Fotos del carrusel de la portada</span>
+        {form.heroImages.length > 0 && (
+          <ul className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
+            {form.heroImages.map((url, i) => (
+              <li key={`${url}-${i}`} className="relative aspect-square rounded-xl overflow-hidden border border-[#000000]/10 bg-[#F5F5F7]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" />
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={() => removeHeroImage(i)}
+                    aria-label={`Quitar la foto ${i + 1}`}
+                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/65 text-white text-sm leading-none hover:bg-black"
+                  >
+                    ×
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {canEdit && form.heroImages.length < MAX_HERO_IMAGES && (
+          <ImageUpload multiple folder="/Merkado-v2/hero_images" onUploaded={({ url }) => addHeroImage(url)} onError={(text) => setMessage({ ok: false, text })} />
+        )}
+        <p className="text-xs text-[#86868B] mt-1.5">
+          Cuadradas, hasta {MAX_HERO_IMAGES}. Se ven en el carrusel arriba de la portada, en el orden en que se subieron. Si no hay ninguna se muestran recuadros vacíos.
+        </p>
       </div>
       <div>
         <label htmlFor="b-address" className={labelClass}>Dirección</label>

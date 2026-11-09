@@ -51,7 +51,10 @@ async function getAuthParams() {
 
 function describeError(err: unknown): string {
   if (err instanceof ImageKitAbortError) return 'Subida cancelada.';
-  if (err instanceof ImageKitInvalidRequestError || err instanceof ImageKitServerError) {
+  if (err instanceof ImageKitServerError) {
+    return 'El servicio de imágenes no responde. Probá de nuevo en unos minutos.';
+  }
+  if (err instanceof ImageKitInvalidRequestError) {
     return err.message || 'ImageKit rechazó la subida.';
   }
   if (err instanceof ImageKitUploadNetworkError) return 'Error de red al subir la imagen.';
@@ -77,6 +80,35 @@ export default function ImageUpload({
     onError?.(message);
   };
 
+  // Retries transient failures (ImageKit 5xx / network). Auth params are single-use,
+  // so each attempt fetches fresh ones.
+  const uploadWithRetry = async (file: File) => {
+    const MAX_RETRIES = 2;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const { token, expire, signature, publicKey } = await getAuthParams();
+        return await upload({
+          file,
+          fileName: file.name,
+          folder,
+          useUniqueFileName: true,
+          token,
+          expire,
+          signature,
+          publicKey,
+          onProgress: (e) => setProgress(Math.round((e.loaded / e.total) * 100)),
+        });
+      } catch (err) {
+        const transient =
+          err instanceof ImageKitServerError || err instanceof ImageKitUploadNetworkError;
+        if (!transient || attempt >= MAX_RETRIES) throw err;
+        setProgress(0);
+        setStatus(`Reintentando (${attempt + 1}/${MAX_RETRIES})…`);
+        await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
+      }
+    }
+  };
+
   const handleFiles = async (fileList: FileList | File[]) => {
     const files = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
     if (!files.length) {
@@ -94,18 +126,7 @@ export default function ImageUpload({
         const file = await compressImageToWebP(original); // WebP, under 1 MB
 
         setStatus(`${prefix}Subiendo…`);
-        const { token, expire, signature, publicKey } = await getAuthParams();
-        const result = await upload({
-          file,
-          fileName: file.name,
-          folder,
-          useUniqueFileName: true,
-          token,
-          expire,
-          signature,
-          publicKey,
-          onProgress: (e) => setProgress(Math.round((e.loaded / e.total) * 100)),
-        });
+        const result = await uploadWithRetry(file);
         if (!result.url || !result.fileId) throw new Error('ImageKit no devolvió una URL.');
         onUploaded({ url: result.url, fileId: result.fileId });
       }

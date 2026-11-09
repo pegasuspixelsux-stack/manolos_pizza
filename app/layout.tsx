@@ -4,7 +4,9 @@ import "./globals.css";
 import { ClientProvider } from "@/src/context/ClientContext";
 import { CartProvider } from "@/src/context/CartContext";
 import { BusinessProvider } from "@/src/context/BusinessContext";
+import { HeroImagesProvider } from "@/src/context/HeroImagesContext";
 import { getBusinessSettings } from "@/src/services/businessService";
+import { listHeroImages } from "@/src/lib/heroImages";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const DEFAULT_TITLE = "Merkado para Mayoristas";
+const DEFAULT_TITLE = "Manolo's Pizza";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { businessName } = await getBusinessSettings();
@@ -28,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const business = await getBusinessSettings();
+  const [business, heroImages] = await Promise.all([getBusinessSettings(), listHeroImages()]);
   return (
     <html
       lang="es-UY"
@@ -36,9 +38,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <BusinessProvider initial={business}>
-          <ClientProvider>
-            <CartProvider>{children}</CartProvider>
-          </ClientProvider>
+          <HeroImagesProvider images={heroImages}>
+            <ClientProvider>
+              <CartProvider>{children}</CartProvider>
+            </ClientProvider>
+          </HeroImagesProvider>
         </BusinessProvider>
       </body>
     </html>

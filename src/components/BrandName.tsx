@@ -21,10 +21,7 @@ export default function BrandName() {
         {businessName ? (
           <>{businessName}.</>
         ) : (
-          <>
-            Merkado<span className="sm:hidden"> M</span>
-            <span className="hidden sm:inline"> para Mayoristas</span>.
-          </>
+          <>Manolo&apos;s Pizza</>
         )}
       </span>
     </span>

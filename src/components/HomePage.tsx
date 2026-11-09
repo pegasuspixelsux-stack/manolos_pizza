@@ -5,12 +5,12 @@ import Link from 'next/link';
 import type { HomeProperty } from '@/src/lib/homeData';
 import type { PropertyType } from '@/src/types/firestore';
 import { typeLabels } from '@/src/utils/format';
-import SiteFooter from '@/src/components/SiteFooter';
-import InfoSections from '@/src/components/InfoSections';
+import HomeSections from '@/src/components/HomeSections';
+import HeroImageScroller from '@/src/components/HeroImageScroller';
+import HeroShowcase from '@/src/components/HeroShowcase';
 import PropertyImage from '@/src/components/PropertyImage';
 import CartButton from '@/src/components/CartButton';
 import { useCart } from '@/src/context/CartContext';
-import WholesaleAccess from '@/src/components/WholesaleAccess';
 import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
@@ -18,7 +18,6 @@ import { useClient } from '@/src/context/ClientContext';
 import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import {
   ArrowUpRight,
-  KeyRound,
   Search,
   ChevronLeft,
   ChevronRight,
@@ -227,38 +226,28 @@ export default function MerkadoHome({
 
 
   return (
-    <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] selection:bg-[#000000] selection:text-[#FFFFFF] font-sans antialiased">
+    <div className="min-h-screen bg-[#7A1414] text-white selection:bg-white selection:text-[#7A1414] font-sans antialiased">
 
       {/* --- NAVIGATION --- */}
-      <header className="sticky top-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 bg-[#7A1414] text-white">
         <div className="bg-[#2E7D32] text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
           <span className="md:hidden">Precios de mercado válidos por el día</span>
           <span className="hidden md:inline lg:hidden">Precios de mercado válidos por el día. Pueden cambiar en pedidos para el día siguiente.</span>
           <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
         </div>
-        <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
           <span className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></span>
-          <SiteNavLinks />
+          <SiteNavLinks light />
           <div className="flex items-center gap-1">
-          <WholesaleAccess />
-          <CartButton />
-          <MobileNavMenu />
-          </div>
-        </div>
-      </header>
-
-      {/* --- HERO: one fixed unit (no carousel) --- */}
-      <section id="search" className="px-3 md:px-6 pt-0 md:pt-2 max-w-[1440px] mx-auto">
-        <form
-          role="search"
-          onSubmit={(e) => {
-            e.preventDefault();
-            document.getElementById('properties')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className="w-full md:w-3/4 mx-auto bg-white rounded-2xl shadow-lg border border-[#000000]/5 p-3 flex flex-col gap-3"
-        >
-          <div className="flex items-center gap-2 pl-3">
-            <Search className="hidden md:block w-5 h-5 text-[#515154] shrink-0" />
+          <form
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              document.getElementById('properties')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="relative w-32 min-[420px]:w-44 sm:w-56 md:w-64 mr-1"
+          >
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#86868B]" aria-hidden="true" />
             <input
               type="search"
               value={query}
@@ -266,316 +255,40 @@ export default function MerkadoHome({
                 setQuery(e.target.value);
                 setPage(1);
               }}
-              placeholder="Buscá por nombre, categoría o precio…"
+              placeholder="Buscar…"
               aria-label="Buscar artículos por nombre, categoría o precio"
-              className="min-w-0 flex-1 bg-transparent px-2 md:px-4 py-3 text-sm text-[#1D1D1F] placeholder:text-[#86868B] outline-none"
+              className="w-full h-10 rounded-full bg-white text-[#1D1D1F] placeholder:text-[#86868B] text-sm pl-10 pr-4 outline-none focus:ring-2 focus:ring-white/60"
             />
-            <button
-              type="submit"
-              aria-label="Buscar"
-              className="shrink-0 bg-[#2E7D32] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#2E7D32]/85 transition-all flex items-center justify-center"
-            >
-              <Search className="w-4 h-4 md:hidden" />
-              <span className="hidden md:inline">Buscar</span>
-            </button>
+          </form>
+          <CartButton />
+          <MobileNavMenu />
           </div>
-        </form>
-      </section>
+        </div>
+      </header>
 
-      <div className="max-w-[1440px] mx-auto px-3 md:px-6 pt-3 md:pt-4">
-        <section className="relative w-full overflow-hidden rounded-3xl border border-[#2E7D32] bg-[#2E7D32] text-white md:flex md:items-center md:portrait:h-[38.5svh] md:portrait:min-h-[360px] lg:landscape:block">
+      {/* --- HERO: one fixed unit (no carousel) --- */}
+      <div className="bg-[#7A1414] pb-6 md:pb-8">
+
+      <div className="max-w-[1440px] mx-auto px-0 pt-0">
+        <section className="relative w-full overflow-hidden rounded-3xl border border-transparent bg-transparent text-white md:flex md:items-center md:portrait:h-[38.5svh] md:portrait:min-h-[360px] lg:landscape:block">
           {/* Background photo + green overlay: phones get one flat, fully opaque green layer; wider screens get a gradient, solid on the left (behind the text) and more transparent to the right */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-cover bg-center hidden md:block"
-            style={{
-              backgroundImage:
-                'url(https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=2000&auto=format&fit=crop)',
-            }}
-          />
-          <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center md:hidden" style={{ backgroundImage: 'url(/hero-mobile.webp)' }} />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[#2E7D32] md:bg-transparent md:bg-gradient-to-r md:from-[#2E7D32] md:from-[55%] md:via-[#2E7D32]/55 md:via-[80%] md:to-transparent"
-          />
           {/* Desktop only: the logo on the right column, over the overlay */}
           <div aria-hidden="true" className="hidden xl:flex absolute inset-y-0 right-10 w-[16%] min-[1400px]:w-[20.8%] items-center justify-center pointer-events-none">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logo || DEFAULT_LOGO} alt="" className="w-full max-h-[100%] object-contain drop-shadow-lg" />
           </div>
-            <div className="relative w-full px-6 md:px-10 pt-5 pb-5 md:pt-9 md:pb-9 md:landscape:max-xl:pt-7 md:landscape:max-xl:pb-7 md:portrait:pt-7 md:portrait:pb-7">
-            <span className="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] sm:text-xs font-semibold tracking-[0.18em] uppercase">
-              Distribución hortifrutícola B2B
-            </span>
-            <h1 className="mt-4 max-w-6xl text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight leading-[1.1]">
-              El distribuidor hortifrutícola para
-              <br className="hidden md:block" /> la gastronomía de Punta del Este.
-            </h1>
-            <p className="mt-3 max-w-2xl text-xs sm:text-sm md:text-base text-white/95 font-normal leading-relaxed">
-              Abastecemos a restaurantes, hoteles y comercios con frutas, verduras y hojas verdes seleccionadas en el
-              mercado central. Logística integrada, precios mayoristas por volumen y entregas diarias en tu establecimiento.
-            </p>
-            <div className="mt-5 md:mt-6 flex flex-col sm:flex-row gap-2.5">
-              <Link
-                href="/items"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-white text-[#1D1D1F] px-6 py-2.5 text-sm font-semibold hover:bg-white/90 active:scale-95 transition-all"
-              >
-                <span>Acceso al Catálogo Mayorista</span>
-                <ArrowUpRight className="w-4 h-4" />
-              </Link>
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/50 bg-white/10 px-6 py-2.5 text-sm font-semibold text-white hover:bg-white/20 active:scale-95 transition-all"
-              >
-                <KeyRound className="w-4 h-4" />
-                <span>Solicitar acceso mayorista</span>
-              </a>
-            </div>
+            <div className="relative w-full px-[10px] pt-0 pb-10 md:pb-12">
+            <HeroImageScroller className="-mx-[10px] px-[10px] scroll-pl-[10px] xl:max-w-[calc(100%-18rem)]" dotsClassName="mt-3 mb-3" />
+            <h1 className="sr-only">Manolo: La auténtica pizza por metro en Punta del Este</h1>
+            <HeroShowcase className="xl:max-w-[calc(100%-18rem)]" />
           </div>
         </section>
+      </div>
       </div>
 
       {/* --- SEARCH BAR --- */}
 
-      {/* --- BODY: PROPERTY BENTO GRID --- */}
-      <section id="properties" className="pt-5 md:pt-8 pb-8 md:pb-44 px-3 md:px-6 max-w-[1440px] mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-        {categories.length > 0 ? (
-          <div
-            role="group"
-            aria-label="Categorías"
-            className="flex flex-1 min-w-0 flex-nowrap items-center gap-2 overflow-x-auto -ml-3 pl-3 md:mx-0 md:pl-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {[{ id: 'all', label: 'Todas' }, ...categories].map((c) => {
-              const active = category === c.id;
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => {
-                    setCategory(c.id);
-                    setPage(1);
-                  }}
-                  aria-pressed={active}
-                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
-                    active ? 'bg-[#2E7D32] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E8E8ED]'
-                  }`}
-                >
-                  {c.label}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex-1" />
-        )}
-          <div role="group" aria-label="Diseño de la lista" className="md:hidden shrink-0 inline-flex rounded-full bg-[#F5F5F7] p-0.5">
-            {([
-              ['one', Square, '1 columna'],
-              ['two', LayoutGrid, '2 columnas'],
-              ['list', List, 'Lista'],
-            ] as const).map(([value, Icon, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => chooseLayout(value)}
-                aria-pressed={layout === value}
-                aria-label={label}
-                title={label}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                  layout === value ? 'bg-[#2E7D32] text-white' : 'text-[#515154] hover:bg-[#E8E8ED]'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className={`grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6`}>
-          {filteredProperties.length === 0 && (
-            <p className="col-span-full text-center text-[#515154] text-sm">
-              No hay artículos que coincidan con tu búsqueda.
-            </p>
-          )}
-          {visibleProperties.map((prop) => {
-            const cardClass =
-              `group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-2xl overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`;
-            const content = (
-              <>
-              {/* Background Image */}
-              <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
-                <PropertyImage
-                  src={prop.image}
-                  alt={`${prop.title}, ${prop.location}`}
-                  variant="card"
-                  sizes="(min-width: 768px) 25vw, 50vw"
-                />
-              </div>
-              {/* Whole card opens the item page (real items only); the cart button sits above it */}
-              {prop.href && (
-                <a href={prop.href} aria-label={`Ver ${prop.title}`} className="absolute inset-0 z-[5]" />
-              )}
-              {/* Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-              {/* Stock / sale badges */}
-              <div className={`absolute ${layout === 'two' ? 'top-14' : 'top-3'} left-3 md:top-5 md:left-5 z-10 flex flex-wrap gap-1.5`}>
-                {prop.inStock === false && (
-                  <span className={`bg-black/80 text-white ${layout === 'one' ? 'text-sm px-3 py-1.5' : 'text-[10px] px-2 py-1'} md:text-xs md:px-3 md:py-1 font-semibold rounded-full`}>Sin stock</span>
-                )}
-              </div>
-
-              {/* Quick order: adds the item and opens the cart to send it */}
-              <div className="absolute top-3 right-3 md:top-5 md:right-5 z-10 flex items-center gap-1.5">
-                {typeof prop.id === 'string' && <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8" />}
-                <button
-                  type="button"
-                  onClick={() => {
-                    addToCart(prop);
-                    setCartOpen(true);
-                  }}
-                  disabled={prop.inStock === false}
-                  aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Pedido rápido: ${prop.title}`}
-                  className={`${layout === 'one' ? 'h-10 px-4 text-sm' : 'h-8 px-3 text-[10px]'} md:h-8 md:px-3 md:text-xs rounded-full bg-[#2E7D32] text-white font-semibold whitespace-nowrap flex items-center justify-center shadow-sm hover:bg-[#256628] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed`}
-                >
-                  Pedido rápido
-                </button>
-              </div>
-
-              {/* Bottom Details: row 1 title, row 2 quantity + price */}
-              <div className="relative z-10 text-white pointer-events-none">
-                <h3 className={`${layout === 'one' ? 'text-2xl mb-3' : 'text-sm mb-2'} md:text-lg md:mb-3 font-semibold tracking-tight leading-tight`}>{prop.title}</h3>
-                <div className={`flex flex-wrap items-end justify-between gap-x-2 ${layout === 'one' ? 'text-lg' : 'text-xs'} md:text-base font-medium`}>
-                  <span className="text-white/80 truncate">{prop.stats ? prop.stats[1] : prop.area}</span>
-                  <span className="max-w-full font-semibold">
-                    {prop.salePrice ? (
-                      <>
-                        <s className="text-white/60 font-normal mr-1.5">{prop.price}</s>
-                        {prop.salePrice}
-                      </>
-                    ) : (
-                      prop.price
-                    )}
-                  </span>
-                </div>
-              </div>
-              </>
-            );
-            const soldOut = prop.inStock === false;
-            const Thumb = prop.href ? 'a' : 'div';
-            return (
-              <div key={prop.id}>
-                {/* Grid card: hidden on phones in list mode */}
-                <div className={layout === 'list' ? 'hidden md:block' : ''}>
-                  <div className={cardClass}>{content}</div>
-                </div>
-                {/* Compact list row: phones only */}
-                {layout === 'list' && (
-                  <div className="md:hidden flex items-center gap-3 rounded-2xl bg-white border border-[#000000]/5 p-2.5">
-                    <Thumb
-                      {...(prop.href ? { href: prop.href, 'aria-label': `Ver ${prop.title}` } : {})}
-                      className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-[#E5E5EA] ${soldOut ? 'opacity-50 grayscale' : ''}`}
-                    >
-                      <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
-                    </Thumb>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold leading-tight line-clamp-2">{prop.href ? <a href={prop.href}>{prop.title}</a> : prop.title}</p>
-                      <p className="text-xs text-[#515154] mt-0.5 truncate">{prop.stats ? prop.stats[1] : prop.area}</p>
-                      <p className="text-base font-semibold mt-1">
-                        {soldOut ? (
-                          <span className="text-xs font-semibold text-[#515154]">Sin stock</span>
-                        ) : prop.salePrice ? (
-                          <>
-                            <s className="text-[#86868B] font-normal mr-1.5">{prop.price}</s>
-                            {prop.salePrice}
-                          </>
-                        ) : (
-                          prop.price
-                        )}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      {typeof prop.id === 'string' && (
-                        <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8 border border-[#000000]/5" />
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          addToCart(prop);
-                          setCartOpen(true);
-                        }}
-                        disabled={soldOut}
-                        aria-label={soldOut ? `${prop.title} está sin stock` : `Pedido rápido: ${prop.title}`}
-                        className="h-8 px-3 rounded-full bg-[#2E7D32] text-white text-[10px] font-semibold whitespace-nowrap hover:bg-[#256628] active:scale-95 transition disabled:opacity-40"
-                      >
-                        Pedido rápido
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Grid footer: see all / advanced search / count */}
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 items-center gap-4 text-sm">
-          <Link
-            href="/items"
-            className="justify-self-center md:justify-self-start inline-flex items-center space-x-2 font-medium text-[#1D1D1F] hover:text-[#515154] transition-colors"
-          >
-            <span>Ver todos los artículos</span>
-            <ArrowUpRight className="w-4 h-4" />
-          </Link>
-          <nav aria-label="Paginación" className={`justify-self-center flex items-center gap-1 ${totalPages < 2 ? 'invisible' : ''}`}>
-            <button
-              type="button"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              aria-label="Página anterior"
-              className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] disabled:opacity-30 disabled:hover:bg-transparent"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            {pageItems.map((n, i) =>
-              n === 'gap' ? (
-                <span key={`gap-${i}`} aria-hidden="true" className="px-1 text-[#86868B]">…</span>
-              ) : (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => goToPage(n)}
-                  aria-label={`Página ${n}`}
-                  aria-current={n === currentPage ? 'page' : undefined}
-                  className={`w-9 h-9 rounded-full text-xs font-medium transition-colors ${
-                    n === currentPage ? 'bg-[#2E7D32] text-white' : 'hover:bg-[#F5F5F7]'
-                  }`}
-                >
-                  {n}
-                </button>
-              ),
-            )}
-            <button
-              type="button"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              aria-label="Página siguiente"
-              className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] disabled:opacity-30 disabled:hover:bg-transparent"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </nav>
-          <p className="justify-self-center md:justify-self-end text-xs text-[#515154]">
-            {filteredProperties.length === 0
-              ? 'Sin artículos'
-              : `Mostrando ${pageStart + 1}–${pageStart + visibleProperties.length} de ${filteredProperties.length} artículos`}
-          </p>
-        </div>
-      </section>
-
-      <InfoSections />
-
-      <SiteFooter />
+      <HomeSections />
 
     </div>
   );
