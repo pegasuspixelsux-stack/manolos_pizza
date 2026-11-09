@@ -51,9 +51,12 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   const [category, setCategory] = useState('all');
   // Footer links open the catalog already filtered: /items?category=<id>.
   useEffect(() => {
-    const c = new URLSearchParams(window.location.search).get('category');
+    const params = new URLSearchParams(window.location.search);
+    const c = params.get('category');
+    const q = params.get('q');
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial filter from the URL
     if (c) setCategory(c);
+    if (q) setQuery(q);
   }, []);
   const [availability, setAvailability] = useState<Availability>('all');
   const [minPrice, setMinPrice] = useState('');
