@@ -23,7 +23,7 @@ export default function HomeSwitch({ initialProperties }: { initialProperties: H
     <>
       {wide !== true && (
         <div className="md:hidden">
-          <CoverPage />
+          <CoverPage initialProperties={initialProperties} />
         </div>
       )}
       {wide !== false && (

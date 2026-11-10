@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import BrandName, { DEFAULT_LOGO } from '@/src/components/BrandName';
 import { useBusiness } from '@/src/context/BusinessContext';
 import HeroImageScroller from '@/src/components/HeroImageScroller';
-import HeroShowcase from '@/src/components/HeroShowcase';
+import ItemsShowcase from '@/src/components/ItemsShowcase';
+import type { HomeProperty } from '@/src/lib/homeData';
 import HomeSections from '@/src/components/HomeSections';
 import InstallButton from '@/src/components/InstallButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
@@ -55,7 +56,7 @@ function CountUp({ to, suffix = '', duration = 4000 }: { to: number; suffix?: st
 }
 
 /** Cover: a full-screen hero with the headline and the two entry buttons (working name, to be renamed). */
-export default function CoverPage() {
+export default function CoverPage({ initialProperties = [] }: { initialProperties?: HomeProperty[] }) {
   const { logo } = useBusiness();
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -105,7 +106,7 @@ export default function CoverPage() {
         <section className="relative flex-1 w-full max-w-[1440px] mx-auto overflow-hidden rounded-3xl border border-transparent bg-transparent text-white flex">
           <div className="relative w-full flex flex-col justify-center px-[10px] pt-0 pb-14 md:pb-16">
             <HeroImageScroller className="-mx-[10px] px-[10px] scroll-pl-[10px]" dotsClassName="mt-3 mb-3" />
-            <HeroShowcase />
+            <ItemsShowcase items={initialProperties} />
             <div className="h-4 md:h-6" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logo || DEFAULT_LOGO} alt="" aria-hidden="true" className="hidden md:block md:-mt-12 md:-mb-4 md:mx-0 h-48 w-48 md:h-[269px] md:w-[269px] max-w-full object-contain drop-shadow-lg" />
