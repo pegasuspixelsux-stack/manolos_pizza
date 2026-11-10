@@ -266,10 +266,6 @@ function Footer() {
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto mb-10 pt-8 border-t border-white/20">
-        <ContactMessageForm tone="dark" />
-      </div>
-
       <div className="max-w-[1440px] mx-auto pt-6 border-t border-white/20 text-xs text-white/60 font-light">
         <p>&copy; {new Date().getFullYear()} Manolo&apos;s Pizza. Todos los derechos reservados.</p>
       </div>
@@ -283,6 +279,20 @@ export default function HomeSections() {
     <div className="space-y-4 pb-0">
       <Nosotros />
       <Faq />
+      <section id="mensaje" className="px-[10px] max-w-[1440px] mx-auto scroll-mt-24 border-t border-white/20">
+        <div className="md:w-[80%] md:mx-auto py-14 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center">
+          <div className="space-y-3">
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">Escribinos</h2>
+            <p className="text-white/85 font-light leading-relaxed">
+              ¿Una consulta, un reclamo o una sugerencia? Tu mensaje le llega directo a la gerencia y te respondemos lo antes posible por WhatsApp o por correo.
+            </p>
+            <p className="text-white/70 text-sm font-light leading-relaxed">
+              Si tu mensaje es sobre un pedido, agregá el número que te dimos (por ejemplo MK-20261110-AB12) para que lo encontremos más rápido.
+            </p>
+          </div>
+          <ContactMessageForm tone="dark" wide hideIntro />
+        </div>
+      </section>
       <Footer />
     </div>
   );

@@ -8,7 +8,7 @@ import { sendMessage } from '@/src/services/messagesService';
  * "Escribinos": a message to the management from the site footer, on every screen size. It lands in the dashboard
  * (Mensajes), where a bell in the top bar alerts the managers. `tone` matches the footer it sits in.
  */
-export default function ContactMessageForm({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
+export default function ContactMessageForm({ tone = 'dark', wide = false, hideIntro = false }: { tone?: 'dark' | 'light'; wide?: boolean; hideIntro?: boolean }) {
   const [form, setForm] = useState({ name: '', contact: '', orderRef: '', text: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const dark = tone === 'dark';
@@ -32,11 +32,15 @@ export default function ContactMessageForm({ tone = 'dark' }: { tone?: 'dark' | 
   };
 
   return (
-    <form onSubmit={submit} className="space-y-3 w-full max-w-xl" aria-label="Enviar un mensaje a la gerencia">
-      <p className={`text-xs uppercase tracking-widest font-semibold ${dark ? 'text-white/60' : 'text-[#515154]'}`}>Escribinos</p>
-      <p className={`text-sm font-light ${dark ? 'text-white/85' : 'text-[#515154]'}`}>
-        ¿Una consulta, un reclamo o una sugerencia? Tu mensaje le llega directo a la gerencia.
-      </p>
+    <form onSubmit={submit} className={`space-y-3 w-full ${wide ? '' : 'max-w-xl'}`} aria-label="Enviar un mensaje a la gerencia">
+      {!hideIntro && (
+        <>
+        <p className={`text-xs uppercase tracking-widest font-semibold ${dark ? 'text-white/60' : 'text-[#515154]'}`}>Escribinos</p>
+        <p className={`text-sm font-light ${dark ? 'text-white/85' : 'text-[#515154]'}`}>
+          ¿Una consulta, un reclamo o una sugerencia? Tu mensaje le llega directo a la gerencia.
+        </p>
+        </>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <input className={field} placeholder="Tu nombre" aria-label="Tu nombre" required maxLength={120} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         <input className={field} placeholder="WhatsApp, teléfono o correo" aria-label="WhatsApp, teléfono o correo" required maxLength={200} value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
