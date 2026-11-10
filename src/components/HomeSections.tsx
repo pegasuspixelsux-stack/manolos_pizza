@@ -192,6 +192,7 @@ function Footer() {
             <li><Link href="/#vision" className={linkClass}>Nosotros</Link></li>
             <li><Link href="/#faq" className={linkClass}>Preguntas frecuentes</Link></li>
             <li><Link href="/privacidad" className={linkClass}>Política de privacidad</Link></li>
+            <li><Link href="/admin/login" className={linkClass}>Iniciar sesión</Link></li>
           </ul>
         </div>
       </div>
