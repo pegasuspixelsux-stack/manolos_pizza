@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { needsOptions } from '@/src/data/pizzaMenu';
-import { ArrowUpRight, LayoutGrid, List, Plus, Square } from 'lucide-react';
+import { needsOptions, productForTitle } from '@/src/data/pizzaMenu';
+import { pizzaSelection } from '@/src/utils/pizzaPricing';
+import { ArrowUpRight, LayoutGrid, List, Minus, Plus, Square } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
-import { typeLabels } from '@/src/utils/format';
+import { formatMoney, typeLabels } from '@/src/utils/format';
 import { useCart } from '@/src/context/CartContext';
 import PropertyImage from '@/src/components/PropertyImage';
 
@@ -78,13 +79,39 @@ export default function ItemsShowcase({
   const nextCount = Math.min(PAGE_SIZE, remaining);
 
   const router = useRouter();
+  // Quantity chosen on each card (default 1); the "+" button adds that many.
+  const [qtys, setQtys] = useState<Record<string, number>>({});
+  const qtyOf = (prop: HomeProperty) => qtys[String(prop.id)] ?? 1;
+  const bump = (prop: HomeProperty, delta: number) =>
+    setQtys((q) => ({ ...q, [String(prop.id)]: Math.min(99, Math.max(1, (q[String(prop.id)] ?? 1) + delta)) }));
+  /** "$ 150 /unidad" -> "$ 150": on the cards the unit lives in the quantity selector, not in the price. */
+  const plainPrice = (price: string) => price.replace(/\s*\/\s*unidad$/i, '');
+  // Pizzas por metro are sold by size (¼, ½, ¾, 1 metro), not by unit: each card has its own size selector.
+  const [sizes, setSizes] = useState<Record<string, string>>({});
+  const sizeOf = (prop: HomeProperty) => {
+    const product = productForTitle(prop.title);
+    return product?.sizes?.find((z) => z.id === sizes[String(prop.id)]) ?? product?.sizes?.[0];
+  };
   const quickOrder = (prop: HomeProperty) => {
     // Pizzas por metro, masa madre and empanadas need a size / gusto / flavor first: open the item page.
+    const product = productForTitle(prop.title);
+    const size = sizeOf(prop);
+    // A pizza por metro without a gusto to choose goes straight in with the size picked on the card.
+    if (size && !product?.includedToppings && !product?.flavors) {
+      addToCart(
+        { ...prop, price: formatMoney(size.price), salePrice: undefined, unitPrice: size.price, listPrice: size.price, pricingMode: 'por_unidad' },
+        1,
+        pizzaSelection(size, []),
+      );
+      setCartOpen(true);
+      return;
+    }
     if (prop.href && needsOptions(prop.title)) {
       router.push(prop.href);
       return;
     }
-    addToCart(prop);
+    addToCart(prop, qtyOf(prop));
+    setQtys((q) => ({ ...q, [String(prop.id)]: 1 }));
     setCartOpen(true);
   };
 
@@ -220,16 +247,45 @@ export default function ItemsShowcase({
 
               <div className="relative z-10 text-white pointer-events-none">
                 <h3 className={`${layout === 'one' ? 'text-2xl mb-3' : 'text-sm mb-2'} md:text-lg md:mb-3 font-semibold tracking-tight leading-tight`}>{prop.title}</h3>
-                <div className={`flex flex-wrap items-end justify-between gap-x-2 ${layout === 'one' ? 'text-lg' : 'text-xs'} md:text-base font-medium`}>
-                  <span className="text-white/80 truncate">{prop.stats ? prop.stats[1] : prop.area}</span>
-                  <span className="max-w-full font-semibold">
-                    {prop.salePrice ? (
+                <div className={`flex flex-nowrap items-center justify-between gap-2 ${layout === 'one' ? 'text-lg' : 'text-xs'} md:text-base font-medium`}>
+                  {prop.inStock === false ? (
+                    <span />
+                  ) : sizeOf(prop) ? (
+                    <select
+                      value={sizeOf(prop)!.id}
+                      onChange={(e) => setSizes((z) => ({ ...z, [String(prop.id)]: e.target.value }))}
+                      aria-label={`Tamaño de ${prop.title}`}
+                      className="pointer-events-auto relative z-20 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[11px] md:text-xs font-medium px-2.5 py-1.5 outline-none cursor-pointer [&>option]:text-[#1D1D1F]"
+                    >
+                      {productForTitle(prop.title)!.sizes!.map((z) => (
+                        <option key={z.id} value={z.id}>
+                          {z.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : needsOptions(prop.title) ? (
+                    <span />
+                  ) : (
+                    <span className="pointer-events-auto relative z-20 inline-flex items-center gap-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 p-0.5" role="group" aria-label={`Cantidad de ${prop.title}`}>
+                      <button type="button" onClick={() => bump(prop, -1)} disabled={qtyOf(prop) <= 1} aria-label="Menos" className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-white/25 disabled:opacity-40">
+                        <Minus className="w-3 h-3" aria-hidden="true" />
+                      </button>
+                      <span className="px-1 text-[11px] md:text-xs font-medium tabular-nums whitespace-nowrap" aria-live="polite">{qtyOf(prop)}</span>
+                      <button type="button" onClick={() => bump(prop, 1)} aria-label="Más" className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-white/25">
+                        <Plus className="w-3 h-3" aria-hidden="true" />
+                      </button>
+                    </span>
+                  )}
+                  <span className="shrink-0 whitespace-nowrap font-semibold">
+                    {sizeOf(prop) ? (
+                      formatMoney(sizeOf(prop)!.price)
+                    ) : prop.salePrice ? (
                       <>
-                        <s className="text-white/60 font-normal mr-1.5">{prop.price}</s>
-                        {prop.salePrice}
+                        <s className="text-white/60 font-normal mr-1.5">{plainPrice(prop.price)}</s>
+                        {plainPrice(prop.salePrice)}
                       </>
                     ) : (
-                      prop.price
+                      plainPrice(prop.price)
                     )}
                   </span>
                 </div>

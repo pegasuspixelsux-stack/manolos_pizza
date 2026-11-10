@@ -66,10 +66,12 @@ export function quantityLabel(qty: number, mode: PricingMode = 'por_kilo'): stri
 export const quantityNounPlural = (mode: PricingMode = 'por_kilo') => quantityNouns[mode][1].toLowerCase();
 
 /** "$ 180" + mode -> "$ 180 / kg". */
-export const withUnitSuffix = (formatted: string, mode: PricingMode = 'por_kilo') => `${formatted} ${priceSuffix[mode]}`;
+export const withUnitSuffix = (formatted: string, mode: PricingMode = 'por_kilo') =>
+  mode === 'por_unidad' ? formatted : `${formatted} ${priceSuffix[mode]}`; // per unit is the default: no suffix
 
 /** A price with its unit in order text: "$ 54/caja". */
-export const priceWithShortUnit = (amount: number, mode: PricingMode = 'por_kilo') => `${formatMoney(amount)}${priceSuffixShort[mode]}`;
+export const priceWithShortUnit = (amount: number, mode: PricingMode = 'por_kilo') =>
+  `${formatMoney(amount)}${mode === 'por_unidad' ? '' : priceSuffixShort[mode]}`;
 
 /** Just the suffix, e.g. "/ kg" (form labels). */
 export const pricingSuffix = (mode: PricingMode = 'por_kilo') => priceSuffix[mode];
