@@ -136,9 +136,10 @@ function Nosotros() {
         <div className="aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 flex items-center justify-center text-white/70 md:w-[75%] md:mx-auto md:order-last order-last">
           <ImageIcon className="w-14 h-14" aria-hidden="true" />
         </div>
-        <div className="space-y-4 md:self-center md:w-[60%] md:mx-auto">
+        <div className="space-y-4 md:self-center md:w-[85%] lg:w-[60%] md:mx-auto">
           <p className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">
-            Quiénes somos: la auténtica pizza por metro en Maldonado.
+            <span className="md:max-lg:hidden">Quiénes somos: la auténtica pizza por metro en Maldonado.</span>
+            <span className="hidden md:max-lg:inline">La auténtica pizza por metro en Maldonado.</span>
           </p>
           <p className="text-white/85 font-light leading-relaxed">
             Somos una pizzería familiar con una idea simple: que la pizza se comparta. Por eso hacemos la pizza por
@@ -146,11 +147,16 @@ function Nosotros() {
             charlar.
           </p>
           <p className="text-white/85 font-light leading-relaxed">
-            Trabajamos con masa de fermentación lenta, salsa casera de tomates frescos, mozzarella de primera y los
-            mejores ingredientes, todo preparado en el día. Cada pedido se arma al momento, con el mismo cuidado que
-            si fuera para nuestra propia mesa.
+            <span className="md:max-lg:hidden">
+              Trabajamos con masa de fermentación lenta, salsa casera de tomates frescos, mozzarella de primera y los
+              mejores ingredientes, todo preparado en el día. Cada pedido se arma al momento, con el mismo cuidado que
+              si fuera para nuestra propia mesa.
+            </span>
+            <span className="hidden md:max-lg:inline">
+              Masa de fermentación lenta, salsa casera de tomates frescos y mozzarella de primera, todo preparado en el día.
+            </span>
           </p>
-          <p className="text-white/85 font-light leading-relaxed">
+          <p className="text-white/85 font-light leading-relaxed md:max-lg:hidden">
             Podés venir a disfrutarla o pedirla directo a tu casa en Maldonado: elegís los sabores, nos escribís
             por WhatsApp y nosotros nos encargamos del resto.
           </p>

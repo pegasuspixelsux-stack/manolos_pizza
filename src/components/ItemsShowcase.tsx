@@ -20,8 +20,8 @@ const LAYOUTS = [
 ] as const;
 
 const gridClass: Record<Exclude<Layout, 'list'>, string> = {
-  one: 'grid-cols-1 md:grid-cols-2',
-  two: 'grid-cols-2 md:grid-cols-4',
+  one: 'grid-cols-1 md:grid-cols-3 xl:grid-cols-4',
+  two: 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4',
 };
 
 /**
