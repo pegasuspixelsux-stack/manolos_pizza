@@ -6,6 +6,7 @@ import type { HomeProperty } from '@/src/lib/homeData';
 import type { PropertyType } from '@/src/types/firestore';
 import { typeLabels } from '@/src/utils/format';
 import HomeSections from '@/src/components/HomeSections';
+import InstallButton from '@/src/components/InstallButton';
 import HeroImageScroller from '@/src/components/HeroImageScroller';
 import HeroShowcase from '@/src/components/HeroShowcase';
 import PropertyImage from '@/src/components/PropertyImage';
@@ -236,7 +237,7 @@ export default function MerkadoHome({
           <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
         </div>
         <div className="max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
-          <span className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName /></span>
+          <span className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName hideLogoOnMobile /></span>
           <SiteNavLinks light />
           <div className="flex items-center gap-1">
           <form
@@ -260,6 +261,7 @@ export default function MerkadoHome({
               className="w-full h-10 rounded-full bg-transparent border border-white/50 text-white placeholder:text-white/70 text-sm pl-10 pr-3 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
             />
           </form>
+          <InstallButton />
           <CartButton />
           <MobileNavMenu />
           </div>

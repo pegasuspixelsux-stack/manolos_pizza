@@ -1,7 +1,7 @@
 import { getActiveProperties, getCategories } from '../services/dbService';
 import type { PricingMode, Property, PropertyType } from '../types/firestore';
 import { formatMoney, formatQuantity, mergeCategories, operationLabels, withUnitSuffix } from '../utils/format';
-import { ikUrl } from '../utils/imagekit';
+import { cldUrl } from '../utils/cloudinary';
 
 export type HeroSlide = {
   id: number | string;
@@ -69,7 +69,7 @@ function toSlide(p: Property, label: (t: string) => string): HeroSlide {
     location: place(p),
     price: withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode),
     tagline,
-    image: ikUrl(p.photos[0]?.url ?? '', 'w-2000,q-80,f-auto'),
+    image: cldUrl(p.photos[0]?.url ?? '', 'w_2000,q_80,f_auto'),
   };
 }
 

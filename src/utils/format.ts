@@ -100,17 +100,8 @@ export const operationLabels: Record<PropertyOperation, string> = {
   seasonal: 'Temporada',
 };
 
-export const typeLabels: Record<string, string> = {
-  fruit: 'Frutas',
-  vegetable: 'Verduras',
-  leafy: 'Hojas verdes',
-  tropical: 'Tropicales',
-  'melones-y-sandias': 'Melones y Sandías',
-  'aromaticas-y-hierbas': 'Aromáticas y Hierbas',
-  hongos: 'Hongos',
-  'tuberculos-y-raices': 'Tubérculos y Raíces',
-  'otros-vegetales': 'Otros vegetales',
-};
+/** Built-in categories: none. The menu categories live in the database (categories/{id}); see src/data/pizzaMenu.ts. */
+export const typeLabels: Record<string, string> = {};
 
 /** Lower-case, no accents, letters and digits only: "Hojas verdes" -> "hojasverdes". */
 const normName = (v: string) =>

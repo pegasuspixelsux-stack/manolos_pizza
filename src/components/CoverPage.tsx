@@ -8,6 +8,7 @@ import { useBusiness } from '@/src/context/BusinessContext';
 import HeroImageScroller from '@/src/components/HeroImageScroller';
 import HeroShowcase from '@/src/components/HeroShowcase';
 import HomeSections from '@/src/components/HomeSections';
+import InstallButton from '@/src/components/InstallButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
 import { Search } from 'lucide-react';
@@ -72,7 +73,7 @@ export default function CoverPage() {
     <div className="min-h-svh bg-[#7A1414] text-white font-sans antialiased flex flex-col">
       <header className="sticky top-0 z-50 bg-[#7A1414] text-white">
         <div className="max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName /></Link>
+          <Link href="/" className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName hideLogoOnMobile /></Link>
           <SiteNavLinks light />
           <div className="flex items-center gap-3">
             <form
@@ -94,6 +95,7 @@ export default function CoverPage() {
                 className="w-full h-10 rounded-full bg-transparent border border-white/50 text-white placeholder:text-white/70 text-sm pl-10 pr-3 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
               />
             </form>
+            <InstallButton />
             <MobileNavMenu />
           </div>
         </div>

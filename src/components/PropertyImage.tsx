@@ -1,9 +1,8 @@
 'use client';
 
 import NextImage from 'next/image';
-import { Image as IKImage } from '@imagekit/next';
-
-const URL_ENDPOINT = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT ?? '';
+import { CldImage } from 'next-cloudinary';
+import { isCloudinaryUrl } from '@/src/utils/cloudinary';
 
 /** Ready-made sizes: thumbnails, cards and full-width gallery images. */
 const PRESETS = {
@@ -15,7 +14,7 @@ const PRESETS = {
 export type PropertyImageVariant = keyof typeof PRESETS;
 
 interface PropertyImageProps {
-  /** ImageKit URL (or path) of the photo. Photos hosted elsewhere are shown unoptimized. */
+  /** Cloudinary URL of the photo. Photos hosted elsewhere (samples, old ImageKit uploads) are shown unoptimized. */
   src: string;
   alt: string;
   variant?: PropertyImageVariant;
@@ -28,8 +27,8 @@ interface PropertyImageProps {
 }
 
 /**
- * Property photo with ImageKit delivery: resized to the variant's width, quality-tuned and
- * served as WebP/AVIF automatically (format "auto"), with a responsive srcset.
+ * Property photo with Cloudinary delivery: resized to the variant's width, quality-tuned and
+ * served as WebP/AVIF automatically (f_auto), with a responsive srcset.
  */
 export default function PropertyImage({
   src,
@@ -42,11 +41,8 @@ export default function PropertyImage({
 }: PropertyImageProps) {
   if (!src) return null;
 
-  const isImageKit =
-    src.startsWith('/') || (URL_ENDPOINT !== '' && src.startsWith(URL_ENDPOINT));
-
-  if (!isImageKit) {
-    // Not on ImageKit (e.g. the Unsplash sample photos): show it as-is.
+  if (!isCloudinaryUrl(src)) {
+    // Not on Cloudinary (e.g. the Unsplash sample photos, or photos still on ImageKit): show it as-is.
     return (
       <NextImage
         src={src}
@@ -62,14 +58,14 @@ export default function PropertyImage({
 
   const { width, quality } = PRESETS[variant];
   return (
-    <IKImage
-      urlEndpoint={URL_ENDPOINT}
+    <CldImage
       src={src}
       alt={alt}
-      fill={fill}
+      {...(fill ? { fill: true } : { width, height: width })}
       sizes={sizes}
       priority={priority}
-      transformation={[{ width, quality, format: 'auto' }]}
+      quality={quality}
+      format="auto"
       className={className}
     />
   );

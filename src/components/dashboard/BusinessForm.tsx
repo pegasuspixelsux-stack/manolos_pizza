@@ -76,7 +76,7 @@ export default function BusinessForm() {
             <img src={form.logo || DEFAULT_LOGO} alt="Logo actual" className="h-14 w-14 object-contain" />
           </span>
           <div className="min-w-0 flex-1 space-y-2">
-            {canEdit && <ImageUpload folder="/Merkado-v2/branding" onUploaded={({ url }) => set('logo', url)} onError={(text) => setMessage({ ok: false, text })} />}
+            {canEdit && <ImageUpload folder="manolos_pizza/branding" onUploaded={({ url }) => set('logo', url)} onError={(text) => setMessage({ ok: false, text })} />}
             {canEdit && form.logo && (
               <button type="button" onClick={() => set('logo', '')} className="text-xs underline underline-offset-2 text-[#515154] hover:text-[#1D1D1F]">
                 Quitar y usar el logo de Merkado
@@ -109,7 +109,7 @@ export default function BusinessForm() {
           </ul>
         )}
         {canEdit && form.heroImages.length < MAX_HERO_IMAGES && (
-          <ImageUpload multiple folder="/Merkado-v2/hero_images" onUploaded={({ url }) => addHeroImage(url)} onError={(text) => setMessage({ ok: false, text })} />
+          <ImageUpload multiple folder="manolos_pizza/hero_images" onUploaded={({ url }) => addHeroImage(url)} onError={(text) => setMessage({ ok: false, text })} />
         )}
         <p className="text-xs text-[#86868B] mt-1.5">
           Cuadradas, hasta {MAX_HERO_IMAGES}. Se ven en el carrusel arriba de la portada, en el orden en que se subieron. Si no hay ninguna se muestran recuadros vacíos.

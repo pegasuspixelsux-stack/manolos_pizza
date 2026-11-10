@@ -42,7 +42,7 @@ export interface Agent {
 
 /**
  * Product category id (slug). The field keeps its old name, `type`, in Firestore.
- * Built-in ids: fruit, vegetable, leafy, tropical, melones-y-sandias, aromaticas-y-hierbas, hongos, tuberculos-y-raices, otros-vegetales; more are added in the dashboard (categories/{id}).
+ * Categories are stored in categories/{id} (the slug is the id); the menu ones are in src/data/pizzaMenu.ts.
  */
 export type PropertyType = string;
 
@@ -77,9 +77,9 @@ export interface PropertySpecs {
 }
 
 export interface PropertyPhoto {
-  /** Public ImageKit URL. */
+  /** Public Cloudinary URL. */
   url: string;
-  /** ImageKit file id, needed to delete or replace the file later. */
+  /** Cloudinary public_id, needed to delete or replace the file later. */
   fileId?: string;
 }
 

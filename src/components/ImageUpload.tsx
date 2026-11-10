@@ -1,28 +1,28 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import {
-  upload,
-  ImageKitAbortError,
-  ImageKitInvalidRequestError,
-  ImageKitServerError,
-  ImageKitUploadNetworkError,
-} from '@imagekit/next';
 import { ImagePlus, Loader2 } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { compressImageToWebP } from '../utils/imageCompressor';
 
 export interface UploadedImage {
-  /** Public ImageKit URL of the uploaded asset. */
+  /** Public Cloudinary URL of the uploaded asset. */
   url: string;
-  /** ImageKit file id: store it alongside the URL to delete or replace the file later. */
+  /** Cloudinary public_id: store it alongside the URL to delete or replace the file later. */
   fileId: string;
+}
+
+/** Upload failure with a flag telling whether retrying makes sense (Cloudinary 5xx / network). */
+class UploadError extends Error {
+  constructor(message: string, readonly transient = false) {
+    super(message);
+  }
 }
 
 interface ImageUploadProps {
   /** Called once per successfully uploaded file. Save the result to Firestore here. */
   onUploaded: (image: UploadedImage) => void;
-  /** ImageKit folder for the uploads. Default: /Merkado-v2 */
+  /** Cloudinary folder for the uploads. Default: manolos_pizza */
   folder?: string;
   /** Allow picking several files at once. Default: false */
   multiple?: boolean;
@@ -31,10 +31,10 @@ interface ImageUploadProps {
   className?: string;
 }
 
-async function getAuthParams() {
+async function getAuthParams(folder: string) {
   const user = auth?.currentUser;
   if (!user) throw new Error('Tenés que iniciar sesión para subir imágenes.');
-  const res = await fetch('/api/upload-auth', {
+  const res = await fetch(`/api/upload-auth?folder=${encodeURIComponent(folder)}`, {
     headers: { Authorization: `Bearer ${await user.getIdToken()}` },
   });
   if (!res.ok) {
@@ -42,28 +42,59 @@ async function getAuthParams() {
     throw new Error(error || 'No se pudo obtener el permiso de subida.');
   }
   return (await res.json()) as {
-    token: string;
-    expire: number;
     signature: string;
-    publicKey: string;
+    timestamp: number;
+    folder: string;
+    apiKey: string;
+    cloudName: string;
   };
 }
 
+/** Signed upload straight from the browser to Cloudinary (with progress). */
+function uploadToCloudinary(
+  file: File,
+  p: Awaited<ReturnType<typeof getAuthParams>>,
+  onProgress: (percent: number) => void,
+): Promise<{ url: string; fileId: string }> {
+  return new Promise((resolve, reject) => {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('api_key', p.apiKey);
+    form.append('timestamp', String(p.timestamp));
+    form.append('signature', p.signature);
+    form.append('folder', p.folder);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${p.cloudName}/image/upload`);
+    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(Math.round((e.loaded / e.total) * 100));
+    xhr.onerror = () => reject(new UploadError('Error de red al subir la imagen.', true));
+    xhr.onabort = () => reject(new UploadError('Subida cancelada.'));
+    xhr.onload = () => {
+      let body: { secure_url?: string; public_id?: string; error?: { message?: string } } = {};
+      try {
+        body = JSON.parse(xhr.responseText);
+      } catch {
+        /* non-JSON error page */
+      }
+      if (xhr.status >= 200 && xhr.status < 300 && body.secure_url && body.public_id) {
+        resolve({ url: body.secure_url, fileId: body.public_id });
+      } else if (xhr.status >= 500) {
+        reject(new UploadError('El servicio de imágenes no responde. Probá de nuevo en unos minutos.', true));
+      } else {
+        reject(new UploadError(body.error?.message || 'Cloudinary rechazó la subida.'));
+      }
+    };
+    xhr.send(form);
+  });
+}
+
 function describeError(err: unknown): string {
-  if (err instanceof ImageKitAbortError) return 'Subida cancelada.';
-  if (err instanceof ImageKitServerError) {
-    return 'El servicio de imágenes no responde. Probá de nuevo en unos minutos.';
-  }
-  if (err instanceof ImageKitInvalidRequestError) {
-    return err.message || 'ImageKit rechazó la subida.';
-  }
-  if (err instanceof ImageKitUploadNetworkError) return 'Error de red al subir la imagen.';
   return err instanceof Error ? err.message : 'No se pudo subir la imagen.';
 }
 
 export default function ImageUpload({
   onUploaded,
-  folder = '/Merkado-v2',
+  folder = 'manolos_pizza',
   multiple = false,
   onError,
   className = '',
@@ -80,27 +111,15 @@ export default function ImageUpload({
     onError?.(message);
   };
 
-  // Retries transient failures (ImageKit 5xx / network). Auth params are single-use,
-  // so each attempt fetches fresh ones.
+  // Retries transient failures (Cloudinary 5xx / network). Each attempt fetches a fresh signature.
   const uploadWithRetry = async (file: File) => {
     const MAX_RETRIES = 2;
     for (let attempt = 0; ; attempt++) {
       try {
-        const { token, expire, signature, publicKey } = await getAuthParams();
-        return await upload({
-          file,
-          fileName: file.name,
-          folder,
-          useUniqueFileName: true,
-          token,
-          expire,
-          signature,
-          publicKey,
-          onProgress: (e) => setProgress(Math.round((e.loaded / e.total) * 100)),
-        });
+        const params = await getAuthParams(folder);
+        return await uploadToCloudinary(file, params, setProgress);
       } catch (err) {
-        const transient =
-          err instanceof ImageKitServerError || err instanceof ImageKitUploadNetworkError;
+        const transient = err instanceof UploadError && err.transient;
         if (!transient || attempt >= MAX_RETRIES) throw err;
         setProgress(0);
         setStatus(`Reintentando (${attempt + 1}/${MAX_RETRIES})…`);
@@ -127,7 +146,6 @@ export default function ImageUpload({
 
         setStatus(`${prefix}Subiendo…`);
         const result = await uploadWithRetry(file);
-        if (!result.url || !result.fileId) throw new Error('ImageKit no devolvió una URL.');
         onUploaded({ url: result.url, fileId: result.fileId });
       }
     } catch (err) {

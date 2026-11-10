@@ -24,6 +24,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { sampleProperties } from '../data/sampleProperties';
+import { menuCategories } from '../data/pizzaMenu';
 import { USD_TO_UYU } from '../utils/format';
 import { DELIVERY_AREAS, PRICING_MODES } from '../types/firestore';
 import type {
@@ -158,6 +159,10 @@ export async function seedSampleProperties(
 ): Promise<number> {
   const firestore = requireDb();
   const batch = writeBatch(firestore);
+  // The menu categories (categories/{slug}); setting them again is harmless.
+  for (const c of menuCategories) {
+    batch.set(doc(firestore, CATEGORIES, c.id), { name: c.name, createdAt: serverTimestamp() });
+  }
   for (const [index, sample] of sampleProperties.entries()) {
     batch.set(doc(collection(firestore, PROPERTIES)), {
       ...clean(sample),

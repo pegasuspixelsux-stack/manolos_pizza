@@ -156,7 +156,7 @@ function PropertiesContent() {
         <div className={`${cardClass} p-10 text-center`}>
           <p className="text-sm text-[#515154]">
             {items.length === 0
-              ? 'Todavía no hay artículos. Agregá el primero o empezá con los nueve artículos de muestra del sitio.'
+              ? "Todavía no hay artículos. Agregá el primero o cargá el menú de Manolo's Pizza (categorías y artículos) con un clic."
               : 'Ningún artículo coincide con estos filtros.'}
           </p>
           {items.length === 0 && (
@@ -165,7 +165,7 @@ function PropertiesContent() {
               disabled={importing}
               className="mt-5 bg-[#1D1D1F] text-white text-xs font-medium px-6 py-3 rounded-full hover:bg-[#333336] transition-all disabled:opacity-50"
             >
-              {importing ? 'Importando…' : 'Importar artículos de muestra'}
+              {importing ? 'Importando…' : "Cargar el menú de Manolo's Pizza"}
             </button>
           )}
         </div>

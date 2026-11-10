@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import CatalogPage from '@/src/components/CatalogPage';
 import { loadHomeData, type HomeProperty } from '@/src/lib/homeData';
 import { sampleProperties } from '@/src/data/sampleProperties';
-import { formatMoney, formatQuantity, typeLabels, withUnitSuffix } from '@/src/utils/format';
+import { formatMoney, formatQuantity, withUnitSuffix } from '@/src/utils/format';
+import { categoryName } from '@/src/data/pizzaMenu';
 
 export const metadata: Metadata = {
   title: 'Catálogo Mayorista | Merkado',
@@ -28,7 +29,7 @@ const samples: HomeProperty[] = sampleProperties.map((p, i) => ({
   image: p.photos[0]?.url ?? '',
   href: `/items/sample-${i + 1}`,
   type: p.type,
-  typeLabel: typeLabels[p.type as string] ?? p.type,
+  typeLabel: categoryName(p.type as string),
   inStock: p.inStock !== false,
   featured: i < 6,
 }));

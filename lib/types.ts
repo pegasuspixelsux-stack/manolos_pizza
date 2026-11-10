@@ -7,7 +7,7 @@ export type Listing = {
   baths: number;
   sqft: number;
   image: string;
-  /** ImageKit file id of the uploaded photo (empty for pasted URLs). */
+  /** Cloudinary public_id of the uploaded photo (empty for pasted URLs). */
   imageFileId: string;
   description: string;
   published: boolean;

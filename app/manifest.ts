@@ -1,15 +1,15 @@
 import type { MetadataRoute } from 'next';
 
-// Lets browsers install the site as an app / desktop shortcut with the Merkado icon.
+// Lets browsers install the site as an app (standalone window, no browser UI) with the home-screen icon.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Merkado para Mayoristas',
-    short_name: 'Merkado',
-    description: 'Distribuidor hortifrutícola para la gastronomía de Punta del Este.',
+    name: "Manolo's Pizza",
+    short_name: "Manolo's",
+    description: 'La auténtica pizza por metro en Punta del Este.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#FBFBFD',
-    theme_color: '#2E7D32',
+    background_color: '#7A1414',
+    theme_color: '#7A1414',
     icons: [
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
