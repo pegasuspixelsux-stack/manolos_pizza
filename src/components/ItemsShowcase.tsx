@@ -131,7 +131,7 @@ export default function ItemsShowcase({
         </div>
         <Link
           href="/items"
-          className="hidden md:inline-flex shrink-0 items-center gap-2 rounded-full bg-white text-[#7A1414] px-4 py-2 text-xs font-semibold hover:bg-white/90 transition-colors"
+          className="hidden md:inline-flex shrink-0 items-center gap-2 rounded-full bg-white text-[#480A0A] px-4 py-2 text-xs font-semibold hover:bg-white/90 transition-colors"
         >
           Ver todo el menú
           <ArrowUpRight className="w-4 h-4" />

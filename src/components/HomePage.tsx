@@ -17,10 +17,10 @@ export default function MerkadoHome({ initialProperties = [] }: { initialPropert
   const [query, setQuery] = useState('');
 
   return (
-    <div className="min-h-screen bg-[#7A1414] text-white selection:bg-white selection:text-[#7A1414] font-sans antialiased">
+    <div className="min-h-screen bg-[#480A0A] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
 
       {/* --- NAVIGATION --- */}
-      <header className="sticky top-0 z-50 bg-[#7A1414] text-white">
+      <header className="sticky top-0 z-50 bg-[#480A0A] text-white">
         <div className="bg-[#2E7D32] text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
           <span className="md:hidden">Precios de mercado válidos por el día</span>
           <span className="hidden md:inline lg:hidden">Precios de mercado válidos por el día. Pueden cambiar en pedidos para el día siguiente.</span>
@@ -58,7 +58,7 @@ export default function MerkadoHome({ initialProperties = [] }: { initialPropert
       </header>
 
       {/* --- HERO: one fixed unit (no carousel) --- */}
-      <div className="bg-[#7A1414] pb-6 md:pb-8">
+      <div className="bg-[#480A0A] pb-6 md:pb-8">
 
       <div className="max-w-[1440px] mx-auto px-0 pt-0">
         <section className="relative w-full bg-transparent text-white">

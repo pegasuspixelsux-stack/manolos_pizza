@@ -117,7 +117,7 @@ export default function InstallButton({ className = '' }: { className?: string }
             <ol className="mt-5 space-y-4">
               {STEPS.map(({ Icon, text }, i) => (
                 <li key={text} className="flex items-start gap-3">
-                  <span className="shrink-0 w-10 h-10 rounded-xl bg-[#F5F5F7] flex items-center justify-center text-[#7A1414]">
+                  <span className="shrink-0 w-10 h-10 rounded-xl bg-[#F5F5F7] flex items-center justify-center text-[#480A0A]">
                     <Icon className="w-5 h-5" aria-hidden="true" />
                   </span>
                   <p className="text-sm leading-snug pt-0.5">

@@ -19,7 +19,7 @@ export default function PizzaImageUploader({ className = '' }: { className?: str
       uploadPreset="manolos_pizza_preset"
       options={{ folder: 'manolos_pizza', multiple: true, sources: ['local', 'camera'] }}
       onSuccess={() => router.refresh()} // reload the gallery (server component) with the new photo
-      className={`inline-flex items-center justify-center gap-2 rounded-full bg-white text-[#7A1414] px-5 py-2.5 text-sm font-semibold hover:bg-white/90 active:scale-95 transition-all ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-full bg-white text-[#480A0A] px-5 py-2.5 text-sm font-semibold hover:bg-white/90 active:scale-95 transition-all ${className}`}
     >
       <ImagePlus className="w-4 h-4" aria-hidden="true" />
       <span>Subir fotos al menú</span>

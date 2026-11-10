@@ -217,7 +217,7 @@ function Footer() {
   const hours = business.hours || FALLBACK.hours;
   const wa = business.whatsapp ? whatsappUrl(business.whatsapp, 'Hola, quiero pedir pizza por metro.') : null;
   return (
-    <footer id="contact" className="bg-[#5A0B0B] text-white/85 px-[10px] pt-12 pb-8 mt-4 scroll-mt-24">
+    <footer id="contact" className="bg-[#2E0505] text-white/85 px-[10px] pt-12 pb-8 mt-4 scroll-mt-24">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
         <div className="space-y-4">
           <span className="text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName /></span>

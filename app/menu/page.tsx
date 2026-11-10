@@ -18,7 +18,7 @@ export const revalidate = 300;
 export default async function MenuPage() {
   const images = await getPizzaFolderImages();
   return (
-    <main className="min-h-svh bg-[#7A1414] text-white px-[10px] py-6">
+    <main className="min-h-svh bg-[#480A0A] text-white px-[10px] py-6">
       <div className="max-w-[1440px] mx-auto">
         <Link href="/" className="inline-flex items-center gap-2 text-sm text-white/85 hover:text-white">
           <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Inicio
