@@ -94,7 +94,7 @@ export default function AdminLoginPage() {
         <div aria-hidden="true" className="hidden md:landscape:block" />
 
         <div className="bg-black/50 flex items-center justify-center px-6 py-24">
-          <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+          <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl rounded-[12px] p-8 shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
             <p className="text-xs uppercase tracking-widest text-white/60 font-semibold mb-2">Merkado.</p>
             <h1 className="text-2xl font-semibold tracking-tight mb-1">Iniciar sesión</h1>
             <p className="text-sm text-white/70 font-light mb-8">Administrá artículos, pedidos y usuarios.</p>

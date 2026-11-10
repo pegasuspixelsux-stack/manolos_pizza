@@ -5,7 +5,7 @@ import { statusLabels } from '../../utils/format';
 export const inputClass =
   'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors';
 export const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2';
-export const cardClass = 'bg-white rounded-2xl border border-[#000000]/5 shadow-sm';
+export const cardClass = 'bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)]';
 
 export function PageHeader({
   eyebrow,

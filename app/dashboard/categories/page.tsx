@@ -93,7 +93,7 @@ export default function CategoriesPage() {
             <div key={c.id} className={`${cardClass} group relative p-5 md:p-6 flex flex-col justify-between min-h-36`}>
               <Link
                 href={`/dashboard/properties?category=${c.id}`}
-                className="absolute inset-0 rounded-2xl"
+                className="absolute inset-0 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)]"
                 aria-label={`Ver artículos de ${c.name}`}
               />
               <div className="flex items-start justify-between gap-2">

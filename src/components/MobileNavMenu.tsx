@@ -43,7 +43,7 @@ export default function MobileNavMenu({ glass }: { glass?: boolean } = {}) {
       {open && (
         <nav
           aria-label="Menú principal"
-          className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white border border-[#000000]/5 shadow-lg py-2 z-50"
+          className="absolute right-0 top-full mt-2 w-56 rounded-[12px] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.35)] py-2 z-50"
         >
           {[{ href: '/', label: 'Inicio' }, ...navLinks, { href: '/dashboard', label: 'Administración' }].map((l) => (
             <Link key={l.label} href={l.href} onClick={() => setOpen(false)} className={linkClass}>

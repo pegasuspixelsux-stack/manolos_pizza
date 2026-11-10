@@ -208,7 +208,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             e.preventDefault();
             goToPage(1);
           }}
-          className="w-full bg-white text-[#1D1D1F] rounded-2xl shadow-lg border border-[#000000]/5 p-3 md:p-4"
+          className="w-full bg-white text-[#1D1D1F] rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] p-3 md:p-4"
         >
           <div className="flex items-center gap-2">
             <Search className="hidden md:block ml-2 w-5 h-5 text-[#515154] shrink-0" />
@@ -404,7 +404,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             <div key={prop.id}>
             <div className={layout === 'list' ? 'hidden md:block' : ''}>
             <div
-              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-2xl overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
+              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
                 <PropertyImage
@@ -457,7 +457,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             </div>
             </div>
             {layout === 'list' && (
-              <div className="md:hidden flex items-center gap-3 rounded-2xl bg-white border border-[#000000]/5 p-2.5">
+              <div className="md:hidden flex items-center gap-3 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white p-2.5">
                 {prop.href ? (
                   <Link
                     href={prop.href}

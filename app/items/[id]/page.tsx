@@ -174,7 +174,7 @@ export default async function ItemPage({ params }: Props) {
         >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Volver al Catálogo
         </Link>
-        <div className="hidden md:block relative aspect-square rounded-2xl overflow-hidden bg-[#E5E5EA]">
+        <div className="hidden md:block relative aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-[#E5E5EA]">
           {photo && (
             <PropertyImage
               src={photo}

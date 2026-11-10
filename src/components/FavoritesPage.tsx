@@ -127,7 +127,7 @@ export default function FavoritesPage() {
           </div>
         ) : (
           <>
-            <ul className="divide-y divide-[#000000]/5 rounded-2xl border border-[#000000]/5 bg-white">
+            <ul className="divide-y divide-[#000000]/5 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white">
               {available.map((item) => {
                 const id = String(item.id);
                 const q = qtyOf(id);

@@ -26,7 +26,7 @@ export default function ItemPriceView({ pricing, categoryId, glass }: { pricing:
       {options.map((o) => {
         const { unit, was } = optionPrice(o, categoryId, wholesale ? level : null);
         return (
-          <div key={o.mode} className={`${options.length === 1 && !glass ? 'col-span-2' : ''} rounded-2xl ${card} ${glass ? 'p-0' : 'p-4 md:p-5'}`}>
+          <div key={o.mode} className={`${options.length === 1 && !glass ? 'col-span-2' : ''} rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] ${card} ${glass ? 'p-0' : 'p-4 md:p-5'}`}>
             <dt className={`text-xs uppercase tracking-wider ${muted} font-semibold`}>
               {wholesale ? 'Tu precio' : 'Minorista'} · {pricingModeLabels[o.mode]}
             </dt>
@@ -62,7 +62,7 @@ export default function ItemPriceView({ pricing, categoryId, glass }: { pricing:
           </span>
         </div>
       ) : glass ? null : (
-        <div className={`col-span-2 rounded-2xl ${card} p-4`}>
+        <div className={`col-span-2 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] ${card} p-4`}>
           <dt className={`text-xs uppercase tracking-wider ${muted} font-semibold`}>Mayorista</dt>
           <dd className={`mt-1 text-sm ${muted}`}>Ingresá con “Acceso mayoristas” para ver tu precio por caja o por unidad</dd>
           <Link href="/#contact" className={`inline-block mt-2 text-xs underline underline-offset-2 ${muted} ${glass ? 'hover:text-white' : 'hover:text-[#1D1D1F]'}`}>

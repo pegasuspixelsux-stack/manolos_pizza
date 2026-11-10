@@ -100,7 +100,7 @@ export default function InstallButton({ className = '' }: { className?: string }
             aria-modal="true"
             aria-labelledby="install-title"
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-sm rounded-3xl bg-white text-[#1D1D1F] p-6 shadow-2xl"
+            className="relative w-full max-w-sm rounded-[12px] bg-white text-[#1D1D1F] p-6 shadow-[0_6px_20px_rgba(0,0,0,0.35)]"
           >
             <button
               ref={closeRef}

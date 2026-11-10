@@ -103,14 +103,14 @@ export default function CoverPage({ initialProperties = [] }: { initialPropertie
       </header>
 
       <main className="flex-1 flex px-0 pb-3 md:pb-6">
-        <section className="relative flex-1 w-full max-w-[1440px] mx-auto overflow-hidden rounded-3xl border border-transparent bg-transparent text-white flex">
+        <section className="relative flex-1 w-full max-w-[1440px] mx-auto md:overflow-hidden md:rounded-[12px] md:shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-transparent text-white flex">
           <div className="relative w-full flex flex-col justify-center px-[10px] pt-0 pb-14 md:pb-16">
             <HeroImageScroller className="-mx-[10px] px-[10px] scroll-pl-[10px]" dotsClassName="mt-3 mb-3" />
             <ItemsShowcase items={initialProperties} />
             <div className="h-4 md:h-6" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logo || DEFAULT_LOGO} alt="" aria-hidden="true" className="hidden md:block md:-mt-12 md:-mb-4 md:mx-0 h-48 w-48 md:h-[269px] md:w-[269px] max-w-full object-contain drop-shadow-lg" />
-            <h1 className="sr-only">Manolo: La auténtica pizza por metro en Punta del Este</h1>
+            <h1 className="sr-only">Manolo: La auténtica pizza por metro en Maldonado</h1>
             <div className="hidden md:grid mt-10 md:mt-14 grid-cols-2 gap-6 md:gap-10 max-w-3xl border-t border-white/25 pt-6 md:pt-8">
               {[
                 { value: 100, label: 'Productos' },
@@ -123,12 +123,6 @@ export default function CoverPage({ initialProperties = [] }: { initialPropertie
               ))}
             </div>
           </div>
-          <Link
-            href="/"
-            className="absolute bottom-3 inset-x-0 text-center text-xs text-white/70 hover:text-white transition-colors"
-          >
-            Merkado v 2.0
-          </Link>
         </section>
       </main>
       <HomeSections />

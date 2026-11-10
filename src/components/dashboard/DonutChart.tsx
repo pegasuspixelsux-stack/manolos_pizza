@@ -39,7 +39,7 @@ export default function DonutChart({
   }));
 
   return (
-    <section className={`bg-white rounded-2xl border border-[#000000]/5 shadow-sm ${large ? 'p-6 md:p-8 h-full' : 'p-6'}`}>
+    <section className={`bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] ${large ? 'p-6 md:p-8 h-full' : 'p-6'}`}>
       <h2 className="font-semibold tracking-tight">{title}</h2>
       <p className="text-xs text-[#515154] mt-1 mb-6">{description}</p>
 

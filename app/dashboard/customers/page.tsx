@@ -258,7 +258,7 @@ O con tu PIN de 4 números: ${access.pin}` : ''}`
       {editing && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setEditing(null)} aria-hidden="true" />
-          <form onSubmit={save} role="dialog" aria-modal="true" aria-label={editing === 'new' ? 'Agregar cliente mayorista' : 'Editar cliente'} className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 md:p-8 space-y-4 max-h-[90vh] overflow-y-auto">
+          <form onSubmit={save} role="dialog" aria-modal="true" aria-label={editing === 'new' ? 'Agregar cliente mayorista' : 'Editar cliente'} className="relative w-full max-w-lg bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] p-6 md:p-8 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-tight">{editing === 'new' ? 'Agregar cliente mayorista' : 'Editar cliente'}</h2>
               <button type="button" onClick={() => setEditing(null)} aria-label="Cerrar" className="p-2 rounded-full hover:bg-[#F5F5F7]"><X className="w-4 h-4" /></button>

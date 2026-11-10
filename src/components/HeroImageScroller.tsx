@@ -6,7 +6,7 @@ import { useBusiness } from '@/src/context/BusinessContext';
 import { useHeroFolderImages } from '@/src/context/HeroImagesContext';
 
 const tile =
-  'snap-start shrink-0 w-[90%] md:w-[60%] aspect-square rounded-2xl border border-white/25 bg-white/10 overflow-hidden';
+  'snap-start shrink-0 w-[90%] md:w-[60%] lg:w-[calc((100%-24px)/3)] aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 overflow-hidden';
 
 const GAP = 12; // px, matches gap-3
 
@@ -77,7 +77,7 @@ export default function HeroImageScroller({
               onClick={() => goTo(i)}
               aria-label={`Ir a la foto ${i + 1}`}
               aria-current={i === active}
-              className={`h-2.5 rounded-full transition-all ${i === active ? 'w-6 bg-white' : 'w-2.5 bg-white/40 hover:bg-white/70'}`}
+              className={`h-2.5 rounded-full transition-all backdrop-blur-md border border-white/50 ${i === active ? 'w-6 bg-white/50' : 'w-2.5 bg-white/15 hover:bg-white/30'}`}
             />
           ))}
         </div>

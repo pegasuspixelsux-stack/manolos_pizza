@@ -61,10 +61,10 @@ export default function MerkadoHome({ initialProperties = [] }: { initialPropert
       <div className="bg-[#7A1414] pb-6 md:pb-8">
 
       <div className="max-w-[1440px] mx-auto px-0 pt-0">
-        <section className="relative w-full overflow-hidden rounded-3xl border border-transparent bg-transparent text-white md:flex md:items-center md:portrait:h-[38.5svh] md:portrait:min-h-[360px] lg:landscape:block">
+        <section className="relative w-full bg-transparent text-white">
             <div className="relative w-full px-[10px] pt-0 pb-10 md:pb-12">
             <HeroImageScroller className="-mx-[10px] px-[10px] scroll-pl-[10px]" dotsClassName="mt-3 mb-3" />
-            <h1 className="sr-only">Manolo: La auténtica pizza por metro en Punta del Este</h1>
+            <h1 className="sr-only">Manolo: La auténtica pizza por metro en Maldonado</h1>
             <ItemsShowcase items={initialProperties} query={query} />
           </div>
         </section>

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, Clock, ImageIcon, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { Bike, ChevronDown, Clock, ImageIcon, Mail, MapPin, MessageCircle, Minus, Phone, Plus } from 'lucide-react';
 import { useBusiness } from '@/src/context/BusinessContext';
-import { socialLinks } from '@/src/components/SocialIcons';
+import { FacebookIcon, InstagramIcon, socialLinks } from '@/src/components/SocialIcons';
 import { whatsappUrl } from '@/src/utils/format';
 import BrandName from '@/src/components/BrandName';
 
@@ -15,7 +15,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: '¿Puedo pedir directo a mi casa?',
-    a: 'Sí. Podés pedir para compartir en la mesa o recibirla directo en tu casa en Punta del Este.',
+    a: 'Sí. Podés pedir para compartir en la mesa o recibirla directo en tu casa en Maldonado.',
   },
   {
     q: '¿Cómo hago mi pedido?',
@@ -24,6 +24,30 @@ const FAQ: { q: string; a: string }[] = [
   {
     q: '¿En qué horario atienden?',
     a: 'Los horarios están al final de la página, en el pie. Si tenés dudas, escribinos por WhatsApp.',
+  },
+  {
+    q: '¿Cuántas personas comen con una pizza por metro?',
+    a: 'Depende del apetito, pero como referencia, un metro rinde para unas 4 a 6 personas. Si no estás seguro, escribinos y te recomendamos el tamaño justo.',
+  },
+  {
+    q: '¿Puedo combinar dos sabores en la misma pizza?',
+    a: 'Sí. La pizza por metro se puede armar mitad y mitad, o por tramos, con los sabores que elijas del menú.',
+  },
+  {
+    q: '¿Tienen opciones vegetarianas?',
+    a: 'Sí, tenemos sabores sin carne. Mirá el menú o consultanos por WhatsApp y te ayudamos a elegir.',
+  },
+  {
+    q: '¿Con cuánta anticipación tengo que pedir?',
+    a: 'Como cada pizza se hace al momento, te recomendamos pedir con tiempo, sobre todo para fines de semana, eventos o grupos grandes. Escribinos y coordinamos el horario.',
+  },
+  {
+    q: '¿Qué medios de pago aceptan?',
+    a: 'Te confirmamos las formas de pago disponibles por WhatsApp al momento de coordinar tu pedido.',
+  },
+  {
+    q: '¿Hacen pedidos para eventos y cumpleaños?',
+    a: 'Sí. Escribinos con la fecha y la cantidad de invitados y armamos un pedido a medida para tu evento.',
   },
 ];
 
@@ -49,27 +73,39 @@ function Collapsible({
   open,
   onToggle,
   children,
+  boxless = false,
+  desktopOpen = false,
 }: {
   id: string;
   title: string;
   open: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  /** Drops the card box (background, shadow, rounding, side padding) on desktop only. */
+  boxless?: boolean;
+  /** Always shows the body on desktop (the toggle only works on mobile). */
+  desktopOpen?: boolean;
 }) {
   return (
-    <section id={id} className="px-[10px] max-w-[1440px] mx-auto scroll-mt-24">
-      <div className="rounded-3xl border border-white/25 bg-white/5">
+    <section id={id} className={`px-[10px] max-w-[1440px] mx-auto scroll-mt-24 ${boxless ? 'border-t border-white/20' : ''}`}>
+      <div
+        className={
+          boxless
+            ? 'md:w-[80%] md:mx-auto [&_button]:px-0 [&>div]:px-0'
+            : 'rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/5'
+        }
+      >
         <button
           type="button"
           onClick={onToggle}
           aria-expanded={open}
           aria-controls={`${id}-body`}
-          className="w-full flex items-center justify-between gap-3 px-6 py-5 text-left text-xl md:text-2xl font-semibold tracking-tight"
+          className={`w-full flex items-center justify-between gap-3 px-6 py-5 text-left text-xl md:text-2xl font-semibold tracking-tight ${desktopOpen ? 'md:pointer-events-none' : ''}`}
         >
           <span>{title}</span>
-          <ChevronDown className={`w-6 h-6 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-6 h-6 shrink-0 transition-transform ${open ? 'rotate-180' : ''} ${desktopOpen ? 'md:hidden' : ''}`} />
         </button>
-        <div id={`${id}-body`} hidden={!open} className="px-6 pb-6">
+        <div id={`${id}-body`} className={`px-6 pb-6 ${open ? '' : desktopOpen ? 'hidden md:block' : 'hidden'}`}>
           {children}
         </div>
       </div>
@@ -81,24 +117,44 @@ function Nosotros() {
   const [open, setOpen] = useState(true);
   useOpenOnHash('vision', () => setOpen(true));
   return (
-    <Collapsible id="vision" title="Nosotros" open={open} onToggle={() => setOpen((o) => !o)}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center">
-        <div className="space-y-4">
-          <p className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">
-            La auténtica pizza por metro en Punta del Este.
-          </p>
-          <p className="text-white/85 font-light leading-relaxed">
-            La tradición inconfundible de la pizza por metro para compartir en la mesa o pedir directo a tu casa.
-            Masa de fermentación lenta, salsa casera de tomates frescos, mozzarella de primera y los mejores
-            ingredientes sobre tablas interminables.
-          </p>
-        </div>
+    <section id="vision" className="px-[10px] max-w-[1440px] mx-auto scroll-mt-24 md:py-6 border-t border-white/20">
+      {/* Title toggle: phones only; on desktop the content is always shown */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls="vision-body"
+        className="md:hidden w-full flex items-center justify-between gap-3 py-4 text-left text-xl font-semibold tracking-tight"
+      >
+        <span>Quiénes somos</span>
+        <ChevronDown className={`w-6 h-6 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <div id="vision-body" className={`${open ? '' : 'hidden md:grid'} grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center pb-6 md:pb-0`}>
         {/* Placeholder: replace with a photo */}
-        <div className="aspect-square rounded-2xl border border-white/25 bg-white/10 flex items-center justify-center text-white/70">
+        <div className="aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 flex items-center justify-center text-white/70 md:w-[75%] md:mx-auto md:order-last order-last">
           <ImageIcon className="w-14 h-14" aria-hidden="true" />
         </div>
+        <div className="space-y-4 md:self-center md:w-[60%] md:mx-auto">
+          <p className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">
+            Quiénes somos: la auténtica pizza por metro en Maldonado.
+          </p>
+          <p className="text-white/85 font-light leading-relaxed">
+            Somos una pizzería familiar con una idea simple: que la pizza se comparta. Por eso hacemos la pizza por
+            metro, una tabla interminable al centro de la mesa, para juntarse con amigos y familia y no parar de
+            charlar.
+          </p>
+          <p className="text-white/85 font-light leading-relaxed">
+            Trabajamos con masa de fermentación lenta, salsa casera de tomates frescos, mozzarella de primera y los
+            mejores ingredientes, todo preparado en el día. Cada pedido se arma al momento, con el mismo cuidado que
+            si fuera para nuestra propia mesa.
+          </p>
+          <p className="text-white/85 font-light leading-relaxed">
+            Podés venir a disfrutarla o pedirla directo a tu casa en Maldonado: elegís los sabores, nos escribís
+            por WhatsApp y nosotros nos encargamos del resto.
+          </p>
+        </div>
       </div>
-    </Collapsible>
+    </section>
   );
 }
 
@@ -107,8 +163,8 @@ function Faq() {
   const [openItem, setOpenItem] = useState<number | null>(null);
   useOpenOnHash('faq', () => setOpen(true));
   return (
-    <Collapsible id="faq" title="Preguntas frecuentes" open={open} onToggle={() => setOpen((o) => !o)}>
-      <ul className="divide-y divide-white/20">
+    <Collapsible id="faq" title="Preguntas frecuentes" boxless desktopOpen open={open} onToggle={() => setOpen((o) => !o)}>
+      <ul className="divide-y divide-white/20 border-t border-white/20">
         {FAQ.map((f, i) => (
           <li key={f.q}>
             <button
@@ -118,9 +174,9 @@ function Faq() {
               className="w-full flex items-center justify-between gap-3 py-4 text-left font-medium"
             >
               <span>{f.q}</span>
-              <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openItem === i ? 'rotate-180' : ''}`} />
+              {openItem === i ? <Minus className="w-5 h-5 shrink-0" aria-hidden="true" /> : <Plus className="w-5 h-5 shrink-0" aria-hidden="true" />}
             </button>
-            <p hidden={openItem !== i} className="pb-4 text-white/85 font-light leading-relaxed">
+            <p className={`pb-4 text-white/85 font-light leading-relaxed ${openItem === i ? '' : 'hidden'}`}>
               {f.a}
             </p>
           </li>
@@ -132,56 +188,78 @@ function Faq() {
 
 const linkClass = 'hover:text-white hover:underline underline-offset-2 transition-colors';
 
+/** Mockup contact info, shown until the real details are filled in Ajustes (Datos del negocio). */
+const FALLBACK = {
+  address: 'Av. Roosevelt y Calle 20, Punta del Este, Maldonado',
+  whatsapp: '+598 99 123 456',
+  phone: '+598 42 123 456',
+  email: 'hola@manolospizza.uy',
+  hours: [
+    'Lunes a jueves: 19:00 – 23:30',
+    'Viernes y sábados: 19:00 – 01:00',
+    'Domingos: 19:00 – 23:00',
+  ].join('\n'),
+};
+
 function Footer() {
   const business = useBusiness();
-  const socials = socialLinks(business);
+  const configured = socialLinks(business);
+  const placeholderSocials = [
+    { key: 'instagram', label: 'Instagram', href: '#', Icon: InstagramIcon },
+    { key: 'facebook', label: 'Facebook', href: '#', Icon: FacebookIcon },
+    { key: 'whatsapp', label: 'WhatsApp', href: '#', Icon: MessageCircle },
+  ];
+  const socials = configured.length > 0 ? configured : placeholderSocials;
+  const address = business.address || FALLBACK.address;
+  const whatsapp = business.whatsapp || FALLBACK.whatsapp;
+  const phone = business.phone || FALLBACK.phone;
+  const email = business.email || FALLBACK.email;
+  const hours = business.hours || FALLBACK.hours;
   const wa = business.whatsapp ? whatsappUrl(business.whatsapp, 'Hola, quiero pedir pizza por metro.') : null;
   return (
     <footer id="contact" className="bg-[#5A0B0B] text-white/85 px-[10px] pt-12 pb-8 mt-4 scroll-mt-24">
-      <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+      <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
         <div className="space-y-4">
           <span className="text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName /></span>
-          <p className="text-sm leading-relaxed font-light">La auténtica pizza por metro en Punta del Este.</p>
-          {socials.length > 0 && (
-            <div className="flex items-center gap-2 pt-1" aria-label="Redes sociales">
-              {socials.map(({ key, label, href, Icon }) => (
-                <a
-                  key={key}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  title={label}
-                  className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
-                >
-                  <Icon className="w-5 h-5" />
-                </a>
-              ))}
-            </div>
-          )}
+          <p className="text-sm leading-relaxed font-light">La auténtica pizza por metro en Maldonado.</p>
+          <div className="flex items-center gap-2 pt-1" aria-label="Redes sociales">
+            {socials.map(({ key, label, href, Icon }) => (
+              <a
+                key={key}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                title={label}
+                className="w-11 h-11 rounded-full border border-white/30 flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+              >
+                <Icon className="w-5 h-5" />
+              </a>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-4">
           <p className="text-xs uppercase tracking-widest text-white/60 font-semibold">Contacto</p>
           <ul className="space-y-3 text-sm font-light">
-            {business.address && (
-              <li className="flex items-start gap-3"><MapPin className="w-5 h-5 shrink-0" aria-hidden="true" /><span>{business.address}</span></li>
-            )}
-            {business.whatsapp && (
-              <li className="flex items-start gap-3">
-                <MessageCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
-                {wa ? <a href={wa} target="_blank" rel="noopener noreferrer" className={linkClass}>{business.whatsapp} (WhatsApp)</a> : <span>{business.whatsapp} (WhatsApp)</span>}
-              </li>
-            )}
-            {business.phone && (
-              <li className="flex items-start gap-3"><Phone className="w-5 h-5 shrink-0" aria-hidden="true" /><a href={`tel:${business.phone.replace(/[^+\d]/g, '')}`} className={linkClass}>{business.phone}</a></li>
-            )}
-            {business.email && (
-              <li className="flex items-start gap-3"><Mail className="w-5 h-5 shrink-0" aria-hidden="true" /><a href={`mailto:${business.email}`} className={linkClass}>{business.email}</a></li>
-            )}
-            {business.hours && (
-              <li className="flex items-start gap-3"><Clock className="w-5 h-5 shrink-0" aria-hidden="true" /><span className="whitespace-pre-line">{business.hours}</span></li>
-            )}
+            <li className="flex items-start gap-3"><MapPin className="w-5 h-5 shrink-0" aria-hidden="true" /><span>{address}</span></li>
+            <li className="flex items-start gap-3">
+              <MessageCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
+              {wa ? <a href={wa} target="_blank" rel="noopener noreferrer" className={linkClass}>{whatsapp} (WhatsApp)</a> : <span>{whatsapp} (WhatsApp)</span>}
+            </li>
+            <li className="flex items-start gap-3"><Phone className="w-5 h-5 shrink-0" aria-hidden="true" /><a href={`tel:${phone.replace(/[^+\d]/g, '')}`} className={linkClass}>{phone}</a></li>
+            <li className="flex items-start gap-3"><Mail className="w-5 h-5 shrink-0" aria-hidden="true" /><a href={`mailto:${email}`} className={linkClass}>{email}</a></li>
+          </ul>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-xs uppercase tracking-widest text-white/60 font-semibold">Horarios</p>
+          <ul className="space-y-3 text-sm font-light">
+            <li className="flex items-start gap-3"><Clock className="w-5 h-5 shrink-0" aria-hidden="true" /><span className="whitespace-pre-line">{hours}</span></li>
+            <li className="flex items-start gap-3">
+              <Bike className="w-5 h-5 shrink-0" aria-hidden="true" />
+              <span><strong className="font-semibold text-white">Hacemos delivery</strong> a toda la zona de Maldonado. Pedí por WhatsApp y te lo llevamos a casa.</span>
+            </li>
           </ul>
         </div>
 
@@ -189,7 +267,7 @@ function Footer() {
           <p className="text-xs uppercase tracking-widest text-white/60 font-semibold">Enlaces</p>
           <ul className="space-y-3 text-sm font-light">
             <li><Link href="/items" className={linkClass}>Menú y sabores</Link></li>
-            <li><Link href="/#vision" className={linkClass}>Nosotros</Link></li>
+            <li><Link href="/#vision" className={linkClass}>Quiénes somos</Link></li>
             <li><Link href="/#faq" className={linkClass}>Preguntas frecuentes</Link></li>
             <li><Link href="/privacidad" className={linkClass}>Política de privacidad</Link></li>
             <li><Link href="/admin/login" className={linkClass}>Iniciar sesión</Link></li>
@@ -204,7 +282,7 @@ function Footer() {
   );
 }
 
-/** Below the hero: "Nosotros" (collapsible, two columns), "Preguntas frecuentes" (collapsible) and the footer. */
+/** Below the hero: "Preguntas frecuentes" (collapsible) and the footer. */
 export default function HomeSections() {
   return (
     <div className="space-y-4 pb-0">

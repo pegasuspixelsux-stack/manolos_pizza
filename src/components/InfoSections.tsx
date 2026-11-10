@@ -184,7 +184,7 @@ export default function InfoSections() {
             </div>
           </div>
           <div
-            className={`${openVision ? '' : 'hidden'} md:block aspect-[4/3] md:aspect-square lg:aspect-[4/3] rounded-2xl bg-cover bg-center bg-[#E5E5EA]`}
+            className={`${openVision ? '' : 'hidden'} md:block aspect-[4/3] md:aspect-square lg:aspect-[4/3] rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-cover bg-center bg-[#E5E5EA]`}
             style={{
               backgroundImage:
                 'url(https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?q=80&w=1200&auto=format&fit=crop)',
@@ -283,7 +283,7 @@ export default function InfoSections() {
           </div>
 
           {/* Right Column: wholesale enrollment form */}
-          <div className={`${openContact ? '' : 'hidden'} md:block bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-[#000000]/5`}>
+          <div className={`${openContact ? '' : 'hidden'} md:block bg-white p-8 md:p-10 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)]`}>
             <form onSubmit={submitWholesale} className="space-y-5">
               <div>
                 <label htmlFor="w-business" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Nombre del negocio</label>

@@ -20,7 +20,7 @@ export default function PizzaGallery({ images }: { images: PizzaImage[] }) {
   return (
     <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
       {images.map((img, i) => (
-        <li key={img.publicId} className="aspect-square relative overflow-hidden rounded-2xl border border-white/25 bg-white/10">
+        <li key={img.publicId} className="aspect-square relative overflow-hidden rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10">
           <CldImage
             src={img.publicId}
             alt={altFrom(img.publicId)}

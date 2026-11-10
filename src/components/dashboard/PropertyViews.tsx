@@ -81,7 +81,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryL
       {properties.map((p) => (
         <article
           key={p.id}
-          className="group bg-white rounded-2xl border border-[#000000]/5 shadow-sm overflow-hidden transition-transform duration-500 hover:-translate-y-1"
+          className="group bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden transition-transform duration-500 hover:-translate-y-1"
         >
           <Link href={`/dashboard/properties/${p.id}`} className="block relative aspect-[4/3] bg-[#E5E5EA] overflow-hidden">
             {p.photos[0] && (
@@ -128,7 +128,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryL
 
 export function PropertyTable({ properties, onDelete, onToggleFeatured, categoryLabel = (t) => typeLabels[t] ?? t }: ViewProps) {
   return (
-    <div className="bg-white rounded-2xl border border-[#000000]/5 shadow-sm overflow-x-auto">
+    <div className="bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-xs uppercase tracking-wider text-[#515154]">

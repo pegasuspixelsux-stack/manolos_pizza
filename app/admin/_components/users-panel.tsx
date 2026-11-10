@@ -128,7 +128,7 @@ export default function UsersPanel({ currentUserId }: { currentUserId: string })
       {error && <p role="alert" className="mb-4 text-sm text-red-600">{error}</p>}
       {notice && <p role="status" className="mb-4 text-sm text-green-700">{notice}</p>}
 
-      <div className="bg-white rounded-3xl border border-[#000000]/5 overflow-hidden">
+      <div className="bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden">
         {loading ? (
           <p className="p-8 text-sm text-[#515154]">Cargando usuarios…</p>
         ) : (
@@ -179,7 +179,7 @@ export default function UsersPanel({ currentUserId }: { currentUserId: string })
 
       {adding && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center overflow-y-auto p-6">
-          <form onSubmit={create} className="bg-white rounded-3xl w-full max-w-md p-8 space-y-5 my-8">
+          <form onSubmit={create} className="bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] w-full max-w-md p-8 space-y-5 my-8">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold tracking-tight">Agregar usuario</h3>
               <button type="button" onClick={() => setAdding(false)} aria-label="Cerrar" className="p-2 rounded-full hover:bg-[#F5F5F7]">

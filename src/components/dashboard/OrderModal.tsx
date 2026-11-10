@@ -320,7 +320,7 @@ export default function OrderModal({
         role="dialog"
         aria-modal="true"
         aria-label="Detalle del pedido"
-        className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-white rounded-2xl shadow-xl"
+        className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)]"
       >
         <div className="sticky top-0 z-10 flex items-start justify-between gap-3 bg-white border-b border-[#000000]/5 px-6 py-4">
           <div className="min-w-0">

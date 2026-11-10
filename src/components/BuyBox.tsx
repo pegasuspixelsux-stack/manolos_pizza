@@ -120,7 +120,7 @@ export default function BuyBox({
       {options.length > 1 && (
         <div>
           <span className={label}>Comprar por</span>
-          <div className={`inline-flex flex-wrap rounded-3xl ${soft} p-1`} role="group" aria-label="Comprar por">
+          <div className={`inline-flex flex-wrap rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] ${soft} p-1`} role="group" aria-label="Comprar por">
             {options.map((o) => (
               <button
                 key={o.mode}

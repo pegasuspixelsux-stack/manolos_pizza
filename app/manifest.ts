@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Manolo's Pizza",
     short_name: "Manolo's",
-    description: 'La auténtica pizza por metro en Punta del Este.',
+    description: 'La auténtica pizza por metro en Maldonado.',
     start_url: '/',
     display: 'standalone',
     background_color: '#7A1414',

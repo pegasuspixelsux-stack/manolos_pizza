@@ -197,7 +197,7 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
         <div>
           <span className={labelClass}>Imagen</span>
           {form.photo ? (
-            <div className="relative aspect-[4/3] max-w-sm rounded-2xl overflow-hidden bg-[#E5E5EA]">
+            <div className="relative aspect-[4/3] max-w-sm rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-[#E5E5EA]">
               <PropertyImage src={form.photo.url} alt="Imagen del artículo" variant="thumb" sizes="384px" />
               <button
                 type="button"

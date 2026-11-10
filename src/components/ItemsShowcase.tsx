@@ -2,14 +2,13 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ChevronLeft, ChevronRight, LayoutGrid, List, Square } from 'lucide-react';
+import { ArrowUpRight, LayoutGrid, List, Plus, Square } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { typeLabels } from '@/src/utils/format';
 import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import { useClient } from '@/src/context/ClientContext';
 import { useCart } from '@/src/context/CartContext';
 import PropertyImage from '@/src/components/PropertyImage';
-import FavoriteButton from '@/src/components/FavoriteButton';
 
 const PAGE_SIZE = 12;
 
@@ -24,9 +23,6 @@ const gridClass: Record<Exclude<Layout, 'list'>, string> = {
   one: 'grid-cols-1 md:grid-cols-2',
   two: 'grid-cols-2 md:grid-cols-4',
 };
-
-const pageBtn =
-  'min-w-10 h-10 px-3 rounded-full flex items-center justify-center text-sm font-medium transition-colors disabled:opacity-40 disabled:pointer-events-none';
 
 /**
  * The items grid for the homepage and the cover: category pills (the categories of the items), a layout selector,
@@ -49,7 +45,13 @@ export default function ItemsShowcase({
 
   const [category, setCategory] = useState('all');
   const [layout, setLayout] = useState<Layout>('two');
-  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(PAGE_SIZE);
+  const [lastQuery, setLastQuery] = useState(query);
+  // A new search starts over from the first batch.
+  if (query !== lastQuery) {
+    setLastQuery(query);
+    setLimit(PAGE_SIZE);
+  }
 
   // Pills: one per category that has items, in the order they first appear.
   const categories = Array.from(
@@ -73,18 +75,9 @@ export default function ItemsShowcase({
     return matchesQuery && (category === 'all' || p.type === category);
   });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const current = Math.min(page, totalPages);
-  const start = (current - 1) * PAGE_SIZE;
-  const visible = filtered.slice(start, start + PAGE_SIZE);
-  const goToPage = (n: number) => {
-    setPage(n);
-    document.getElementById('items-grid')?.scrollIntoView({ behavior: 'smooth' });
-  };
-  // First, last and the neighbours of the current page, with … in the gaps.
-  const pageItems = Array.from({ length: totalPages }, (_, i) => i + 1)
-    .filter((n) => n === 1 || n === totalPages || Math.abs(n - current) <= 1)
-    .flatMap((n, i, arr) => (i > 0 && n - arr[i - 1] > 1 ? ['gap' as const, n] : [n]));
+  const visible = filtered.slice(0, limit);
+  const remaining = filtered.length - visible.length;
+  const nextCount = Math.min(PAGE_SIZE, remaining);
 
   const quickOrder = (prop: HomeProperty) => {
     addToCart(prop);
@@ -106,18 +99,20 @@ export default function ItemsShowcase({
               type="button"
               onClick={() => {
                 setCategory(c.id);
-                setPage(1);
+                setLimit(PAGE_SIZE);
               }}
               aria-pressed={category === c.id}
               className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
-                category === c.id ? 'bg-white text-[#7A1414]' : 'bg-white/10 text-white border border-white/25 hover:bg-white/20'
+                category === c.id
+                  ? 'bg-white/30 backdrop-blur-md text-white border border-white/50'
+                  : 'bg-transparent text-white border border-white/30 hover:bg-white/10'
               }`}
             >
               {c.label}
             </button>
           ))}
         </div>
-        <div role="group" aria-label="Diseño de la lista" className="shrink-0 inline-flex rounded-full bg-white/10 border border-white/25 p-0.5">
+        <div role="group" aria-label="Diseño de la lista" className="shrink-0 inline-flex md:hidden rounded-full bg-transparent border border-white/30 p-0.5">
           {LAYOUTS.map(([value, Icon, label]) => (
             <button
               key={value}
@@ -127,13 +122,20 @@ export default function ItemsShowcase({
               aria-label={label}
               title={label}
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                layout === value ? 'bg-white text-[#7A1414]' : 'text-white hover:bg-white/20'
+                layout === value ? 'bg-white/30 backdrop-blur-md text-white' : 'text-white hover:bg-white/10'
               }`}
             >
               <Icon className="w-4 h-4" />
             </button>
           ))}
         </div>
+        <Link
+          href="/items"
+          className="hidden md:inline-flex shrink-0 items-center gap-2 rounded-full bg-white text-[#7A1414] px-4 py-2 text-xs font-semibold hover:bg-white/90 transition-colors"
+        >
+          Ver todo el menú
+          <ArrowUpRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {filtered.length === 0 && <p className="text-center text-white/80 text-sm py-8">No hay artículos que coincidan con tu búsqueda.</p>}
@@ -143,7 +145,7 @@ export default function ItemsShowcase({
           {visible.map((prop) => {
             const soldOut = prop.inStock === false;
             return (
-              <li key={prop.id} className="flex items-center gap-3 rounded-2xl border border-white/25 bg-white/10 p-2.5">
+              <li key={prop.id} className="flex items-center gap-3 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 p-2.5">
                 <div className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}>
                   <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
                 </div>
@@ -166,15 +168,14 @@ export default function ItemsShowcase({
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  {typeof prop.id === 'string' && <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8" />}
                   <button
                     type="button"
                     onClick={() => quickOrder(prop)}
                     disabled={soldOut}
                     aria-label={soldOut ? `${prop.title} está sin stock` : `Pedido rápido: ${prop.title}`}
-                    className="h-8 px-3 rounded-full bg-white text-[#7A1414] text-[10px] font-semibold whitespace-nowrap hover:bg-white/90 active:scale-95 transition disabled:opacity-40"
+                    className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition disabled:opacity-40"
                   >
-                    Pedido rápido
+                    <Plus className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
               </li>
@@ -186,7 +187,7 @@ export default function ItemsShowcase({
           {visible.map((prop) => (
             <li
               key={prop.id}
-              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-2xl overflow-hidden bg-white/10 border border-white/25 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
+              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
                 <PropertyImage src={prop.image} alt={prop.title} variant="card" sizes="(min-width: 768px) 25vw, 50vw" />
@@ -202,15 +203,14 @@ export default function ItemsShowcase({
               </div>
 
               <div className="absolute top-3 right-3 md:top-5 md:right-5 z-10 flex items-center gap-1.5">
-                {typeof prop.id === 'string' && <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8" />}
                 <button
                   type="button"
                   onClick={() => quickOrder(prop)}
                   disabled={prop.inStock === false}
                   aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Pedido rápido: ${prop.title}`}
-                  className={`${layout === 'one' ? 'h-10 px-4 text-sm' : 'h-8 px-3 text-[10px]'} md:h-8 md:px-3 md:text-xs rounded-full bg-white text-[#7A1414] font-semibold whitespace-nowrap flex items-center justify-center shadow-sm hover:bg-white/90 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed`}
+                  className={`${layout === 'one' ? 'w-10 h-10' : 'w-8 h-8'} md:w-8 md:h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed`}
                 >
-                  Pedido rápido
+                  <Plus className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
 
@@ -235,38 +235,25 @@ export default function ItemsShowcase({
         </ul>
       )}
 
-      {/* Pagination + count + link to the full catalogue */}
+      {/* Load more + count + link to the full catalogue */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 items-center gap-4 text-sm">
         <Link href="/items" className="justify-self-center md:justify-self-start inline-flex items-center gap-2 font-medium text-white hover:text-white/80 transition-colors">
-          <span>Ver todos los artículos</span>
+          <span>Ver todo el menú</span>
           <ArrowUpRight className="w-4 h-4" />
         </Link>
-        <nav aria-label="Paginación" className={`justify-self-center flex items-center gap-1.5 ${totalPages < 2 ? 'invisible' : ''}`}>
-          <button type="button" onClick={() => goToPage(current - 1)} disabled={current === 1} aria-label="Página anterior" className={`${pageBtn} border border-white/25 text-white hover:bg-white/15`}>
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          {pageItems.map((n, i) =>
-            n === 'gap' ? (
-              <span key={`gap-${i}`} aria-hidden="true" className="px-1 text-white/60">…</span>
-            ) : (
-              <button
-                key={n}
-                type="button"
-                onClick={() => goToPage(n)}
-                aria-label={`Página ${n}`}
-                aria-current={n === current ? 'page' : undefined}
-                className={`${pageBtn} ${n === current ? 'bg-white text-[#7A1414]' : 'text-white hover:bg-white/15'}`}
-              >
-                {n}
-              </button>
-            ),
+        <div className="justify-self-center">
+          {remaining > 0 && (
+            <button
+              type="button"
+              onClick={() => setLimit((l) => l + PAGE_SIZE)}
+              className="h-10 px-5 rounded-full border border-white/25 text-white text-sm font-medium hover:bg-white/15 active:scale-95 transition"
+            >
+              Ver {nextCount} más
+            </button>
           )}
-          <button type="button" onClick={() => goToPage(current + 1)} disabled={current === totalPages} aria-label="Página siguiente" className={`${pageBtn} border border-white/25 text-white hover:bg-white/15`}>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </nav>
+        </div>
         <p className="justify-self-center md:justify-self-end text-xs text-white/70">
-          {filtered.length === 0 ? 'Sin artículos' : `Mostrando ${start + 1}–${start + visible.length} de ${filtered.length} artículos`}
+          {filtered.length === 0 ? 'Sin artículos' : `Mostrando ${visible.length} de ${filtered.length} artículos`}
         </p>
       </div>
     </div>
