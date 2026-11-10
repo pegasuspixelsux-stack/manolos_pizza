@@ -9,6 +9,7 @@ import { isAssignable } from '../services/driversService';
 import type { Lead, LeadStatus } from '../types/firestore';
 import { formatMoney, timeAgo, whatsappUrl } from '../utils/format';
 import { groupOrders, orderNumberOf, orderTotal, type OrderGroup } from '../utils/orders';
+import { driverWhatsappUrl } from '../utils/driverMessage';
 
 const statuses: { value: LeadStatus; label: string }[] = (['new', 'contacted', 'closed', 'assigned', 'completed', 'suspended'] as const).map((value) => ({
   value,
@@ -85,6 +86,10 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
       if (value.startsWith('driver:')) {
         const driver = drivers.find((d) => d.id === value.slice(7));
         if (!driver) return;
+        // Open WhatsApp on the driver's number with the order loaded right away (a click is needed to open it); send it manually.
+        const url = driverWhatsappUrl(group, driver);
+        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+        else setError(`${driver.name} no tiene un WhatsApp válido en su ficha.`);
         await Promise.all(group.lines.map((l) => updateLeadDetails(l.id, { driverId: driver.id, driverName: driver.name, fulfillment: 'delivery' })));
         if (['new', 'contacted', 'closed'].includes(current)) await Promise.all(group.lines.map((l) => updateLeadStatus(l.id, 'assigned')));
       } else {
@@ -220,6 +225,25 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
                   <option value="pickup">Retiro en local</option>
                   <option value="dinein">Comer en el local</option>
                 </select>
+                {lead.driverId &&
+                  (() => {
+                    const d = drivers.find((x) => x.id === lead.driverId);
+                    const url = d ? driverWhatsappUrl(group, d) : null;
+                    return url ? (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 bg-[#25D366] text-[#0B3D1E] font-semibold px-4 py-2 rounded-full hover:bg-[#20BD5A] transition-colors"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" /> Enviar a {d?.name.split(' ')[0]}
+                      </a>
+                    ) : (
+                      <span title="El repartidor no tiene un WhatsApp válido en su ficha" className="inline-flex items-center gap-1.5 bg-[#F5F5F7] text-[#86868B] px-4 py-2 rounded-full cursor-not-allowed">
+                        <MessageCircle className="w-3.5 h-3.5" /> Repartidor sin WhatsApp
+                      </span>
+                    );
+                  })()}
               </div>
             </li>
           );

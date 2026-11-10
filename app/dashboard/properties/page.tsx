@@ -65,6 +65,15 @@ function PropertiesContent() {
     }
   };
 
+  const onToggleStock = async (p: Property) => {
+    setActionError(null);
+    try {
+      await update(p, { inStock: p.inStock === false });
+    } catch {
+      setActionError('No se pudo cambiar el estado del producto.');
+    }
+  };
+
   const onDelete = async (p: Property) => {
     if (!window.confirm(`¿Eliminar “${p.title}”? Esta acción no se puede deshacer.`)) return;
     setActionError(null);
@@ -179,9 +188,9 @@ function PropertiesContent() {
                 <span className="text-xs font-normal text-[#515154]">{g.items.length}</span>
               </h2>
               {view === 'grid' ? (
-                <PropertyGrid properties={g.items} onDelete={onDelete} onToggleFeatured={onToggleFeatured} categoryLabel={labelFor} />
+                <PropertyGrid properties={g.items} onDelete={onDelete} onToggleFeatured={onToggleFeatured} onToggleStock={onToggleStock} categoryLabel={labelFor} />
               ) : (
-                <PropertyTable properties={g.items} onDelete={onDelete} onToggleFeatured={onToggleFeatured} categoryLabel={labelFor} />
+                <PropertyTable properties={g.items} onDelete={onDelete} onToggleFeatured={onToggleFeatured} onToggleStock={onToggleStock} categoryLabel={labelFor} />
               )}
             </section>
           ))}

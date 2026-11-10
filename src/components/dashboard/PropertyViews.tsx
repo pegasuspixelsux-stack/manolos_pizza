@@ -11,13 +11,15 @@ interface ViewProps {
   properties: Property[];
   onDelete: (property: Property) => void;
   onToggleFeatured: (property: Property) => void;
+  /** Switch the product between Activo and Sin stock. */
+  onToggleStock: (property: Property) => void;
   /** Category display name; falls back to the id. */
   categoryLabel?: (type: string) => string;
 }
 
 const locationText = (p: Property) => (p.deliveryAreas?.length ? p.deliveryAreas : ['Maldonado']).join(' · ');
 
-function Specs({ p }: { p: Property }) {
+function Specs({ p, onToggleStock }: { p: Property; onToggleStock: (p: Property) => void }) {
   return (
     <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
       {p.weight !== undefined && (
@@ -25,11 +27,18 @@ function Specs({ p }: { p: Property }) {
           {formatQuantity(p.weight, p.unit)}
         </span>
       )}
-      {p.inStock === false ? (
-        <span className="rounded-full bg-red-50 text-red-700 px-2.5 py-1">Sin stock</span>
-      ) : (
-        <span className="rounded-full bg-green-50 text-green-700 px-2.5 py-1">En stock</span>
-      )}
+      <button
+        type="button"
+        onClick={() => onToggleStock(p)}
+        aria-pressed={p.inStock !== false}
+        aria-label={p.inStock === false ? `${p.title} está sin stock: marcar como activo` : `${p.title} está activo: marcar sin stock`}
+        title={p.inStock === false ? 'Sin stock: tocá para activarlo' : 'Activo: tocá para marcarlo sin stock'}
+        className={`rounded-full px-3 py-1 transition-colors ${
+          p.inStock === false ? 'bg-red-50 text-red-700 hover:bg-red-100' : 'bg-green-50 text-green-700 hover:bg-green-100'
+        }`}
+      >
+        {p.inStock === false ? 'Sin stock' : 'Activo'}
+      </button>
       {p.salePrice !== undefined && (
         <span className="rounded-full bg-amber-50 text-amber-700 px-2.5 py-1">En oferta</span>
       )}
@@ -75,7 +84,7 @@ function RowActions({
   );
 }
 
-export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryLabel = (t) => typeLabels[t] ?? t }: ViewProps) {
+export function PropertyGrid({ properties, onDelete, onToggleFeatured, onToggleStock, categoryLabel = (t) => typeLabels[t] ?? t }: ViewProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {properties.map((p) => (
@@ -116,7 +125,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryL
               </p>
             </div>
             <div className="flex items-center justify-between pt-3 border-t border-[#000000]/5">
-              <Specs p={p} />
+              <Specs p={p} onToggleStock={onToggleStock} />
               <RowActions p={p} onDelete={onDelete} onToggleFeatured={onToggleFeatured} />
             </div>
           </div>
@@ -126,7 +135,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, categoryL
   );
 }
 
-export function PropertyTable({ properties, onDelete, onToggleFeatured, categoryLabel = (t) => typeLabels[t] ?? t }: ViewProps) {
+export function PropertyTable({ properties, onDelete, onToggleFeatured, onToggleStock, categoryLabel = (t) => typeLabels[t] ?? t }: ViewProps) {
   return (
     <div className="bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-x-auto">
       <table className="w-full text-sm">
@@ -163,7 +172,7 @@ export function PropertyTable({ properties, onDelete, onToggleFeatured, category
                 {operationLabels[p.operation]} · {categoryLabel(p.type)}
               </td>
               <td className="px-3 py-3 hidden lg:table-cell">
-                <Specs p={p} />
+                <Specs p={p} onToggleStock={onToggleStock} />
               </td>
               <td className="px-3 py-3 font-medium whitespace-nowrap">
                 {withUnitSuffix(formatMoney(p.price, p.currency), p.pricingMode)}

@@ -86,7 +86,7 @@ export function useProperties(pageSize = 48, loadAll = false) {
   };
 
   /** Updates fields (e.g. featured) and reflects the change in the list immediately. */
-  const update = async (property: Property, changes: Partial<Pick<Property, 'featured' | 'status'>>) => {
+  const update = async (property: Property, changes: Partial<Pick<Property, 'featured' | 'status' | 'inStock'>>) => {
     await updateProperty(property.id, changes);
     setItems((prev) => prev.map((p) => (p.id === property.id ? { ...p, ...changes } : p)));
   };
