@@ -121,7 +121,7 @@ export default function SiteFooter() {
           <ul className="space-y-3 text-sm text-[#1D1D1F] font-light">
             <li><Link href="/privacidad" className={linkClass}>Política de privacidad</Link></li>
             <li><Link href="/creditos" className={linkClass}>Créditos de fotos</Link></li>
-            <li><a href="#" className={linkClass}>Términos del servicio</a></li>
+            <li><Link href="/terminos" className={linkClass}>Términos de uso</Link></li>
             <li><Link href="/admin/login" className={linkClass}>Administración</Link></li>
           </ul>
         </div>
@@ -133,18 +133,21 @@ export default function SiteFooter() {
 
       {/* Bottom Bar */}
       <div className="max-w-[1440px] mx-auto pt-6 border-t border-black/10 flex flex-col md:flex-row items-center justify-between text-sm md:text-xs text-[#515154] font-light">
-        <p>&copy; {new Date().getFullYear()} Merkado Inc. Todos los derechos reservados.</p>
-        <p className="mt-4 md:mt-0">
-          Plataforma creada por{' '}
-          <a
-            href="https://www.pegasuspixels.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-[#1D1D1F] underline underline-offset-2 hover:no-underline"
-          >
+        <p className="text-center md:text-left">
+          &copy; {new Date().getFullYear()} Manolo&apos;s Pizza. Todos los derechos reservados.
+          <span className="mx-2" aria-hidden="true">·</span>
+          Merkado, plataforma de ventas diseñada por{' '}
+          <a href="https://www.pegasuspixels.com" target="_blank" rel="noopener noreferrer" className="font-medium text-[#1D1D1F] underline underline-offset-2 hover:no-underline">
             PegasusPixels
           </a>
         </p>
+        <div className="mt-4 md:mt-0 flex flex-col items-center md:items-end gap-2">
+          <nav aria-label="Información legal" className="flex flex-wrap justify-center md:justify-end gap-x-5 gap-y-2">
+            <Link href="/privacidad" className={linkClass}>Política de privacidad</Link>
+            <Link href="/terminos" className={linkClass}>Términos de uso</Link>
+            <Link href="/privacidad#datos" className={linkClass}>Qué hacemos con tus datos</Link>
+          </nav>
+        </div>
       </div>
     </footer>
   );

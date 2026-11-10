@@ -266,8 +266,20 @@ function Footer() {
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto pt-6 border-t border-white/20 text-xs text-white/60 font-light">
-        <p>&copy; {new Date().getFullYear()} Manolo&apos;s Pizza. Todos los derechos reservados.</p>
+      <div className="max-w-[1440px] mx-auto pt-6 border-t border-white/20 text-xs text-white/60 font-light flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <p>
+          &copy; {new Date().getFullYear()} Manolo&apos;s Pizza. Todos los derechos reservados.
+          <span className="mx-2" aria-hidden="true">·</span>
+          Merkado, plataforma de ventas diseñada por{' '}
+          <a href="https://www.pegasuspixels.com" target="_blank" rel="noopener noreferrer" className="font-medium text-white/80 underline underline-offset-2 hover:text-white">
+            PegasusPixels
+          </a>
+        </p>
+        <nav aria-label="Información legal" className="flex flex-wrap justify-end md:text-right gap-x-5 gap-y-2">
+          <Link href="/privacidad" className="hover:text-white hover:underline underline-offset-2">Política de privacidad</Link>
+          <Link href="/terminos" className="hover:text-white hover:underline underline-offset-2">Términos de uso</Link>
+          <Link href="/privacidad#datos" className="hover:text-white hover:underline underline-offset-2">Qué hacemos con tus datos</Link>
+        </nav>
       </div>
     </footer>
   );
