@@ -30,12 +30,15 @@ export default function PizzaBuyBox({
   title,
   image,
   inStock,
+  onAdd,
 }: {
   product: MenuProduct;
   itemId: string | number;
   title: string;
   image: string;
   inStock: boolean;
+  /** Staff ordering (Pedidos): hands the line to the caller instead of putting it in the customer's cart. */
+  onAdd?: (line: { itemId: string | number; title: string; unit: number; qty: number; selection: OrderSelection }) => void;
 }) {
   const { add, setOpen } = useCart();
   const sizes = product.sizes;
@@ -72,6 +75,11 @@ export default function PizzaBuyBox({
   const addToCart = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inStock || missingIncluded) return;
+    if (onAdd) {
+      onAdd({ itemId, title, unit, qty, selection });
+      setAdded(true);
+      return;
+    }
     add(
       {
         id: itemId,
@@ -216,7 +224,13 @@ export default function PizzaBuyBox({
         {!inStock ? 'Sin stock' : missingIncluded ? 'Elegí el gusto incluido' : `Agregar al carrito · ${formatMoney(unit * qty)}`}
       </button>
 
-      {added && (
+      {added && onAdd && (
+        <p role="status" className="flex items-center gap-2 text-sm font-medium text-green-700">
+          <Check className="w-4 h-4" aria-hidden="true" /> Agregado al pedido.
+        </p>
+      )}
+
+      {added && !onAdd && (
         <div role="status" className="rounded-2xl bg-green-50 text-green-900 px-5 py-4 space-y-3">
           <p className="flex items-start gap-2 text-sm font-medium">
             <Check className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />

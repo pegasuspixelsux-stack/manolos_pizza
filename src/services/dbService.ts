@@ -186,6 +186,63 @@ export async function seedSampleProperties(
  * Loads the demo orders (src/data/demoData.ts) as new orders from today, for demonstrations. Each line is attached to
  * its menu product when that product exists, so the sales-by-category chart has data. Returns how many orders were created.
  */
+/** A fresh order id (the order number is built from it), so a form can show the number before the order is saved. */
+export function newOrderId(): string {
+  return doc(collection(requireDb(), LEADS)).id;
+}
+
+export interface ManualOrderInput {
+  orderId: string;
+  name: string;
+  phone: string;
+  fulfillment: 'delivery' | 'pickup' | 'dinein';
+  address: string;
+  time: string;
+  payment: PaymentMethod;
+  channel: LeadChannel;
+  notes: string;
+  /** Tax (%) and delivery fee ($) for this order: the defaults from Ajustes, overridden by staff. */
+  taxRate: number;
+  deliveryFee: number;
+  lines: { propertyId?: string; title: string; detail?: string; qty: number; unit: number }[];
+}
+
+/** An order that staff enter by hand (phone, WhatsApp, in person): one record per line, sharing the order id. */
+export async function createManualOrder(o: ManualOrderInput): Promise<void> {
+  const firestore = requireDb();
+  const batch = writeBatch(firestore);
+  const delivery = [
+    o.fulfillment === 'delivery' ? `Entrega a domicilio: ${o.address.trim()}` : o.fulfillment === 'dinein' ? 'Comer en el local' : 'Retiro en local',
+    `${o.fulfillment === 'delivery' ? 'Hora de recepción' : o.fulfillment === 'dinein' ? 'Hora de llegada' : 'Hora de retiro'}: ${o.time || 'Lo antes posible'}`,
+    `Forma de pago: ${paymentMethodLabels[o.payment]}`,
+    `Contacto: ${o.name.trim()} · WhatsApp: ${o.phone.trim()}`,
+    o.notes.trim() ? `Instrucciones especiales: ${o.notes.trim()}` : '',
+  ];
+  const fee = o.fulfillment === 'delivery' ? o.deliveryFee : 0;
+  for (const l of o.lines) {
+    batch.set(doc(collection(firestore, LEADS)), {
+      orderId: o.orderId,
+      name: o.name.trim(),
+      phone: o.phone.trim(),
+      email: '',
+      property: l.title,
+      ...(l.propertyId ? { propertyId: l.propertyId } : {}),
+      unitPrice: l.unit,
+      quantity: l.qty,
+      paymentMethod: o.payment,
+      ...(o.taxRate > 0 ? { taxRate: o.taxRate } : {}),
+      ...(fee > 0 ? { shipping: fee } : {}),
+      channel: o.channel,
+      message: [`${l.title}${l.detail ? ` (${l.detail})` : ''} - ${l.qty} ${l.qty === 1 ? 'Unidad' : 'Unidades'} @ $ ${l.unit}/unidad · Subtotal: $ ${l.unit * l.qty}`, ...delivery]
+        .filter(Boolean)
+        .join('\n'),
+      status: 'new',
+      createdAt: serverTimestamp(),
+    });
+  }
+  await batch.commit();
+}
+
 export async function seedDemoOrders(): Promise<number> {
   const firestore = requireDb();
   const active = await getActiveProperties().catch(() => []);
