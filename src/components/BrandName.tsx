@@ -21,7 +21,7 @@ export default function BrandName({ hideLogoOnMobile = false }: { hideLogoOnMobi
         {businessName ? (
           <>{businessName}.</>
         ) : (
-          <>Manolo&apos;s Pizza</>
+          <>Manolo</>
         )}
       </span>
     </span>

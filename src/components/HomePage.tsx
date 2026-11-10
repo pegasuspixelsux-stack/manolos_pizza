@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import HomeSections from '@/src/components/HomeSections';
+import SearchModal from '@/src/components/SearchModal';
 import InstallButton from '@/src/components/InstallButton';
 import HeroImageScroller from '@/src/components/HeroImageScroller';
 import ItemsShowcase from '@/src/components/ItemsShowcase';
@@ -26,33 +26,21 @@ export default function MerkadoHome({ initialProperties = [] }: { initialPropert
           <span className="hidden md:inline lg:hidden">Precios de mercado válidos por el día. Pueden cambiar en pedidos para el día siguiente.</span>
           <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
         </div>
-        <div className="max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
-          <span className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName /></span>
+        <div className="relative max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
+          <div className="flex items-center gap-1 lg:hidden">
+            <MobileNavMenu align="left" />
+            <InstallButton />
+          </div>
+          <span className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName /></span>
           <SiteNavLinks light />
           <div className="flex items-center gap-1">
-          <form
-            role="search"
-            onSubmit={(e) => {
-              e.preventDefault();
-              document.getElementById('items-grid')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="relative w-24 min-[420px]:w-36 sm:w-56 md:w-64 mr-1"
-          >
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/80" aria-hidden="true" />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-              }}
-              placeholder="Buscar…"
-              aria-label="Buscar artículos por nombre, categoría o precio"
-              className="w-full h-10 rounded-full bg-transparent border border-white/50 text-white placeholder:text-white/70 text-sm pl-10 pr-3 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
-            />
-          </form>
-          <InstallButton />
+          <SearchModal
+            value={query}
+            onChange={setQuery}
+            onSubmit={() => document.getElementById('items-grid')?.scrollIntoView({ behavior: 'smooth' })}
+          />
+          <span className="hidden lg:contents"><InstallButton /></span>
           <CartButton />
-          <MobileNavMenu />
           </div>
         </div>
       </header>

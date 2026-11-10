@@ -8,7 +8,7 @@ import { useBusiness } from '@/src/context/BusinessContext';
 import { socialLinks } from '@/src/components/SocialIcons';
 
 /** Burger button for phones and tablets: opens a dropdown with the top-navigation links. Hidden from lg up. */
-export default function MobileNavMenu({ glass }: { glass?: boolean } = {}) {
+export default function MobileNavMenu({ glass, align = 'right' }: { glass?: boolean; align?: 'left' | 'right' } = {}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const socials = socialLinks(useBusiness());
@@ -43,7 +43,7 @@ export default function MobileNavMenu({ glass }: { glass?: boolean } = {}) {
       {open && (
         <nav
           aria-label="Menú principal"
-          className="absolute right-0 top-full mt-2 w-56 rounded-[12px] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.35)] py-2 z-50"
+          className={`absolute ${align === 'left' ? 'left-0' : 'right-0'} top-full mt-2 w-56 rounded-[12px] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.35)] py-2 z-50`}
         >
           {[{ href: '/', label: 'Inicio' }, ...navLinks, { href: '/dashboard', label: 'Administración' }].map((l) => (
             <Link key={l.label} href={l.href} onClick={() => setOpen(false)} className={linkClass}>

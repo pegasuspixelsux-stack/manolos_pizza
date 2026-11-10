@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const DEFAULT_TITLE = "Manolo's Pizza";
+const DEFAULT_TITLE = "Manolo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { businessName } = await getBusinessSettings();

@@ -104,15 +104,15 @@ export default function ItemsShowcase({
               aria-pressed={category === c.id}
               className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
                 category === c.id
-                  ? 'bg-white/30 backdrop-blur-md text-white border border-white/50'
-                  : 'bg-transparent text-white border border-white/30 hover:bg-white/10'
+                  ? 'bg-white/30 backdrop-blur-md text-white'
+                  : 'bg-transparent text-white hover:bg-white/10'
               }`}
             >
               {c.label}
             </button>
           ))}
         </div>
-        <div role="group" aria-label="Diseño de la lista" className="shrink-0 inline-flex md:hidden rounded-full bg-transparent border border-white/30 p-0.5">
+        <div role="group" aria-label="Diseño de la lista" className="shrink-0 inline-flex md:hidden rounded-full bg-transparent p-0.5">
           {LAYOUTS.map(([value, Icon, label]) => (
             <button
               key={value}

@@ -9,10 +9,10 @@ import HeroImageScroller from '@/src/components/HeroImageScroller';
 import ItemsShowcase from '@/src/components/ItemsShowcase';
 import type { HomeProperty } from '@/src/lib/homeData';
 import HomeSections from '@/src/components/HomeSections';
+import SearchModal from '@/src/components/SearchModal';
 import InstallButton from '@/src/components/InstallButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
-import { Search } from 'lucide-react';
 
 /** Counts from 0 up to `to` once it is on screen (no animation for people who prefer reduced motion). */
 function CountUp({ to, suffix = '', duration = 4000 }: { to: number; suffix?: string; duration?: number }) {
@@ -73,31 +73,23 @@ export default function CoverPage({ initialProperties = [] }: { initialPropertie
   return (
     <div className="min-h-svh bg-[#480A0A] text-white font-sans antialiased flex flex-col">
       <header className="sticky top-0 z-50 bg-[#480A0A] text-white">
-        <div className="max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName /></Link>
+        <div className="relative max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
+          <div className="flex items-center gap-1 lg:hidden">
+            <MobileNavMenu align="left" />
+            <InstallButton />
+          </div>
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName /></Link>
           <SiteNavLinks light />
           <div className="flex items-center gap-3">
-            <form
-              role="search"
-              onSubmit={(e) => {
-                e.preventDefault();
+            <SearchModal
+              value={search}
+              onChange={setSearch}
+              onSubmit={() => {
                 const q = search.trim();
                 router.push(q ? `/items?q=${encodeURIComponent(q)}` : '/items');
               }}
-              className="relative w-24 min-[420px]:w-36 sm:w-56"
-            >
-              <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/80" aria-hidden="true" />
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar…"
-                aria-label="Buscar artículos por nombre, categoría o precio"
-                className="w-full h-10 rounded-full bg-transparent border border-white/50 text-white placeholder:text-white/70 text-sm pl-10 pr-3 outline-none focus:border-white focus:ring-2 focus:ring-white/40"
-              />
-            </form>
-            <InstallButton />
-            <MobileNavMenu />
+            />
+            <span className="hidden lg:contents"><InstallButton /></span>
           </div>
         </div>
       </header>
