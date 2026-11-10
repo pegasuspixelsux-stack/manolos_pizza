@@ -273,26 +273,48 @@ function Footer() {
   );
 }
 
+function MessageSection() {
+  const [open, setOpen] = useState(false);
+  useOpenOnHash('mensaje', () => setOpen(true));
+  return (
+    <section id="mensaje" className="px-[10px] max-w-[1440px] mx-auto scroll-mt-24 border-t border-white/20">
+      {/* Title toggle: phones only; on desktop the section is always open */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls="mensaje-body"
+        className="md:hidden w-full flex items-center justify-between gap-3 py-4 text-left text-xl font-semibold tracking-tight"
+      >
+        <span>Escribinos</span>
+        <ChevronDown className={`w-6 h-6 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <div
+        id="mensaje-body"
+        className={`${open ? '' : 'hidden md:grid'} md:w-[80%] md:mx-auto pb-6 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center`}
+      >
+        <div className="space-y-3">
+          <h2 className="hidden md:block text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">Escribinos</h2>
+          <p className="text-white/85 font-light leading-relaxed">
+            ¿Una consulta, un reclamo o una sugerencia? Tu mensaje le llega directo a la gerencia y te respondemos lo antes posible por WhatsApp o por correo.
+          </p>
+          <p className="text-white/70 text-sm font-light leading-relaxed">
+            Si tu mensaje es sobre un pedido, agregá el número que te dimos (por ejemplo MK-20261110-AB12) para que lo encontremos más rápido.
+          </p>
+        </div>
+        <ContactMessageForm tone="dark" wide hideIntro />
+      </div>
+    </section>
+  );
+}
+
 /** Below the hero: "Preguntas frecuentes" (collapsible) and the footer. */
 export default function HomeSections() {
   return (
     <div className="space-y-4 pb-0">
       <Nosotros />
       <Faq />
-      <section id="mensaje" className="px-[10px] max-w-[1440px] mx-auto scroll-mt-24 border-t border-white/20">
-        <div className="md:w-[80%] md:mx-auto py-14 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center">
-          <div className="space-y-3">
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">Escribinos</h2>
-            <p className="text-white/85 font-light leading-relaxed">
-              ¿Una consulta, un reclamo o una sugerencia? Tu mensaje le llega directo a la gerencia y te respondemos lo antes posible por WhatsApp o por correo.
-            </p>
-            <p className="text-white/70 text-sm font-light leading-relaxed">
-              Si tu mensaje es sobre un pedido, agregá el número que te dimos (por ejemplo MK-20261110-AB12) para que lo encontremos más rápido.
-            </p>
-          </div>
-          <ContactMessageForm tone="dark" wide hideIntro />
-        </div>
-      </section>
+      <MessageSection />
       <Footer />
     </div>
   );
