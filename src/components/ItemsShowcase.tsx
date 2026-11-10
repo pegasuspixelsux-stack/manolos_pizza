@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { needsOptions } from '@/src/data/pizzaMenu';
 import { ArrowUpRight, LayoutGrid, List, Plus, Square } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { typeLabels } from '@/src/utils/format';
-import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
-import { useClient } from '@/src/context/ClientContext';
 import { useCart } from '@/src/context/CartContext';
 import PropertyImage from '@/src/components/PropertyImage';
 
@@ -27,7 +27,7 @@ const gridClass: Record<Exclude<Layout, 'list'>, string> = {
 /**
  * The items grid for the homepage and the cover: category pills (the categories of the items), a layout selector,
  * the items as cards (or a list), and pagination. `query` is the search text from the header.
- * A customer signed in with Acceso mayoristas sees their price level; everyone else sees list prices.
+ * Every item has one price, set on its own page.
  */
 export default function ItemsShowcase({
   items,
@@ -38,10 +38,8 @@ export default function ItemsShowcase({
   query?: string;
   className?: string;
 }) {
-  const { client, level } = useClient();
   const { add: addToCart, setOpen: setCartOpen } = useCart();
-  const allowLoose = client?.allowLoose ?? false;
-  const properties = useMemo(() => applyBoxFirst(applyLevel(items, level), level, allowLoose), [items, level, allowLoose]);
+  const properties = items;
 
   const [category, setCategory] = useState('all');
   const [layout, setLayout] = useState<Layout>('two');
@@ -79,7 +77,13 @@ export default function ItemsShowcase({
   const remaining = filtered.length - visible.length;
   const nextCount = Math.min(PAGE_SIZE, remaining);
 
+  const router = useRouter();
   const quickOrder = (prop: HomeProperty) => {
+    // Pizzas por metro, masa madre and empanadas need a size / gusto / flavor first: open the item page.
+    if (prop.href && needsOptions(prop.title)) {
+      router.push(prop.href);
+      return;
+    }
     addToCart(prop);
     setCartOpen(true);
   };

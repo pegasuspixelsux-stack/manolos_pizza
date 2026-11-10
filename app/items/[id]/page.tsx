@@ -8,8 +8,9 @@ import { sampleProperties } from '@/src/data/sampleProperties';
 import type { Property } from '@/src/types/firestore';
 import { formatMoney, formatQuantity, mergeCategories, withUnitSuffix } from '@/src/utils/format';
 import BuyBox from '@/src/components/BuyBox';
+import PizzaBuyBox from '@/src/components/PizzaBuyBox';
+import { productForTitle } from '@/src/data/pizzaMenu';
 import ItemPriceView from '@/src/components/ItemPriceView';
-import WholesaleAccess from '@/src/components/WholesaleAccess';
 import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import CartButton from '@/src/components/CartButton';
@@ -59,6 +60,10 @@ export default async function ItemPage({ params }: Props) {
   const custom = await getCategories().catch(() => []);
   const category = mergeCategories(custom).find((c) => c.id === item.type)?.name ?? item.type;
   const isSample = id.startsWith('sample-');
+  // Menu products with choices (pizza por metro, masa madre, empanadas) get the size / gustos order box.
+  const product = productForTitle(item.title);
+  const cartId = isSample ? Number(id.replace('sample-', '')) : item.id;
+  const fromPrice = product?.sizes ? `Desde ${formatMoney(product.sizes[0].price)}` : formatMoney(item.price);
   const inStock = item.inStock !== false;
   const quantity = formatQuantity(item.weight, item.unit);
   const photo = item.photos[0]?.url;
@@ -104,7 +109,6 @@ export default async function ItemPage({ params }: Props) {
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
           <div className="flex items-center gap-3">
-            <WholesaleAccess glass />
             <CartButton glass />
             <MobileNavMenu glass />
           </div>
@@ -147,25 +151,26 @@ export default async function ItemPage({ params }: Props) {
                 <h1 className="text-2xl font-semibold tracking-tight">{item.title}</h1>
               </div>
               <div className="shrink-0 text-right">
-                <ItemPriceView glass categoryId={item.type} pricing={pricing} />
+                {product ? <p className="text-xl font-semibold">{fromPrice}</p> : <ItemPriceView glass pricing={pricing} />}
               </div>
             </div>
             {item.description && (
               <p className="text-sm text-[#515154] font-light leading-relaxed whitespace-pre-line">{item.description}</p>
             )}
-            <BuyBox
-              onPhoto
+            {!product && (
+              <BuyBox
+                onPhoto
               itemId={isSample ? Number(id.replace('sample-', '')) : item.id}
               title={item.title}
               image={photo ?? ''}
               pricing={pricing}
-              categoryId={item.type}
               inStock={inStock}
             />
+            )}
           </div>
         </SwipeSection>
         <div className="md:hidden mt-4">
-          <BuyBox signInOnly itemId={isSample ? Number(id.replace('sample-', '')) : item.id} title={item.title} image={photo ?? ''} pricing={pricing} categoryId={item.type} inStock={inStock} />
+          {product && <PizzaBuyBox product={product} itemId={cartId} title={item.title} image={photo ?? ''} inStock={inStock} />}
         </div>
 
         <Link
@@ -198,7 +203,7 @@ export default async function ItemPage({ params }: Props) {
             <div className="hidden md:block space-y-4">
               <p className="text-xs uppercase tracking-widest text-[#515154] font-semibold">{category}</p>
               <h1 className="text-5xl font-semibold tracking-tight">{item.title}</h1>
-              <ItemPriceView categoryId={item.type} pricing={pricing} />
+              {product ? <p className="text-3xl font-semibold">{fromPrice}</p> : <ItemPriceView pricing={pricing} />}
               {quantity && (
                 <p className="text-sm text-[#515154]">
                   <span className="font-medium text-[#1D1D1F]">Peso:</span> {quantity}
@@ -215,14 +220,17 @@ export default async function ItemPage({ params }: Props) {
           </div>
 
           <div className="hidden md:block">
+            {product ? (
+              <PizzaBuyBox product={product} itemId={cartId} title={item.title} image={photo ?? ''} inStock={inStock} />
+            ) : (
             <BuyBox
             itemId={isSample ? Number(id.replace('sample-', '')) : item.id}
             title={item.title}
             image={photo ?? ''}
             pricing={pricing}
-            categoryId={item.type}
             inStock={inStock}
           />
+            )}
           </div>
         </div>
       </main>

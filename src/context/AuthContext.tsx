@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             name: data.name ?? '',
             phone: data.phone ?? undefined,
             avatarUrl: data.avatarUrl ?? undefined,
-            role: data.role === 'admin' ? 'admin' : 'agent',
+            role: data.role === 'admin' ? 'admin' : data.role === 'manager' ? 'manager' : 'operator',
             active: true,
             createdAt: data.createdAt?.toMillis?.(),
           });

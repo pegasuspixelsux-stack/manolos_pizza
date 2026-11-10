@@ -143,7 +143,9 @@ export function mergeCategories(custom: { id: string; name: string }[]): Categor
 
 export const roleLabels: Record<string, string> = {
   admin: 'Administrador',
-  agent: 'Agente',
+  manager: 'Gerente',
+  operator: 'Operador',
+  agent: 'Operador',
 };
 
 export const statusLabels: Record<PropertyStatus, string> = {

@@ -70,12 +70,12 @@ export default function SettingsPage() {
 
       {agent.role === 'admin' && (
         <Link
-          href="/admin"
+          href="/dashboard/staff"
           className={`${cardClass} mt-6 max-w-xl p-6 flex items-center justify-between hover:bg-[#F5F5F7] transition-colors`}
         >
           <div>
-            <p className="font-medium">Equipo y usuarios</p>
-            <p className="text-xs text-[#515154]">Agregá agentes, cambiá roles y desactivá cuentas.</p>
+            <p className="font-medium">Personal autorizado</p>
+            <p className="text-xs text-[#515154]">Agregá personal, cambiá roles y desactivá cuentas.</p>
           </div>
           <ArrowUpRight className="w-4 h-4" />
         </Link>

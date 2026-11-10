@@ -21,8 +21,15 @@ service cloud.firestore {
         && agentDoc().data.active == true;
     }
 
+    // Staff levels: admin (everything), manager (everything except platform changes), operator (works the orders).
+    // Profiles saved with the old role 'agent' count as operators.
     function isAdmin() {
       return isAgent() && agentDoc().data.role == 'admin';
+    }
+
+    // Admin or manager: manages the menu, prices, operators and drivers.
+    function isManager() {
+      return isAgent() && agentDoc().data.role in ['admin', 'manager'];
     }
 
     function validProperty(p) {
@@ -62,21 +69,19 @@ service cloud.firestore {
     match /properties/{id} {
       allow read: if resource.data.status == 'active' || isAgent();
 
-      allow create: if isAgent()
+      allow create: if isManager()
         && validProperty(request.resource.data)
         && request.resource.data.agentId == request.auth.uid
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
 
-      allow update: if isAgent()
-        && (resource.data.agentId == request.auth.uid || isAdmin())
+      allow update: if isManager()
         && validProperty(request.resource.data)
         && request.resource.data.agentId == resource.data.agentId
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.updatedAt == request.time;
 
-      allow delete: if isAgent()
-        && (resource.data.agentId == request.auth.uid || isAdmin());
+      allow delete: if isManager();
     }
 
     // ----------------------------------------------------------- categories
@@ -85,13 +90,62 @@ service cloud.firestore {
 
     match /categories/{id} {
       allow read: if true;
-      allow create: if isAgent()
+      allow create: if isManager()
         && request.resource.data.keys().hasOnly(['name', 'createdAt'])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60
         && request.resource.data.createdAt == request.time;
       allow update: if false;
-      allow delete: if isAgent();
+      allow delete: if isManager();
+    }
+
+    // ------------------------------------------------------------- products
+    // The structured menu the ordering flow reads (sizes, gustos, flavors). Public read; only agents write.
+
+    match /products/{id} {
+      allow read: if true;
+      allow write: if isManager();
+    }
+
+    // -------------------------------------------------------------- drivers
+    // Delivery drivers. Every staff member can read them (to assign an order); admins and managers add or edit them. Never deleted.
+
+    match /drivers/{id} {
+      allow read: if isAgent();
+      allow create: if isManager()
+        && request.resource.data.keys().hasOnly(['name', 'address', 'idDocument', 'licenseNumber', 'licenseExpiry', 'whatsapp', 'active', 'createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
+        && request.resource.data.address is string && request.resource.data.address.size() > 0 && request.resource.data.address.size() <= 200
+        && request.resource.data.idDocument is string && request.resource.data.idDocument.size() > 0 && request.resource.data.idDocument.size() <= 40
+        && request.resource.data.licenseNumber is string && request.resource.data.licenseNumber.size() > 0 && request.resource.data.licenseNumber.size() <= 40
+        && request.resource.data.licenseExpiry is string && request.resource.data.licenseExpiry.size() == 10
+        && request.resource.data.whatsapp is string && request.resource.data.whatsapp.size() >= 8 && request.resource.data.whatsapp.size() <= 30
+        && request.resource.data.active is bool
+        && request.resource.data.createdAt == request.time;
+      allow update: if isManager()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'address', 'idDocument', 'licenseNumber', 'licenseExpiry', 'whatsapp', 'active']);
+      allow delete: if false;
+    }
+
+    // ------------------------------------------------------------- messages
+    // Messages the public sends from the site footer to the management. Anyone can send one (validated);
+    // every staff member (admin, manager, operator) reads and answers them and marks them as read. Never deleted.
+
+    match /messages/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'contact', 'orderRef', 'text', 'status', 'createdAt'])
+        && request.resource.data.status == 'new'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
+        && request.resource.data.contact is string && request.resource.data.contact.size() > 0 && request.resource.data.contact.size() <= 200
+        && (!('orderRef' in request.resource.data)
+            || (request.resource.data.orderRef is string && request.resource.data.orderRef.size() <= 40))
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 2000;
+      allow read: if isAgent();
+      allow update: if isAgent()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['new', 'read'];
+      allow delete: if false;
     }
 
     // ------------------------------------------------------------- listings
@@ -110,7 +164,8 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasOnly([
             'name', 'email', 'property', 'message', 'status', 'createdAt',
             'propertyId', 'clientName', 'phone', 'channel',
-            'unitPrice', 'quantity', 'clientId', 'priceLevelId', 'orderId'
+            'unitPrice', 'quantity', 'clientId', 'priceLevelId', 'orderId',
+            'paymentMethod', 'taxRate', 'shipping'
           ])
         && request.resource.data.status == 'new'
         && request.resource.data.createdAt == request.time
@@ -136,16 +191,24 @@ service cloud.firestore {
             || (request.resource.data.priceLevelId is string && request.resource.data.priceLevelId.size() <= 40))
         && (!('orderId' in request.resource.data)
             || (request.resource.data.orderId is string && request.resource.data.orderId.size() <= 64))
+        && (!('paymentMethod' in request.resource.data)
+            || request.resource.data.paymentMethod in ['cash', 'card', 'prepaid', 'house_account'])
+        && (!('taxRate' in request.resource.data)
+            || (request.resource.data.taxRate is number && request.resource.data.taxRate >= 0 && request.resource.data.taxRate <= 100))
+        && (!('shipping' in request.resource.data)
+            || (request.resource.data.shipping is number && request.resource.data.shipping >= 0 && request.resource.data.shipping < 1000000))
         && (!('channel' in request.resource.data)
             || request.resource.data.channel in ['WhatsApp', 'Portal', 'Direct']);
 
-      allow read, delete: if isAgent();
+      allow read: if isAgent();
+      // An operator can modify and suspend an order but never delete it.
+      allow delete: if isManager();
 
       allow update: if isAgent()
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['status', 'notes', 'assignedAgentId', 'quantity', 'unitPrice', 'message',
-                       'paymentMethod', 'taxRate', 'shipping'])
-        && request.resource.data.status in ['new', 'contacted', 'closed']
+                       'paymentMethod', 'taxRate', 'shipping', 'driverId', 'driverName', 'driverPay', 'driverPaid', 'fulfillment'])
+        && request.resource.data.status in ['new', 'contacted', 'closed', 'assigned', 'completed', 'suspended']
         // Agents can correct an order before confirming it: quantity, price and the order details text.
         && (!('quantity' in request.resource.data)
             || (request.resource.data.quantity is int
@@ -154,8 +217,17 @@ service cloud.firestore {
             || (request.resource.data.unitPrice is number
                 && request.resource.data.unitPrice >= 0 && request.resource.data.unitPrice < 1000000))
         && request.resource.data.message is string && request.resource.data.message.size() <= 5000
+        && (!('driverId' in request.resource.data)
+            || (request.resource.data.driverId is string && request.resource.data.driverId.size() <= 64))
+        && (!('driverPay' in request.resource.data)
+            || (request.resource.data.driverPay is number
+                && request.resource.data.driverPay >= 0 && request.resource.data.driverPay < 1000000))
+        && (!('driverPaid' in request.resource.data) || request.resource.data.driverPaid is bool)
+        && (!('fulfillment' in request.resource.data) || request.resource.data.fulfillment in ['delivery', 'pickup', 'dinein'])
+        && (!('driverName' in request.resource.data)
+            || (request.resource.data.driverName is string && request.resource.data.driverName.size() <= 120))
         && (!('paymentMethod' in request.resource.data)
-            || request.resource.data.paymentMethod in ['house_account', 'card', 'cash'])
+            || request.resource.data.paymentMethod in ['cash', 'card', 'prepaid', 'house_account'])
         && (!('taxRate' in request.resource.data)
             || (request.resource.data.taxRate is number
                 && request.resource.data.taxRate >= 0 && request.resource.data.taxRate <= 100))
@@ -216,7 +288,7 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if isAdmin()
         && id == 'business'
-        && request.resource.data.keys().hasOnly(['businessName', 'address', 'email', 'whatsapp', 'phone', 'rut', 'license', 'hours', 'instagram', 'facebook', 'youtube', 'logo', 'heroImages', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['businessName', 'address', 'email', 'whatsapp', 'phone', 'rut', 'license', 'hours', 'instagram', 'facebook', 'youtube', 'logo', 'heroImages', 'taxRate', 'deliveryFee', 'saveOrders', 'updatedAt'])
         && request.resource.data.businessName is string && request.resource.data.businessName.size() <= 120
         && request.resource.data.address is string && request.resource.data.address.size() <= 200
         && request.resource.data.email is string && request.resource.data.email.size() <= 200
@@ -230,6 +302,9 @@ service cloud.firestore {
         && request.resource.data.youtube is string && request.resource.data.youtube.size() <= 200
         && request.resource.data.logo is string && request.resource.data.logo.size() <= 500
         && request.resource.data.heroImages is list && request.resource.data.heroImages.size() <= 12
+        && request.resource.data.taxRate is number && request.resource.data.taxRate >= 0 && request.resource.data.taxRate <= 100
+        && request.resource.data.deliveryFee is number && request.resource.data.deliveryFee >= 0 && request.resource.data.deliveryFee < 1000000
+        && request.resource.data.saveOrders is bool
         && request.resource.data.updatedAt == request.time;
       allow delete: if false;
     }
@@ -244,16 +319,20 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow read: if signedIn() && (request.auth.uid == uid || isManager());
 
       // First-admin bootstrap: to create your very first admin profile from the login page,
       // temporarily change this to:
       //   allow create: if isAdmin() || (signedIn() && request.auth.uid == uid
       //                                  && request.resource.data.role == 'admin');
       // then change it back right after you have signed in.
-      allow create: if isAdmin();
+      // Admins add any level; a manager adds operators only. Users are never deleted, only deactivated.
+      allow create: if isAdmin()
+        || (isManager() && request.resource.data.role == 'operator');
 
       allow update: if isAdmin()
+        || (isManager() && resource.data.role == 'operator' && request.resource.data.role == 'operator'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active', 'name', 'phone']))
         || (isAgent() && request.auth.uid == uid
             && request.resource.data.diff(resource.data).affectedKeys()
                  .hasOnly(['name', 'phone', 'avatarUrl']));

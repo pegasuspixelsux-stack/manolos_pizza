@@ -5,6 +5,7 @@ import { emptyBusiness, MAX_HERO_IMAGES, type BusinessSettings } from '../types/
 const REF = ['settings', 'business'] as const;
 
 const clip = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+const num = (v: unknown, max: number) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.min(v, max) : 0);
 
 export function toBusiness(d: Record<string, unknown> | undefined): BusinessSettings {
   return {
@@ -23,6 +24,9 @@ export function toBusiness(d: Record<string, unknown> | undefined): BusinessSett
     heroImages: Array.isArray(d?.heroImages)
       ? d.heroImages.map((u: unknown) => clip(u, 500)).filter(Boolean).slice(0, MAX_HERO_IMAGES)
       : [],
+    taxRate: num(d?.taxRate, 100),
+    deliveryFee: num(d?.deliveryFee, 999999),
+    saveOrders: d?.saveOrders !== false,
   };
 }
 

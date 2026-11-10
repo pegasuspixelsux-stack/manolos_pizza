@@ -44,7 +44,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
   return (
     <>
-      <PageHeader eyebrow="Inventario" title="Editar artículo" description={property.title} />
+      <PageHeader eyebrow="Inventario" title="Editar producto del menú" description={property.title} />
       <PropertyForm
         initial={property}
         submitLabel="Guardar cambios"

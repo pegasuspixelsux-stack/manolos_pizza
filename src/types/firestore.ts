@@ -23,7 +23,12 @@ export type DeliveryArea = (typeof DELIVERY_AREAS)[number];
 
 // ---------------------------------------------------------------- Agents
 
-export type AgentRole = 'admin' | 'agent';
+/**
+ * Staff levels. admin: full privileges. manager: everything except changes to the platform (Ajustes); manages the menu,
+ * prices, operators and drivers. operator: works the orders (assign a driver, modify, suspend); never deletes one.
+ * (Accounts saved with the old role 'agent' count as operators.)
+ */
+export type AgentRole = 'admin' | 'manager' | 'operator';
 
 export interface Agent {
   /** Firebase Auth uid. */
@@ -137,14 +142,16 @@ export type PropertyUpdate = Partial<Omit<PropertyInput, 'agentId'>>;
 
 export type LeadChannel = 'WhatsApp' | 'Portal' | 'Direct';
 /** CRM pipeline stage. */
-export type LeadStatus = 'new' | 'contacted' | 'closed';
+/** Order flow: new -> contacted (Aceptado) -> closed (Confirmado) -> assigned (Asignado a un repartidor) -> completed (entregado). Any order can be suspended. */
+export type LeadStatus = 'new' | 'contacted' | 'closed' | 'assigned' | 'completed' | 'suspended';
 
-export const PAYMENT_METHODS = ['house_account', 'card', 'cash'] as const;
+export const PAYMENT_METHODS = ['cash', 'card', 'prepaid', 'house_account'] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const paymentMethodLabels: Record<PaymentMethod, string> = {
-  house_account: 'Cuenta corriente',
-  card: 'Tarjeta',
   cash: 'Efectivo',
+  card: 'Tarjeta de crédito',
+  prepaid: 'Prepago',
+  house_account: 'Crédito',
 };
 
 export interface Lead {
@@ -173,6 +180,14 @@ export interface Lead {
   shipping?: number;
   /** Firebase Auth uid of the client who placed the order, when signed in. */
   clientId?: string;
+  /** Delivery driver assigned to the order (drivers/{id}); the name is copied so the order keeps it. */
+  driverId?: string;
+  driverName?: string;
+  /** What the driver is paid for this delivery (the customer's delivery fee is `shipping`), and whether it has been paid. */
+  driverPay?: number;
+  driverPaid?: boolean;
+  /** How the order is received, when staff set it in Pedidos (delivery by a driver, pickup or dining in); otherwise it is read from the order text. */
+  fulfillment?: 'delivery' | 'pickup' | 'dinein';
   createdAt: number;
 }
 
@@ -282,6 +297,14 @@ export interface BusinessSettings {
   logo: string;
   /** Photos for the scroller at the top of the hero (image URLs, in order); empty = square placeholders. */
   heroImages: string[];
+  /** Default tax (%) added to an order and default delivery fee ($). Managers, admins and operators can override both on each order. */
+  taxRate: number;
+  deliveryFee: number;
+  /**
+   * true (default): a customer's order goes to WhatsApp AND is saved in the dashboard (Pedidos).
+   * false: orders go to WhatsApp only and the dashboard order features are not used.
+   */
+  saveOrders: boolean;
 }
 
 export const MAX_HERO_IMAGES = 12;
@@ -300,4 +323,77 @@ export const emptyBusiness: BusinessSettings = {
   youtube: '',
   logo: '',
   heroImages: [],
+  taxRate: 0,
+  deliveryFee: 0,
+  saveOrders: true,
 };
+
+// ------------------------------------------------------- Menu products
+// The menu as the ordering flow needs it (products/{id}). Pizza por metro has sizes and toppings; the rest is a fixed price.
+
+/** One size of a pizza por metro. `quarters` is how many ¼-metro sections it has (¼ = 1 … 1 metro = 4). */
+export interface MenuSize {
+  id: string;
+  label: string;
+  quarters: number;
+  price: number;
+}
+
+export interface MenuProduct {
+  /** Slug; also the Firestore document id in products/{id}. */
+  id: string;
+  name: string;
+  /** Category id (categories/{id}). */
+  category: string;
+  description: string;
+  /** Pizza por metro: one entry per size, each with its own base price. */
+  sizes?: MenuSize[];
+  /** Everything else: the fixed price. */
+  price?: number;
+  /** How many gustos (toppings) are already in the base price (the first ones chosen are free). */
+  includedToppings?: number;
+  /** Whether extra toppings can be added (pizzas only). Each costs `extraToppingPrice` per ¼ metro. */
+  allowsExtraToppings?: boolean;
+  /** Choice the customer must make when ordering (empanadas): one of these flavors. */
+  flavors?: string[];
+  /** Position in the menu. */
+  order: number;
+  active: boolean;
+}
+
+// --------------------------------------------------------------- Drivers
+// Delivery drivers (drivers/{id}). Only an administrator adds or edits them; every staff member can assign one to an order.
+
+export interface Driver {
+  id: string;
+  name: string;
+  address: string;
+  /** Documento de identidad (cédula). */
+  idDocument: string;
+  /** Libreta de conducir: number and expiry date (YYYY-MM-DD). A driver is only assignable with a valid, unexpired license. */
+  licenseNumber: string;
+  licenseExpiry: string;
+  /** WhatsApp number. */
+  whatsapp: string;
+  active: boolean;
+  createdAt: number;
+}
+
+export type DriverInput = Omit<Driver, 'id' | 'createdAt'>;
+
+// -------------------------------------------------------------- Messages
+// Messages the public sends from the site footer to the management (messages/{id}). Read in the dashboard by admins and managers.
+
+export type MessageStatus = 'new' | 'read';
+
+export interface SiteMessage {
+  id: string;
+  name: string;
+  /** Phone, WhatsApp or e-mail the sender gave to be answered. */
+  contact: string;
+  /** Order number the message is about (optional), e.g. MK-20261110-AB12. */
+  orderRef?: string;
+  text: string;
+  status: MessageStatus;
+  createdAt: number;
+}

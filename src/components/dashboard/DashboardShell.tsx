@@ -5,37 +5,38 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Building2,
-  ClipboardList,
+  Bell,
   Inbox,
   LayoutDashboard,
   LogOut,
   Menu,
-  Percent,
   Plus,
-  PlusSquare,
   Settings,
   Tags,
   UserCog,
+  Truck,
   Users,
   X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { roleLabels } from '../../utils/format';
 import { useLeads } from '../../hooks/useLeads';
+import { useMessages } from '../../hooks/useMessages';
 import { groupOrders } from '../../utils/orders';
 import LeadInbox from '../LeadInbox';
+import MessageToasts from './MessageToasts';
+import { can, canOpen } from '../../utils/permissions';
+import BrandName from '../BrandName';
 
-const nav: { href: string; label: string; icon: typeof Users; exact?: boolean; adminOnly?: boolean }[] = [
+const nav: { href: string; label: string; icon: typeof Users; exact?: boolean }[] = [
   { href: '/dashboard', label: 'Resumen', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/leads', label: 'Pedidos', icon: Inbox },
-  { href: '/dashboard/daily-order', label: 'Pedido del día', icon: ClipboardList },
-  { href: '/dashboard/price-levels', label: 'Niveles de precio', icon: Percent },
   { href: '/dashboard/categories', label: 'Categorías', icon: Tags },
-  { href: '/dashboard/properties', label: 'Artículos', icon: Building2 },
-  { href: '/dashboard/properties/new', label: 'Agregar artículo', icon: PlusSquare },
-  { href: '/dashboard/customers', label: 'Clientes', icon: Users },
-  // Staff / operators: add agents, change roles, deactivate accounts.
-  { href: '/admin', label: 'Usuarios', icon: UserCog, adminOnly: true },
+  { href: '/dashboard/properties', label: 'Menú', icon: Building2 },
+  { href: '/dashboard/messages', label: 'Mensajes', icon: Bell },
+  { href: '/dashboard/drivers', label: 'Repartidores', icon: Truck },
+  // Staff: add operators (managers) or any level (admin), deactivate accounts.
+  { href: '/dashboard/staff', label: 'Personal autorizado', icon: UserCog },
   { href: '/dashboard/settings', label: 'Ajustes', icon: Settings },
 ];
 
@@ -46,6 +47,9 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   const { leads, loading, error } = useLeads(100);
   const [menuOpen, setMenuOpen] = useState(false);
   const [inboxOpen, setInboxOpen] = useState(false);
+  // Messages from the site footer reach every staff member (admin, manager, operator): the bell and the popups.
+  const canSeeMessages = Boolean(agent);
+  const { messages, unread: unreadMessages } = useMessages(canSeeMessages);
 
   const newLeads = groupOrders(leads).filter((g) => g.status === 'new').length; // new ORDERS, not product lines
   const isActive = (href: string, exact?: boolean) => {
@@ -61,7 +65,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
     <div className="flex h-full flex-col">
       <div className="px-6 h-16 flex items-center justify-between shrink-0">
         <Link href="/dashboard" className="font-semibold text-lg tracking-tight">
-          Merkado.
+          <BrandName />
         </Link>
         <button
           onClick={() => setMenuOpen(false)}
@@ -73,7 +77,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
       </div>
       <p className="px-6 pt-4 pb-2 text-xs uppercase tracking-widest text-white/60 font-semibold">Panel</p>
       <nav className="px-3 space-y-1" aria-label="Panel">
-        {nav.filter((n) => !n.adminOnly || agent?.role === 'admin').map(({ href, label, icon: Icon, exact }) => {
+        {nav.filter((n) => canOpen(n.href, agent?.role)).map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact);
           return (
             <Link
@@ -110,6 +114,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
+      <MessageToasts messages={messages} enabled={canSeeMessages} />
       {/* Desktop sidebar */}
       <aside className="hidden lg:block fixed inset-y-0 left-0 w-64 bg-black text-white">
         {sidebar}
@@ -149,13 +154,31 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
             </p>
 
             <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+              {can.manageMenu(agent?.role) && (
               <Link
                 href="/dashboard/properties/new"
                 className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-4 py-2.5 rounded-full hover:bg-[#333336] transition-all"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Nuevo artículo</span>
+                <span className="hidden sm:inline">Nuevo producto</span>
               </Link>
+              )}
+
+              {canSeeMessages && (
+                <Link
+                  href="/dashboard/messages"
+                  aria-label={`Mensajes, ${unreadMessages} nuevos`}
+                  title="Mensajes"
+                  className="relative p-2.5 rounded-full bg-white border border-[#000000]/5 hover:bg-[#F5F5F7]"
+                >
+                  <Bell className="w-4 h-4" />
+                  {unreadMessages > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-red-600 text-white text-[10px] font-medium flex items-center justify-center ring-2 ring-[#FBFBFD]">
+                      {unreadMessages > 99 ? '99+' : unreadMessages}
+                    </span>
+                  )}
+                </Link>
+              )}
 
               <button
                 onClick={() => setInboxOpen(true)}
@@ -194,7 +217,15 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="px-4 sm:px-8 py-10 max-w-6xl">{children}</main>
+        <main className="px-4 sm:px-8 py-10 max-w-6xl">
+          {canOpen(pathname, agent?.role) ? (
+            children
+          ) : (
+            <p role="alert" className="text-sm text-[#515154]">
+              Tu nivel de acceso ({roleLabels[agent?.role ?? ''] ?? 'sin rol'}) no permite abrir esta sección.
+            </p>
+          )}
+        </main>
       </div>
 
       <LeadInbox

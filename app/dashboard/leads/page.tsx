@@ -8,12 +8,17 @@ import AddOrder from '@/src/components/dashboard/AddOrder';
 import { PageHeader, cardClass } from '@/src/components/dashboard/ui';
 import type { LeadStatus } from '@/src/types/firestore';
 import { groupOrders, withoutPartialOrder } from '@/src/utils/orders';
+import { seedDemoOrders } from '@/src/services/dbService';
+import { useBusiness } from '@/src/context/BusinessContext';
 
 const filters: { value: LeadStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'Todos' },
   { value: 'new', label: 'Nuevos' },
   { value: 'contacted', label: 'Aceptados' },
   { value: 'closed', label: 'Confirmados' },
+  { value: 'assigned', label: 'Asignados' },
+  { value: 'completed', label: 'Completados' },
+  { value: 'suspended', label: 'Suspendidos' },
 ];
 
 const LIMIT = 500;
@@ -22,6 +27,22 @@ export default function LeadsPage() {
   const { agent } = useAuth();
   const { leads: loaded, loading, error } = useLeads(LIMIT);
   const [filter, setFilter] = useState<LeadStatus | 'all'>('all');
+  const { saveOrders } = useBusiness();
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [demoMsg, setDemoMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const loadDemo = async () => {
+    setDemoBusy(true);
+    setDemoMsg(null);
+    try {
+      const n = await seedDemoOrders();
+      setDemoMsg({ ok: true, text: `Se cargaron ${n} pedidos de ejemplo.` });
+    } catch {
+      setDemoMsg({ ok: false, text: 'No se pudieron cargar los pedidos de ejemplo.' });
+    } finally {
+      setDemoBusy(false);
+    }
+  };
 
   // The list loads the newest records only; an order cut at the edge is dropped instead of shown incomplete.
   const leads = withoutPartialOrder(loaded, LIMIT);
@@ -35,8 +56,30 @@ export default function LeadsPage() {
       <PageHeader
         eyebrow="Clientes"
         title="Pedidos"
-        description="Pedidos del sitio y los que agregás vos, en vivo. Abrí un pedido para modificarlo, aceptarlo, confirmarlo o imprimirlo."
+        description="Pedidos del sitio y los que agregás vos, en vivo. Abrí un pedido para modificarlo, aceptarlo, confirmarlo, suspenderlo o imprimirlo."
+        action={
+          (
+            <button
+              type="button"
+              onClick={loadDemo}
+              disabled={demoBusy}
+              className="inline-flex items-center gap-2 border border-[#000000]/10 text-xs font-medium px-5 py-3 rounded-full hover:bg-[#F5F5F7] disabled:opacity-50"
+            >
+              {demoBusy ? 'Cargando…' : 'Cargar pedidos demo'}
+            </button>
+          )
+        }
       />
+      {!saveOrders && (
+        <p role="status" className="mb-4 rounded-xl bg-amber-50 text-amber-900 text-sm px-4 py-3">
+          Los pedidos de la web se están recibiendo <strong>solo por WhatsApp</strong> y no se guardan acá. Podés cambiarlo en Ajustes (“Guardar los pedidos también en el panel”).
+        </p>
+      )}
+      {demoMsg && (
+        <p role={demoMsg.ok ? 'status' : 'alert'} className={`text-sm mb-4 ${demoMsg.ok ? 'text-green-700' : 'text-red-600'}`}>
+          {demoMsg.text}
+        </p>
+      )}
 
       <AddOrder />
 

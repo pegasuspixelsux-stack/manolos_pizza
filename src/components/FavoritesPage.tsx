@@ -7,7 +7,6 @@ import { useClient } from '@/src/context/ClientContext';
 import { getCategories } from '@/src/services/dbService';
 import { getFavorites } from '@/src/services/favoritesService';
 import { toHomeProperty, type HomeProperty } from '@/src/lib/homeData';
-import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import { formatMoney, mergeCategories, priceWithShortUnit, quantityLabel } from '@/src/utils/format';
 import CartDrawer, { unitPriceOf, type CartLine } from '@/src/components/CartDrawer';
 import PropertyImage from '@/src/components/PropertyImage';
@@ -43,7 +42,7 @@ function RemoveButton({ title, onRemove }: { title: string; onRemove: () => Prom
 }
 
 export default function FavoritesPage() {
-  const { client, level, favorites, toggleFavorite } = useClient();
+  const { client, favorites, toggleFavorite } = useClient();
   const [products, setProducts] = useState<HomeProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,9 +78,9 @@ export default function FavoritesPage() {
 
   // Today's price for this customer's level, in the order the customer saved them.
   const priced = useMemo(() => {
-    const byId = new Map(applyBoxFirst(applyLevel(products, level), level, client?.allowLoose ?? false).map((p) => [String(p.id), p]));
+    const byId = new Map(products.map((p) => [String(p.id), p]));
     return favorites.map((id) => byId.get(id)).filter((p): p is HomeProperty => !!p);
-  }, [products, level, favorites, client?.allowLoose]);
+  }, [products, favorites]);
   const available = priced.filter((p) => p.inStock !== false);
   const soldOut = priced.filter((p) => p.inStock === false);
 
@@ -200,7 +199,6 @@ export default function FavoritesPage() {
           setQty({});
           setExcluded(new Set(available.map((i) => String(i.id))));
         }}
-        buyerType={client && level ? 'wholesale' : 'retail'}
       />
       <SiteFooter />
     </div>

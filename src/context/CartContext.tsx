@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import CartDrawer from '@/src/components/CartDrawer';
 import { useClient } from '@/src/context/ClientContext';
 import type { HomeProperty } from '@/src/lib/homeData';
+import type { OrderSelection } from '@/src/utils/pizzaPricing';
 
 /** One cart line. `key` tells apart the same product bought in two units (e.g. kilo and unidad). */
 export interface StoredLine {
@@ -11,6 +12,8 @@ export interface StoredLine {
   /** Snapshot of the product as the customer saw it, with the unit and price they picked. */
   item: HomeProperty;
   qty: number;
+  /** Size, toppings and flavor picked for a pizza / empanada line; its `total` is the unit price. */
+  selection?: OrderSelection;
 }
 
 interface CartState {
@@ -18,7 +21,7 @@ interface CartState {
   /** Total number of units in the cart (for the badge). */
   count: number;
   /** Adds `qty` of a product; adding the same product in the same unit again increases its quantity. */
-  add: (item: HomeProperty, qty?: number) => void;
+  add: (item: HomeProperty, qty?: number, selection?: OrderSelection) => void;
   changeQty: (key: string, delta: number) => void;
   remove: (key: string) => void;
   clear: () => void;
@@ -29,7 +32,9 @@ interface CartState {
 const STORAGE_KEY = 'merkado-cart';
 const CartContext = createContext<CartState | null>(null);
 
-const lineKey = (item: HomeProperty) => `${item.id}|${item.pricingMode ?? 'por_kilo'}`;
+const lineKey = (item: HomeProperty, sel?: OrderSelection) =>
+  `${item.id}|${item.pricingMode ?? 'por_kilo'}` +
+  (sel ? `|${sel.sizeLabel ?? ''}|${sel.flavor ?? ''}|${[...sel.includedToppings].sort().join(',')}|${[...sel.toppings].sort().join(',')}` : '');
 
 function readStored(): StoredLine[] {
   try {
@@ -48,7 +53,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<StoredLine[]>([]);
   const [open, setOpen] = useState(false);
   const loaded = useRef(false);
-  const { client, level } = useClient();
+  const { client } = useClient();
 
   // Restore the saved cart once on the client (the server render always starts empty).
   useEffect(() => {
@@ -76,12 +81,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     prevClient.current = clientId;
   }, [clientId]);
 
-  const add = useCallback((item: HomeProperty, qty = 1) => {
-    const key = lineKey(item);
+  const add = useCallback((item: HomeProperty, qty = 1, selection?: OrderSelection) => {
+    const key = lineKey(item, selection);
     setLines((ls) =>
       ls.some((l) => l.key === key)
-        ? ls.map((l) => (l.key === key ? { ...l, qty: Math.min(999, l.qty + qty), item } : l))
-        : [...ls, { key, item, qty: Math.min(999, qty) }],
+        ? ls.map((l) => (l.key === key ? { ...l, qty: Math.min(999, l.qty + qty), item, selection } : l))
+        : [...ls, { key, item, qty: Math.min(999, qty), selection }],
     );
   }, []);
   const changeQty = useCallback(
@@ -107,7 +112,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         onChangeQty={changeQty}
         onRemove={remove}
         onPlaced={clear}
-        buyerType={level ? 'wholesale' : 'retail'}
       />
     </CartContext.Provider>
   );

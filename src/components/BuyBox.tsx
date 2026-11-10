@@ -1,13 +1,10 @@
 'use client';
 
-import SignInNotice from '@/src/components/SignInNotice';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Check, Minus, Plus } from 'lucide-react';
-import { formatMoney, priceWithShortUnit, pricingModeLabels, quantityLabel, quantityNounPlural } from '@/src/utils/format';
-import { useClient } from '@/src/context/ClientContext';
+import { formatMoney, priceWithShortUnit, quantityLabel, quantityNounPlural } from '@/src/utils/format';
 import { useCart } from '@/src/context/CartContext';
-import { optionPrice, saleOptions, type SaleSource } from '@/src/utils/pricing';
 import type { PricingMode } from '@/src/types/firestore';
 
 const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2';
@@ -22,10 +19,8 @@ export default function BuyBox({
   title,
   image,
   pricing,
-  categoryId,
   inStock,
   onPhoto,
-  signInOnly,
 }: {
   /** Id the cart tracks the product by: the Firestore id, or the sample's number for the built-in samples. */
   itemId: string | number;
@@ -33,27 +28,17 @@ export default function BuyBox({
   /** First photo, shown in the cart. */
   image: string;
   /** Price, base unit, box / unit weights and manual prices of the item. */
-  pricing: SaleSource;
-  /** Category id; a wholesale customer's price level adjusts the list price by category. */
-  categoryId?: string;
+  pricing: { price: number; salePrice?: number; pricingMode?: PricingMode };
   inStock: boolean;
   /** Rendered over the dark hero photo: light text and translucent controls. */
   onPhoto?: boolean;
-  /** Renders only the sign-in notice (for visitors without a profile), nothing otherwise. */
-  signInOnly?: boolean;
 }) {
   const label = onPhoto ? labelClass : labelClass;
   const soft = onPhoto ? 'bg-black/5 text-[#1D1D1F]' : 'bg-[#F5F5F7]';
   const [qty, setQty] = useState(1);
-  const [chosen, setChosen] = useState<PricingMode | null>(null);
-  const { client, level } = useClient();
-  const wholesale = !!(client && level);
-  const options = saleOptions(pricing, wholesale ? 'wholesale' : 'retail', { allowLoose: client?.allowLoose });
-  // Falls back to the first option when the chosen one is not offered (e.g. after logging in or out).
-  const active = options.find((o) => o.mode === chosen) ?? options[0];
-  const mode = active.mode;
-  // Logged-out visitors pay the list (or sale) price; a wholesale customer pays their level's price.
-  const unitPrice = optionPrice(active, categoryId, wholesale ? level : null).unit;
+  // One price per item: the sale price while on sale, else the price set on the item.
+  const mode: PricingMode = pricing.pricingMode ?? 'por_unidad';
+  const unitPrice = pricing.salePrice ?? pricing.price;
 
   const { add, setOpen } = useCart();
   const [added, setAdded] = useState<{ qty: number; mode: PricingMode } | null>(null);
@@ -81,10 +66,6 @@ export default function BuyBox({
     );
     setAdded({ qty, mode });
   };
-
-  if (signInOnly) return client ? null : <SignInNotice />;
-  // Over the hero photo the sign-in notice is shown below the image instead.
-  if (!client) return onPhoto ? null : <SignInNotice />;
 
   if (added) {
     return (
@@ -117,27 +98,6 @@ export default function BuyBox({
 
   return (
     <form onSubmit={addToCart} className="space-y-5">
-      {options.length > 1 && (
-        <div>
-          <span className={label}>Comprar por</span>
-          <div className={`inline-flex flex-wrap rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] ${soft} p-1`} role="group" aria-label="Comprar por">
-            {options.map((o) => (
-              <button
-                key={o.mode}
-                type="button"
-                onClick={() => setChosen(o.mode)}
-                aria-pressed={o.mode === mode}
-                className={`px-4 py-2 rounded-full text-xs font-medium transition-colors ${
-                  o.mode === mode ? (onPhoto ? 'bg-[#1D1D1F] text-white' : 'bg-[#1D1D1F] text-white') : onPhoto ? 'text-[#515154] hover:text-[#1D1D1F]' : 'text-[#515154] hover:text-[#1D1D1F]'
-                }`}
-              >
-                {pricingModeLabels[o.mode].replace('Por ', '')} · {formatMoney(optionPrice(o, categoryId, wholesale ? level : null).unit)}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {onPhoto ? (
         // One translucent glass pill: quantity stepper on the left, the add-to-cart button inside it on the right.
         <div className="flex items-center rounded-full bg-white/50 backdrop-blur-md border border-black/10 p-1 text-[#1D1D1F]">

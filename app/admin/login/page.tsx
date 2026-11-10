@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { useAuth } from '@/src/context/AuthContext';
 import { auth, isFirebaseConfigured } from '@/lib/firebase';
+import BrandName from '@/src/components/BrandName';
 
 const inputClass =
   'w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/60';
@@ -73,7 +74,7 @@ export default function AdminLoginPage() {
       className="relative min-h-screen bg-cover bg-center text-white"
       style={{
         backgroundImage:
-          'url(https://images.unsplash.com/photo-1610832958506-aa56368176cf?q=80&w=2000&auto=format&fit=crop)',
+          'url(https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2000&auto=format&fit=crop)',
       }}
     >
       {/* Brand, top-left corner */}
@@ -81,12 +82,12 @@ export default function AdminLoginPage() {
         href="/"
         className="absolute top-8 left-8 z-20 text-lg font-semibold tracking-tight drop-shadow"
       >
-        Merkado.
+        <BrandName />
       </Link>
 
-      {/* Version, bottom-left corner */}
+      {/* Photo credit, bottom-left corner */}
       <p className="absolute bottom-8 left-8 z-20 text-xs font-medium tracking-wide text-white/80 drop-shadow">
-        Merkado v2.0
+        Foto: Unsplash
       </p>
 
       {/* Wide screens held landscape: two columns (left transparent, right 50% black). Phones and portrait tablets: one column. */}
@@ -95,9 +96,9 @@ export default function AdminLoginPage() {
 
         <div className="bg-black/50 flex items-center justify-center px-6 py-24">
           <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl rounded-[12px] p-8 shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
-            <p className="text-xs uppercase tracking-widest text-white/60 font-semibold mb-2">Merkado.</p>
+            <p className="text-xs uppercase tracking-widest text-white/60 font-semibold mb-2">Manolo</p>
             <h1 className="text-2xl font-semibold tracking-tight mb-1">Iniciar sesión</h1>
-            <p className="text-sm text-white/70 font-light mb-8">Administrá artículos, pedidos y usuarios.</p>
+            <p className="text-sm text-white/70 font-light mb-8">Administrá el menú, los pedidos y el personal.</p>
 
             {!isFirebaseConfigured && (
               <p className="mb-6 text-xs rounded-xl bg-amber-400/20 text-amber-100 p-3">

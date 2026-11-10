@@ -7,17 +7,22 @@ import { getProperty, updateLeadDetails, updateLeadStatus } from '@/src/services
 import { getClient } from '@/src/services/pricingService';
 import { useBusiness } from '@/src/context/BusinessContext';
 import { PAYMENT_METHODS, paymentMethodLabels } from '@/src/types/firestore';
+import { useDrivers } from '@/src/hooks/useDrivers';
+import { isAssignable } from '@/src/services/driversService';
 import type { Client, Lead, LeadStatus, PaymentMethod, PricingMode, Property } from '@/src/types/firestore';
 import { formatMoney, pricingModeLabels, whatsappUrl } from '@/src/utils/format';
 import { boxDescription } from '@/src/utils/pricing';
 import { modeOfLine } from '@/src/utils/orders';
 import { inputClass, labelClass } from '@/src/components/dashboard/ui';
 
-/** Order flow: Nuevo -> Aceptado (contacted) -> Confirmado (closed). */
+/** Order flow: Nuevo -> Aceptado -> Confirmado -> Asignado (a un repartidor) -> Completado (entregado). Any order can be suspended (never deleted) and reactivated. */
 export const orderStatusLabels: Record<LeadStatus, string> = {
   new: 'Nuevo',
   contacted: 'Aceptado',
   closed: 'Confirmado',
+  assigned: 'Asignado',
+  completed: 'Completado',
+  suspended: 'Suspendido',
 };
 
 const FIRESTORE_ID = /^[A-Za-z0-9]{20}$/;
@@ -41,9 +46,10 @@ function parseMessage(message: string) {
   const contact = pick('Contacto:');
   const [contactName, wa] = contact.split('· WhatsApp:').map((s) => s.trim());
   return {
-    pickup: lines.includes('Retiro en local'),
+    pickup: lines.includes('Retiro en local') || lines.includes('Comer en el local'),
+    dinein: lines.includes('Comer en el local'),
     address: pick('Entrega a domicilio:'),
-    time: pick('Hora de recepción:') || pick('Hora de retiro:'),
+    time: pick('Hora de recepción:') || pick('Hora de retiro:') || pick('Hora de llegada:'),
     contactName: contactName ?? '',
     whatsapp: wa && wa !== '—' ? wa : '',
     instructions: pick('Instrucciones especiales:'),
@@ -86,7 +92,11 @@ export default function OrderModal({
   const business = useBusiness();
   const group = useMemo(() => [...siblings].sort((a, b) => a.id.localeCompare(b.id)), [siblings]);
   const primary = group[0] ?? lead;
-  const info = parseMessage(primary.message);
+  const parsed = parseMessage(primary.message);
+  // What staff chose in the list (driver / pickup / dining in) wins over what the customer's text says.
+  const info = primary.fulfillment
+    ? { ...parsed, pickup: primary.fulfillment !== 'delivery', dinein: primary.fulfillment === 'dinein' }
+    : parsed;
 
   const [lines, setLines] = useState<Line[]>(() =>
     group.map((l) => ({
@@ -102,6 +112,10 @@ export default function OrderModal({
   const [payment, setPayment] = useState<PaymentMethod | ''>(primary.paymentMethod ?? '');
   const [taxRate, setTaxRate] = useState(primary.taxRate !== undefined ? String(primary.taxRate) : '');
   const [shipping, setShipping] = useState(primary.shipping !== undefined ? String(primary.shipping) : '');
+  const { drivers } = useDrivers();
+  const [driverId, setDriverId] = useState(primary.driverId ?? '');
+  const [driverPay, setDriverPay] = useState(primary.driverPay !== undefined ? String(primary.driverPay) : '');
+  const driverName = drivers.find((d) => d.id === driverId)?.name ?? (driverId === (primary.driverId ?? '') ? primary.driverName ?? '' : '');
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -154,6 +168,8 @@ export default function OrderModal({
   const dirty =
     notes !== (primary.notes ?? '') ||
     (payment || undefined) !== primary.paymentMethod ||
+    driverId !== (primary.driverId ?? '') ||
+    num(driverPay) !== primary.driverPay ||
     num(taxRate) !== primary.taxRate ||
     num(shipping) !== primary.shipping ||
     lines.some((l) => num(l.qty) !== l.lead.quantity || num(l.price) !== l.lead.unitPrice);
@@ -188,9 +204,19 @@ export default function OrderModal({
             paymentMethod: payment || undefined,
             taxRate: t,
             shipping: s,
+            driverId,
+            driverName,
+            driverPay: num(driverPay),
           })
         )
       );
+      // Picking a driver assigns the order; removing the driver takes it back.
+      const current = primary.status;
+      if (driverId && !primary.driverId && ['new', 'contacted', 'closed'].includes(current)) {
+        await Promise.all(group.map((l) => updateLeadStatus(l.id, 'assigned')));
+      } else if (!driverId && primary.driverId && current === 'assigned') {
+        await Promise.all(group.map((l) => updateLeadStatus(l.id, 'contacted')));
+      }
       return true;
     } catch (err) {
       const denied = (err as { code?: string }).code === 'permission-denied';
@@ -226,84 +252,88 @@ export default function OrderModal({
 
   const status = primary.status;
 
+  /**
+   * Kitchen / delivery ticket for an 80 mm thermal printer: narrow, monospace, big order number and way of receiving
+   * (DELIVERY / RETIRO / COMER EN EL LOCAL), items with their size and gustos, totals and notes. Not an invoice.
+   */
   const print = () => {
-    const w = window.open('', '_blank', 'width=860,height=1000');
+    const w = window.open('', '_blank', 'width=420,height=760');
     if (!w) {
       setFeedback({ ok: false, text: 'El navegador bloqueó la ventana de impresión. Permití las ventanas emergentes.' });
       return;
     }
     const money = (n: number) => esc(formatMoney(n));
-    const rows = lines
+    const mode = info.dinein ? 'COMER EN EL LOCAL' : info.pickup ? 'RETIRO EN LOCAL' : 'DELIVERY';
+    const detailOf = (message: string) => /^[^(\n]*\((.*?)\) - /.exec(message.split('\n')[0])?.[1] ?? '';
+    const items = lines
       .map((l) => {
         const q = num(l.qty) ?? 0;
         const p = num(l.price) ?? 0;
-        return `<tr><td>${esc(l.title || '—')}</td><td class="r">${q || ''}</td><td>${esc(unitText(l.property, modeOfLine(l.lead.message, l.property?.pricingMode ?? 'por_kilo')))}</td><td class="r">${p ? money(p) : ''}</td><td class="r">${q && p ? money(q * p) : ''}</td></tr>`;
+        const detail = detailOf(l.lead.message);
+        return `<div class="item"><div class="row"><span><b>${q || 1} x</b> ${esc(l.title || '—')}</span><span>${q && p ? money(q * p) : ''}</span></div>${detail ? `<div class="det">${esc(detail)}</div>` : ''}</div>`;
       })
       .join('');
-    const when = [info.pickup ? 'Retiro en local' : 'Entrega a domicilio', contact.time && `Hora: ${contact.time}`].filter(Boolean).join(' · ');
-    w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Hoja de preparación ${esc(orderNumber(primary))}</title>
+    const created = primary.createdAt ? new Date(primary.createdAt).toLocaleString('es-UY') : '';
+    const head = [business.address, business.whatsapp || business.phone].filter(Boolean).join(' · ');
+    const customerNote = info.instructions ? `Cliente: ${info.instructions}` : '';
+    w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Ticket ${esc(orderNumber(primary))}</title>
 <style>
-  *{box-sizing:border-box}body{font:13px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;color:#111;margin:28px}
-  .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111;padding-bottom:10px}
-  h1{font-size:22px;margin:0}.sub{color:#555;font-size:12px;margin:2px 0}.tag{display:inline-block;margin-top:4px;border:1px solid #111;padding:2px 8px;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
-  .meta{text-align:right}.meta b{font-size:16px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px;margin:14px 0}
-  .box h2{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#555;margin:0 0 3px}.box p{margin:0}
-  table{border-collapse:collapse;width:100%;margin-top:6px}
-  th{font-size:10px;text-transform:uppercase;letter-spacing:.07em;text-align:left;border-bottom:1px solid #111;padding:6px 6px}
-  td{padding:7px 6px;border-bottom:1px solid #ddd;vertical-align:top}.r{text-align:right}th.r{text-align:right}
-  .totals{margin:12px 0 0 auto;width:300px}.totals div{display:flex;justify-content:space-between;padding:3px 0}
-  .totals .g{border-top:2px solid #111;margin-top:4px;padding-top:6px;font-size:16px;font-weight:700}
-  .notes{margin-top:18px;border:1px solid #999;padding:8px 10px;min-height:110px}
-  .notes h2{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#555;margin:0 0 4px}
-  .notes pre{white-space:pre-wrap;font:inherit;margin:0 0 6px}
-  .rule{border-bottom:1px solid #ccc;height:22px}
-  .sign{margin-top:34px;display:flex;gap:36px}.sign div{flex:1;border-top:1px solid #111;padding-top:5px;color:#555;font-size:11px}
-  .confirm{margin-top:16px;border:2px solid #111;padding:9px 12px}
-  .confirm h2{font-size:11px;text-transform:uppercase;letter-spacing:.09em;margin:0 0 4px}
-  .confirm p{margin:0 0 8px}.confirm .box{display:inline-block;width:12px;height:12px;border:1.5px solid #111;margin-right:7px;vertical-align:-2px}
-  .confirm .line{display:inline-block;border-bottom:1px solid #111;width:150px;margin:0 8px}
-  .foot{margin-top:14px;color:#555;font-size:11px;text-align:center}
+  @page{size:80mm auto;margin:0}
+  *{box-sizing:border-box}
+  body{width:72mm;margin:0 auto;padding:3mm 1mm 6mm;font:12px/1.35 "Courier New",Courier,monospace;color:#000}
+  .c{text-align:center}.big{font-size:20px;font-weight:700;letter-spacing:.02em}.mode{font-size:17px;font-weight:700;border:2px solid #000;padding:3px 0;margin:6px 0}
+  .sep{border-top:1px dashed #000;margin:6px 0}.dbl{border-top:2px solid #000;margin:6px 0}
+  .row{display:flex;justify-content:space-between;gap:6px}.row span:last-child{white-space:nowrap}
+  .item{margin:4px 0}.det{padding-left:14px;font-size:11px}
+  .tot{font-size:15px;font-weight:700}
+  .small{font-size:10px}
+  pre{white-space:pre-wrap;font:inherit;margin:2px 0}
 </style></head><body>
-<div class="top">
-  <div><h1>${esc(business.businessName || 'Merkado')} — Hoja de preparación</h1><div class="sub">${esc([business.rut && `RUT ${business.rut}`, business.address, business.whatsapp || business.phone].filter(Boolean).join(' · '))}</div><span class="tag">Documento interno · no es una factura</span></div>
-  <div class="meta"><b>${esc(orderNumber(primary))}</b><br>${esc(primary.createdAt ? new Date(primary.createdAt).toLocaleString('es-UY') : '')}<br>Operador: <b>${esc(agentName || '—')}</b></div>
-</div>
-<div class="grid">
-  <div class="box"><h2>Cliente</h2><p><b>${esc(contact.business)}</b></p>${contact.name ? `<p>Contacto: ${esc(contact.name)}</p>` : ''}</div>
-  <div class="box"><h2>Entrega</h2><p>${esc(when)}</p>${contact.address && !info.pickup ? `<p>${esc(contact.address)}</p>` : ''}</div>
-  <div class="box"><h2>WhatsApp / teléfono</h2><p>${esc(contact.phone || '—')}</p></div>
-  <div class="box"><h2>Correo</h2><p>${esc(contact.email || '—')}</p></div>
-</div>
-<table>
-  <thead><tr><th>Producto</th><th class="r">Cantidad</th><th>Unidad / peso por caja</th><th class="r">Precio unitario</th><th class="r">Subtotal</th></tr></thead>
-  <tbody>${rows}</tbody>
-</table>
-<div class="totals">
-  <div><span>Subtotal</span><span>${money(subtotal)}</span></div>
-  ${tax ? `<div><span>Impuesto (${esc(String(num(taxRate)))}%)</span><span>${money(tax)}</span></div>` : ''}
-  ${ship ? `<div><span>Envío</span><span>${money(ship)}</span></div>` : ''}
-  <div class="g"><span>Total</span><span>${money(total)}</span></div>
-  <div><span>Forma de pago</span><span>${esc(payment ? paymentMethodLabels[payment] : '—')}</span></div>
-</div>
-<div class="notes">
-  <h2>Notas / pedidos especiales</h2>
-  ${info.instructions ? `<pre><b>Del cliente:</b> ${esc(info.instructions)}</pre>` : ''}
-  ${notes.trim() ? `<pre>${esc(notes)}</pre>` : ''}
-  <div class="rule"></div><div class="rule"></div><div class="rule"></div>
-</div>
-<div class="confirm">
-  <h2>Confirmar pedido con el cliente antes de enviar</h2>
-  <p>Los precios de mercado valen para el día. Si el pedido es para otro día, pueden haber cambiado: confirmar con el cliente el pedido con los precios ajustados antes del envío.</p>
-  <p><span class="box"></span>Precios confirmados con el cliente &nbsp;&nbsp; <span class="box"></span>Cambios acordados (ver notas)</p>
-  <p style="margin:0">Confirmó:<span class="line"></span>Fecha y hora:<span class="line"></span></p>
-</div>
-<div class="sign"><div>Preparó</div><div>Controló</div><div>Recibió</div></div>
-<p class="foot">Uso interno de Merkado — no válido como comprobante fiscal.</p>
+<div class="c big">${esc(business.businessName || 'Manolo')}</div>
+${head ? `<div class="c small">${esc(head)}</div>` : ''}
+<div class="dbl"></div>
+<div class="c big">${esc(orderNumber(primary))}</div>
+<div class="c small">${esc(created)}${agentName ? ` · ${esc(agentName)}` : ''}</div>
+<div class="c mode">${esc(mode)}</div>
+<div><b>${esc(contact.name || contact.business)}</b></div>
+${contact.phone ? `<div>Tel: ${esc(contact.phone)}</div>` : ''}
+${!info.pickup && contact.address ? `<div>Dir: ${esc(contact.address)}</div>` : ''}
+${contact.time ? `<div>Hora: ${esc(contact.time)}</div>` : ''}
+${driverName ? `<div>Repartidor: <b>${esc(driverName)}</b></div>` : ''}
+<div class="sep"></div>
+${items}
+<div class="sep"></div>
+<div class="row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+${tax ? `<div class="row"><span>Impuesto (${esc(String(num(taxRate)))}%)</span><span>${money(tax)}</span></div>` : ''}
+${ship ? `<div class="row"><span>Delivery</span><span>${money(ship)}</span></div>` : ''}
+<div class="row tot"><span>TOTAL</span><span>${money(total)}</span></div>
+<div>Pago: ${esc(payment ? paymentMethodLabels[payment] : 'A definir')}</div>
+${customerNote || notes.trim() ? `<div class="sep"></div><div><b>NOTAS</b></div>${customerNote ? `<pre>${esc(customerNote)}</pre>` : ''}${notes.trim() ? `<pre>${esc(notes)}</pre>` : ''}` : ''}
+<div class="dbl"></div>
+<div class="c small">¡Gracias por tu pedido!<br>Documento interno · no es una factura</div>
 <script>window.onload=function(){window.focus();window.print();}</script>
 </body></html>`);
     w.document.close();
   };
+
+  // The driver only receives the order by WhatsApp: who to deliver to, where, when, what and how much.
+  const driver = drivers.find((d) => d.id === driverId);
+  const driverText = [
+    `Hola ${driver?.name.split(' ')[0] ?? ''}, tenés un pedido para entregar: ${orderNumber(primary)}`,
+    '',
+    `Cliente: ${contact.name || contact.business}`,
+    contact.phone ? `Teléfono: ${contact.phone}` : '',
+    info.dinein ? 'Comer en el local' : info.pickup ? 'Retiro en local' : `Dirección: ${info.address || contact.address || '—'}`,
+    info.time ? `Hora: ${info.time}` : '',
+    '',
+    ...lines.map((l) => `• ${l.lead.message.split('\n')[0]}`),
+    '',
+    `Total: ${formatMoney(total)}${payment ? ` (${paymentMethodLabels[payment]})` : ''}`,
+    info.instructions ? `Notas: ${info.instructions}` : '',
+  ]
+    .filter((l, i, arr) => l !== '' || (arr[i - 1] !== '' && i > 0))
+    .join('\n');
+  const driverWa = driver ? whatsappUrl(driver.whatsapp, driverText) : null;
 
   const wa = contact.phone
     ? whatsappUrl(
@@ -333,7 +363,7 @@ export default function OrderModal({
           <div className="flex items-center gap-2 shrink-0">
             <span
               className={`rounded-full px-3 py-1.5 text-xs font-medium ${
-                status === 'new' ? 'bg-[#1D1D1F] text-white' : status === 'contacted' ? 'bg-amber-50 text-amber-700' : 'bg-green-50 text-green-700'
+                status === 'new' ? 'bg-[#1D1D1F] text-white' : status === 'contacted' ? 'bg-amber-50 text-amber-700' : status === 'suspended' ? 'bg-red-50 text-red-700' : status === 'assigned' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'
               }`}
             >
               {orderStatusLabels[status]}
@@ -350,7 +380,7 @@ export default function OrderModal({
             <p><span className="text-[#515154]">WhatsApp: </span>{contact.phone || '—'}</p>
             <p className="truncate"><span className="text-[#515154]">Correo: </span>{contact.email || '—'}</p>
             <p><span className="text-[#515154]">{info.pickup ? 'Retiro' : 'Hora de recepción'}: </span>{contact.time || '—'}</p>
-            <p className="sm:col-span-2"><span className="text-[#515154]">{info.pickup ? 'Retiro en local' : 'Dirección de entrega'}: </span>{info.pickup ? '' : contact.address || '—'}</p>
+            <p className="sm:col-span-2"><span className="text-[#515154]">{info.dinein ? 'Comer en el local' : info.pickup ? 'Retiro en local' : 'Dirección de entrega'}: </span>{info.pickup ? '' : contact.address || '—'}</p>
             {info.instructions && (
               <p className="sm:col-span-2"><span className="text-[#515154]">Instrucciones del cliente: </span>{info.instructions}</p>
             )}
@@ -383,6 +413,38 @@ export default function OrderModal({
                 </li>
               ))}
             </ul>
+          </div>
+
+          <div>
+            <label htmlFor="om-driver" className={labelClass}>Repartidor</label>
+            <select id="om-driver" className={inputClass} value={driverId} onChange={(e) => setDriverId(e.target.value)}>
+              <option value="">Sin asignar</option>
+              {drivers
+                .filter((d) => isAssignable(d) || d.id === driverId)
+                .map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                    {isAssignable(d) ? '' : ' (no disponible)'}
+                  </option>
+                ))}
+              {driverId && !drivers.some((d) => d.id === driverId) && <option value={driverId}>{driverName || 'Repartidor asignado'}</option>}
+            </select>
+            {driverId && (
+              <div className="mt-3 max-w-xs">
+                <label htmlFor="om-driverpay" className={labelClass}>Pago al repartidor por este delivery ($)</label>
+                <input id="om-driverpay" inputMode="decimal" className={inputClass} value={driverPay} onChange={(e) => setDriverPay(e.target.value)} placeholder="0" />
+              </div>
+            )}
+            {driverWa && (
+              <a
+                href={driverWa}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#000000]/10 px-4 py-2 text-xs font-medium hover:bg-[#F5F5F7] transition-colors"
+              >
+                Enviar el pedido a {driver?.name.split(' ')[0]} por WhatsApp
+              </a>
+            )}
           </div>
 
           <div className="grid sm:grid-cols-3 gap-3">
@@ -433,11 +495,29 @@ export default function OrderModal({
           <button type="button" disabled={busy || status !== 'new'} onClick={() => setStatus('contacted', 'Pedido aceptado.')} className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 text-white px-5 py-2.5 text-sm font-medium hover:bg-amber-600 disabled:opacity-40 transition-colors">
             <Check className="w-4 h-4" /> Aceptar
           </button>
-          <button type="button" disabled={busy || status === 'closed'} onClick={() => setStatus('closed', 'Pedido confirmado.')} className="inline-flex items-center gap-1.5 rounded-full bg-[#1D1D1F] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#333336] disabled:opacity-40 transition-colors">
+          <button type="button" disabled={busy || status === 'closed' || status === 'assigned' || status === 'completed' || status === 'suspended'} onClick={() => setStatus('closed', 'Pedido confirmado.')} className="inline-flex items-center gap-1.5 rounded-full bg-[#1D1D1F] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#333336] disabled:opacity-40 transition-colors">
             <CheckCheck className="w-4 h-4" /> Confirmar
           </button>
+          <button
+            type="button"
+            disabled={busy || status !== 'assigned'}
+            onClick={() => setStatus('completed', 'Pedido completado: entregado correctamente.')}
+            title={status === 'assigned' ? 'El repartidor entregó el pedido' : 'Primero asigná el pedido a un repartidor'}
+            className="inline-flex items-center gap-1.5 rounded-full bg-green-600 text-white px-5 py-2.5 text-sm font-medium hover:bg-green-700 disabled:opacity-40 transition-colors"
+          >
+            <CheckCheck className="w-4 h-4" /> Completado
+          </button>
+          {status === 'suspended' ? (
+            <button type="button" disabled={busy} onClick={() => setStatus('new', 'Pedido reactivado.')} className="inline-flex items-center gap-1.5 rounded-full border border-green-600/30 text-green-700 px-5 py-2.5 text-sm font-medium hover:bg-green-50 disabled:opacity-40 transition-colors">
+              Reactivar
+            </button>
+          ) : (
+            <button type="button" disabled={busy} onClick={() => setStatus('suspended', 'Pedido suspendido.')} className="inline-flex items-center gap-1.5 rounded-full border border-red-600/30 text-red-700 px-5 py-2.5 text-sm font-medium hover:bg-red-50 disabled:opacity-40 transition-colors">
+              Suspender
+            </button>
+          )}
           <button type="button" onClick={print} className="inline-flex items-center gap-1.5 rounded-full border border-[#000000]/10 px-5 py-2.5 text-sm font-medium hover:bg-[#F5F5F7] transition-colors sm:ml-auto">
-            <Printer className="w-4 h-4" /> Imprimir hoja
+            <Printer className="w-4 h-4" /> Imprimir ticket
           </button>
           {wa && (
             <a href={wa} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#000000]/10 px-5 py-2.5 text-sm font-medium hover:bg-[#F5F5F7] transition-colors">

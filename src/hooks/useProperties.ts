@@ -26,7 +26,7 @@ export function useProperties(pageSize = 48, loadAll = false) {
   const [error, setError] = useState<string | null>(null);
 
   const agentId = agent?.id;
-  const isAdmin = agent?.role === 'admin';
+  const isAdmin = agent?.role === 'admin' || agent?.role === 'manager'; // admins and managers see the whole menu
 
   const fetchPage = useCallback(
     (after: PropertyCursor | null) => {

@@ -10,12 +10,9 @@ import CartButton from '@/src/components/CartButton';
 import { unitPriceOf } from '@/src/components/CartDrawer';
 import { useCart } from '@/src/context/CartContext';
 import SiteFooter from '@/src/components/SiteFooter';
-import WholesaleAccess from '@/src/components/WholesaleAccess';
 import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
-import { useClient } from '@/src/context/ClientContext';
-import { applyBoxFirst, applyLevel } from '@/src/utils/pricing';
 import InfoSections from '@/src/components/InfoSections';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import BrandName from '@/src/components/BrandName';
@@ -43,10 +40,8 @@ const fieldClass =
 const labelClass = 'block text-[10px] uppercase tracking-wider font-semibold text-[#515154] mb-1.5';
 
 export default function CatalogPage({ items: baseItems }: { items: HomeProperty[] }) {
-  // A customer who opened their access link sees their price level; everyone else sees list prices.
-  const { client, level } = useClient();
-  const allowLoose = client?.allowLoose ?? false;
-  const items = useMemo(() => applyBoxFirst(applyLevel(baseItems, level), level, allowLoose), [baseItems, level, allowLoose]);
+  // Every item has one price, set on its own page.
+  const items = baseItems;
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   // Footer links open the catalog already filtered: /items?category=<id>.
@@ -183,16 +178,15 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] selection:bg-[#000000] selection:text-[#FFFFFF] font-sans antialiased">
       {/* --- NAVIGATION --- */}
       <header className="sticky top-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md">
-        <div className="bg-[#2E7D32] text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
-          <span className="md:hidden">Precios de mercado válidos por el día</span>
-          <span className="hidden md:inline lg:hidden">Precios de mercado válidos por el día. Pueden cambiar en pedidos para el día siguiente.</span>
-          <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
+        <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
+          <span className="md:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
+          <span className="hidden md:inline lg:hidden">Pizza por metro hecha al momento. Delivery en Maldonado: pedí por WhatsApp.</span>
+          <span className="hidden lg:inline">Pizza por metro hecha al momento, con masa de fermentación lenta. Delivery en Maldonado: elegí tus sabores y pedí por WhatsApp.</span>
         </div>
         <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
           <div className="flex items-center gap-1">
-          <WholesaleAccess />
           <CartButton />
           <MobileNavMenu />
           </div>

@@ -24,9 +24,10 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { sampleProperties } from '../data/sampleProperties';
-import { menuCategories } from '../data/pizzaMenu';
+import { menuCategories, menuProducts } from '../data/pizzaMenu';
+import { demoOrders } from '../data/demoData';
 import { USD_TO_UYU } from '../utils/format';
-import { DELIVERY_AREAS, PRICING_MODES } from '../types/firestore';
+import { DELIVERY_AREAS, PRICING_MODES, paymentMethodLabels } from '../types/firestore';
 import type {
   Category,
   DeliveryArea,
@@ -163,6 +164,10 @@ export async function seedSampleProperties(
   for (const c of menuCategories) {
     batch.set(doc(firestore, CATEGORIES, c.id), { name: c.name, createdAt: serverTimestamp() });
   }
+  // The structured menu (sizes, gustos, flavors) the ordering flow uses: products/{id}.
+  for (const p of menuProducts) {
+    batch.set(doc(firestore, 'products', p.id), { ...clean(p), createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  }
   for (const [index, sample] of sampleProperties.entries()) {
     batch.set(doc(collection(firestore, PROPERTIES)), {
       ...clean(sample),
@@ -175,6 +180,49 @@ export async function seedSampleProperties(
   }
   await batch.commit();
   return sampleProperties.length;
+}
+
+/**
+ * Loads the demo orders (src/data/demoData.ts) as new orders from today, for demonstrations. Each line is attached to
+ * its menu product when that product exists, so the sales-by-category chart has data. Returns how many orders were created.
+ */
+export async function seedDemoOrders(): Promise<number> {
+  const firestore = requireDb();
+  const active = await getActiveProperties().catch(() => []);
+  const batch = writeBatch(firestore);
+  for (const o of demoOrders) {
+    const orderId = doc(collection(firestore, LEADS)).id;
+    const delivery = [
+      o.mode === 'delivery' ? `Entrega a domicilio: ${o.address ?? ''}` : o.mode === 'dinein' ? 'Comer en el local' : 'Retiro en local',
+      `${o.mode === 'delivery' ? 'Hora de recepción' : o.mode === 'dinein' ? 'Hora de llegada' : 'Hora de retiro'}: ${o.time}`,
+      `Forma de pago: ${paymentMethodLabels[o.payment]}`,
+      `Contacto: ${o.name} · WhatsApp: ${o.phone}`,
+      o.notes ? `Instrucciones especiales: ${o.notes}` : '',
+    ];
+    for (const l of o.lines) {
+      const product = active.find((p) => p.title === l.product);
+      batch.set(doc(collection(firestore, LEADS)), {
+        orderId,
+        name: o.name,
+        phone: o.phone,
+        email: '',
+        property: l.product,
+        ...(product ? { propertyId: product.id } : {}),
+        unitPrice: l.unit,
+        quantity: l.qty,
+        paymentMethod: o.payment,
+        ...(o.mode === 'delivery' && o.fee ? { shipping: o.fee } : {}),
+        channel: 'WhatsApp',
+        message: [`${l.product}${l.detail ? ` (${l.detail})` : ''} - ${l.qty} ${l.qty === 1 ? 'Unidad' : 'Unidades'} @ $ ${l.unit}/unidad · Subtotal: $ ${l.unit * l.qty}`, ...delivery]
+          .filter(Boolean)
+          .join('\n'),
+        status: 'new',
+        createdAt: serverTimestamp(),
+      });
+    }
+  }
+  await batch.commit();
+  return demoOrders.length;
 }
 
 export async function deleteProperty(id: string): Promise<void> {
@@ -293,11 +341,16 @@ function toLead(id: string, d: DocumentData): Lead {
     unitPrice: typeof d.unitPrice === 'number' ? d.unitPrice : undefined,
     quantity: typeof d.quantity === 'number' ? d.quantity : undefined,
     priceLevelId: d.priceLevelId ?? undefined,
-    paymentMethod: ['house_account', 'card', 'cash'].includes(d.paymentMethod) ? d.paymentMethod : undefined,
+    paymentMethod: ['cash', 'card', 'prepaid', 'house_account'].includes(d.paymentMethod) ? d.paymentMethod : undefined,
     taxRate: typeof d.taxRate === 'number' ? d.taxRate : undefined,
     shipping: typeof d.shipping === 'number' ? d.shipping : undefined,
     orderId: typeof d.orderId === 'string' && d.orderId ? d.orderId : undefined,
     clientId: d.clientId ?? undefined,
+    driverId: typeof d.driverId === 'string' && d.driverId ? d.driverId : undefined,
+    driverName: typeof d.driverName === 'string' && d.driverName ? d.driverName : undefined,
+    driverPay: typeof d.driverPay === 'number' ? d.driverPay : undefined,
+    driverPaid: d.driverPaid === true ? true : undefined,
+    fulfillment: ['delivery', 'pickup', 'dinein'].includes(d.fulfillment) ? d.fulfillment : undefined,
     createdAt: toMillis(d.createdAt),
   };
 }
@@ -325,6 +378,12 @@ export async function updateLeadDetails(
     paymentMethod?: PaymentMethod;
     taxRate?: number;
     shipping?: number;
+    /** Assigned driver; empty strings clear the assignment. */
+    driverId?: string;
+    driverName?: string;
+    driverPay?: number;
+    driverPaid?: boolean;
+    fulfillment?: 'delivery' | 'pickup' | 'dinein';
   }
 ): Promise<void> {
   await updateDoc(doc(requireDb(), LEADS, leadId), clean(data));

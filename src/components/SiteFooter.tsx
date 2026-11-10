@@ -7,6 +7,7 @@ import { useCategories } from '@/src/hooks/useCategories';
 import { socialLinks } from '@/src/components/SocialIcons';
 import { whatsappUrl } from '@/src/utils/format';
 import BrandName from '@/src/components/BrandName';
+import ContactMessageForm from '@/src/components/ContactMessageForm';
 
 const linkClass = 'hover:text-black hover:underline underline-offset-2 transition-colors';
 
@@ -124,6 +125,10 @@ export default function SiteFooter() {
             <li><Link href="/admin/login" className={linkClass}>Administración</Link></li>
           </ul>
         </div>
+      </div>
+
+      <div className="max-w-[1440px] mx-auto mb-[50px] pt-8 border-t border-black/10">
+        <ContactMessageForm tone="light" />
       </div>
 
       {/* Bottom Bar */}

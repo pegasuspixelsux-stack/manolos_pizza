@@ -79,14 +79,14 @@ function PropertiesContent() {
     <>
       <PageHeader
         eyebrow="Inventario"
-        title="Artículos"
-        description={`${items.length} ${items.length === 1 ? 'artículo cargado' : 'artículos cargados'}`}
+        title="Menú"
+        description={`${items.length} ${items.length === 1 ? 'producto en el menú' : 'productos en el menú'}`}
         action={
           <Link
             href="/dashboard/properties/new"
             className="inline-flex items-center gap-2 bg-[#1D1D1F] text-white text-xs font-medium px-5 py-3 rounded-full hover:bg-[#333336] transition-all"
           >
-            <Plus className="w-4 h-4" /> Agregar artículo
+            <Plus className="w-4 h-4" /> Agregar al menú
           </Link>
         }
       />
@@ -151,7 +151,7 @@ function PropertiesContent() {
       )}
 
       {loading ? (
-        <p className="text-sm text-[#515154]">Cargando artículos…</p>
+        <p className="text-sm text-[#515154]">Cargando menú…</p>
       ) : filtered.length === 0 ? (
         <div className={`${cardClass} p-10 text-center`}>
           <p className="text-sm text-[#515154]">

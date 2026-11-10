@@ -21,7 +21,11 @@ export default function BusinessForm() {
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const canEdit = agent?.role === 'admin';
 
-  const set = <K extends Exclude<keyof BusinessSettings, 'heroImages'>>(key: K, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const set = <K extends Exclude<keyof BusinessSettings, 'heroImages' | 'taxRate' | 'deliveryFee' | 'saveOrders'>>(key: K, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const setNumber = (key: 'taxRate' | 'deliveryFee', text: string, max: number) => {
+    const n = Number(text.replace(',', '.'));
+    setForm((f) => ({ ...f, [key]: Number.isFinite(n) && n >= 0 ? Math.min(n, max) : 0 }));
+  };
   const addHeroImage = (url: string) => setForm((f) => ({ ...f, heroImages: [...f.heroImages, url].slice(0, MAX_HERO_IMAGES) }));
   const removeHeroImage = (i: number) => setForm((f) => ({ ...f, heroImages: f.heroImages.filter((_, j) => j !== i) }));
   const dirty =
@@ -144,6 +148,37 @@ export default function BusinessForm() {
       <div>
         <label htmlFor="b-hours" className={labelClass}>Horario de atención</label>
         <textarea id="b-hours" rows={3} className={`${inputClass} resize-none`} value={form.hours} disabled={!canEdit} maxLength={400} onChange={(e) => set('hours', e.target.value)} placeholder={'Lunes a sábado de 5:00 a 14:00\nDomingos cerrado'} />
+      </div>
+
+      <div className="rounded-xl border border-[#000000]/10 p-4">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.saveOrders}
+            disabled={!canEdit}
+            onChange={(e) => setForm((f) => ({ ...f, saveOrders: e.target.checked }))}
+            className="mt-1 w-5 h-5 accent-[#1D1D1F]"
+          />
+          <span>
+            <span className="block text-sm font-medium">Guardar los pedidos también en el panel</span>
+            <span className="block text-xs text-[#515154] mt-1 leading-relaxed">
+              Activado: cada pedido llega por WhatsApp y queda guardado en Pedidos (repartidores, estados, ventas).
+              Desactivado: los pedidos llegan solo por WhatsApp y no se usan las funciones de pedidos del panel.
+            </span>
+          </span>
+        </label>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor="b-tax" className={labelClass}>Impuesto por defecto (%)</label>
+          <input id="b-tax" inputMode="decimal" className={inputClass} defaultValue={String(form.taxRate)} disabled={!canEdit} onChange={(e) => setNumber('taxRate', e.target.value, 100)} placeholder="0" />
+        </div>
+        <div>
+          <label htmlFor="b-fee" className={labelClass}>Costo de delivery ($)</label>
+          <input id="b-fee" inputMode="decimal" className={inputClass} defaultValue={String(form.deliveryFee)} disabled={!canEdit} onChange={(e) => setNumber('deliveryFee', e.target.value, 999999)} placeholder="0" />
+        </div>
+        <p className="col-span-2 text-xs text-[#86868B] -mt-1">Se aplican a cada pedido nuevo (el delivery solo si es entrega a domicilio). Un administrador, gerente u operador puede cambiarlos en cada pedido, en Pedidos.</p>
       </div>
 
       <div>

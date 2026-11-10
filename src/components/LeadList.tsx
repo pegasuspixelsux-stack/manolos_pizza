@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import { Mail, MessageCircle, Phone, Printer } from 'lucide-react';
 import OrderModal, { orderStatusLabels } from './dashboard/OrderModal';
-import { getProperty, updateLeadStatus } from '../services/dbService';
+import { getProperty, updateLeadDetails, updateLeadStatus } from '../services/dbService';
+import { useDrivers } from '../hooks/useDrivers';
+import { isAssignable } from '../services/driversService';
 import type { Lead, LeadStatus } from '../types/firestore';
 import { formatMoney, timeAgo, whatsappUrl } from '../utils/format';
 import { groupOrders, orderNumberOf, orderTotal, type OrderGroup } from '../utils/orders';
 
-const statuses: { value: LeadStatus; label: string }[] = (['new', 'contacted', 'closed'] as const).map((value) => ({
+const statuses: { value: LeadStatus; label: string }[] = (['new', 'contacted', 'closed', 'assigned', 'completed', 'suspended'] as const).map((value) => ({
   value,
   label: orderStatusLabels[value],
 }));
@@ -61,6 +63,7 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
   const titleFor = usePropertyTitles(leads.map((l) => l.propertyId));
   const [error, setError] = useState<string | null>(null);
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const { drivers } = useDrivers();
   const groups = groupOrders(leads);
   const openGroup = groups.find((g) => g.key === openKey) ?? null;
 
@@ -70,6 +73,26 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
       await Promise.all(group.lines.map((l) => updateLeadStatus(l.id, status)));
     } catch {
       setError('No se pudo actualizar el pedido.');
+    }
+  };
+
+  /** The list's dropdown: give the order to a driver (delivery), or mark it for pickup or dining in. */
+  const assign = async (group: OrderGroup, value: string) => {
+    if (!value) return;
+    setError(null);
+    try {
+      const current = group.primary.status;
+      if (value.startsWith('driver:')) {
+        const driver = drivers.find((d) => d.id === value.slice(7));
+        if (!driver) return;
+        await Promise.all(group.lines.map((l) => updateLeadDetails(l.id, { driverId: driver.id, driverName: driver.name, fulfillment: 'delivery' })));
+        if (['new', 'contacted', 'closed'].includes(current)) await Promise.all(group.lines.map((l) => updateLeadStatus(l.id, 'assigned')));
+      } else {
+        await Promise.all(group.lines.map((l) => updateLeadDetails(l.id, { driverId: '', driverName: '', fulfillment: value as 'pickup' | 'dinein' })));
+        if (current === 'assigned') await Promise.all(group.lines.map((l) => updateLeadStatus(l.id, 'contacted')));
+      }
+    } catch {
+      setError('No se pudo asignar el pedido.');
     }
   };
 
@@ -176,6 +199,27 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
                     <Phone className="w-3.5 h-3.5" /> Llamar
                   </a>
                 )}
+                <select
+                  value={lead.driverId ? `driver:${lead.driverId}` : (lead.fulfillment === 'pickup' || lead.fulfillment === 'dinein' ? lead.fulfillment : '')}
+                  onChange={(e) => assign(group, e.target.value)}
+                  disabled={group.status === 'suspended' || group.status === 'completed'}
+                  aria-label={`Asignar el pedido de ${lead.clientName || 'este cliente'}`}
+                  className="bg-[#F5F5F7] rounded-full px-4 py-2 text-xs font-medium outline-none cursor-pointer disabled:opacity-50"
+                >
+                  <option value="">Asignar a…</option>
+                  {drivers
+                    .filter((d) => isAssignable(d) || d.id === lead.driverId)
+                    .map((d) => (
+                      <option key={d.id} value={`driver:${d.id}`}>
+                        Delivery · {d.name}
+                      </option>
+                    ))}
+                  {lead.driverId && !drivers.some((d) => d.id === lead.driverId) && (
+                    <option value={`driver:${lead.driverId}`}>Delivery · {lead.driverName || 'Repartidor asignado'}</option>
+                  )}
+                  <option value="pickup">Retiro en local</option>
+                  <option value="dinein">Comer en el local</option>
+                </select>
               </div>
             </li>
           );

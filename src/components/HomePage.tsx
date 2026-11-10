@@ -21,10 +21,10 @@ export default function MerkadoHome({ initialProperties = [] }: { initialPropert
 
       {/* --- NAVIGATION --- */}
       <header className="sticky top-0 z-50 bg-[#480A0A] text-white">
-        <div className="bg-[#2E7D32] text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
-          <span className="md:hidden">Precios de mercado válidos por el día</span>
-          <span className="hidden md:inline lg:hidden">Precios de mercado válidos por el día. Pueden cambiar en pedidos para el día siguiente.</span>
-          <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
+        <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
+          <span className="md:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
+          <span className="hidden md:inline lg:hidden">Pizza por metro hecha al momento. Delivery en Maldonado: pedí por WhatsApp.</span>
+          <span className="hidden lg:inline">Pizza por metro hecha al momento, con masa de fermentación lenta. Delivery en Maldonado: elegí tus sabores y pedí por WhatsApp.</span>
         </div>
         <div className="relative max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
           <div className="flex items-center gap-1 lg:hidden">

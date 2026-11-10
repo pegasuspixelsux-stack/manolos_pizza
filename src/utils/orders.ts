@@ -19,9 +19,11 @@ export const orderKey = (l: Lead) =>
 
 /** Least advanced status wins: an order is "new" until every line has been accepted. */
 function statusOf(lines: Lead[]): LeadStatus {
-  if (lines.some((l) => l.status === 'new')) return 'new';
-  if (lines.some((l) => l.status === 'contacted')) return 'contacted';
-  return 'closed';
+  if (lines.some((l) => l.status === 'suspended')) return 'suspended';
+  for (const s of ['new', 'contacted', 'closed', 'assigned'] as const) {
+    if (lines.some((l) => l.status === s)) return s;
+  }
+  return 'completed';
 }
 
 /** Newest order first; keeps the order of `leads` (already newest first). */
@@ -52,12 +54,17 @@ export function withoutPartialOrder(leads: Lead[], limit: number): Lead[] {
 export const orderTotal = (lines: Lead[]) =>
   lines.reduce((s, l) => s + (l.quantity ?? 0) * (l.unitPrice ?? 0), 0);
 
-/** Order number shown in the list and printed on the pick slip, e.g. MK-20261105-AB12. */
+/** Order number from the order id and day, e.g. MK-20261105-AB12. The cart shows the same number the dashboard prints. */
+export function formatOrderNumber(orderId: string, createdAt: number): string {
+  const d = createdAt ? new Date(createdAt) : new Date();
+  const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  return `MK-${ymd}-${orderId.slice(0, 4).toUpperCase()}`;
+}
+
+/** Order number shown in the list and printed on the pick slip. */
 export function orderNumberOf(group: OrderGroup): string {
   const l = group.primary;
-  const d = l.createdAt ? new Date(l.createdAt) : new Date();
-  const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-  return `MK-${ymd}-${(l.orderId || l.id).slice(0, 4).toUpperCase()}`;
+  return formatOrderNumber(l.orderId || l.id, l.createdAt);
 }
 
 /** The unit the customer ordered in, read from the order line ("2 Cajas @ $54/caja"). */
