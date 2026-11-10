@@ -74,7 +74,7 @@ export default function CoverPage({ initialProperties = [] }: { initialPropertie
     <div className="min-h-svh bg-[#480A0A] text-white font-sans antialiased flex flex-col">
       <header className="sticky top-0 z-50 bg-[#480A0A] text-white">
         <div className="max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName hideLogoOnMobile /></Link>
+          <Link href="/" className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName /></Link>
           <SiteNavLinks light />
           <div className="flex items-center gap-3">
             <form

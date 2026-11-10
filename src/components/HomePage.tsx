@@ -27,7 +27,7 @@ export default function MerkadoHome({ initialProperties = [] }: { initialPropert
           <span className="hidden lg:inline">Precios de mercado válidos por el día. Si el pedido es para otro día, pueden cambiar: te lo confirmamos con precios ajustados antes del envío.</span>
         </div>
         <div className="max-w-[1440px] mx-auto px-[10px] h-16 flex items-center justify-between">
-          <span className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName hideLogoOnMobile /></span>
+          <span className="font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName /></span>
           <SiteNavLinks light />
           <div className="flex items-center gap-1">
           <form
