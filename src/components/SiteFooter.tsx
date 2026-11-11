@@ -12,11 +12,11 @@ import ContactMessageForm from '@/src/components/ContactMessageForm';
 const linkClass = 'hover:text-black hover:underline underline-offset-2 transition-colors';
 
 /** The four-column site footer, shared by the homepage and the item pages. */
-export default function SiteFooter() {
+export default function SiteFooter({ hideMessageForm = false }: { hideMessageForm?: boolean }) {
   const business = useBusiness();
   const socials = socialLinks(business);
   const { categories } = useCategories();
-  const wa = business.whatsapp ? whatsappUrl(business.whatsapp, 'Hola, quiero consultar por el catálogo.') : null;
+  const wa = business.whatsapp ? whatsappUrl(business.whatsapp, 'Hola, quiero consultar por el menú.') : null;
   const hasContact = Boolean(
     business.address || business.email || business.whatsapp || business.phone || business.hours || business.rut || business.license,
   );
@@ -95,12 +95,12 @@ export default function SiteFooter() {
 
         {/* Column 2: Inventory */}
         <div className="space-y-4">
-          <p className="text-sm md:text-xs uppercase tracking-widest text-white/75 font-semibold">Catálogo</p>
+          <p className="text-sm md:text-xs uppercase tracking-widest text-white/75 font-semibold">Menú</p>
           <ul className="space-y-3 text-sm text-white font-light">
             {categories.slice(0, 4).map((c) => (
               <li key={c.id}><Link href={`/items?category=${encodeURIComponent(c.id)}`} className={linkClass}>{c.name}</Link></li>
             ))}
-            <li><Link href="/items" className={`${linkClass} font-medium`}>Ver todo el catálogo →</Link></li>
+            <li><Link href="/items" className={`${linkClass} font-medium`}>Ver todo el menú →</Link></li>
           </ul>
         </div>
 
@@ -127,9 +127,11 @@ export default function SiteFooter() {
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto mb-[50px] pt-8 border-t border-white/15">
-        <ContactMessageForm tone="light" />
-      </div>
+      {!hideMessageForm && (
+        <div className="max-w-[1440px] mx-auto mb-[50px] pt-8 border-t border-white/15">
+          <ContactMessageForm tone="light" />
+        </div>
+      )}
 
       {/* Bottom Bar */}
       <div className="max-w-[1440px] mx-auto pt-6 border-t border-white/15 flex flex-col md:flex-row items-center justify-between text-sm md:text-xs text-white/75 font-light">

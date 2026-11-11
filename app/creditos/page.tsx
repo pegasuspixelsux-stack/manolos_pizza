@@ -4,7 +4,7 @@ import { commonsPage, itemImagesById } from '@/src/data/itemImages';
 
 export const metadata: Metadata = {
   title: 'Créditos de fotos | Merkado',
-  description: 'Fuentes y licencias de las fotos públicas usadas en el catálogo.',
+  description: 'Fuentes y licencias de las fotos públicas usadas en el menú.',
 };
 
 export default function CreditsPage() {
@@ -14,7 +14,7 @@ export default function CreditsPage() {
       <Link href="/" className="text-sm text-white/75 hover:text-white">← Volver al inicio</Link>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight">Créditos de fotos</h1>
       <p className="mt-3 text-sm text-white/75 font-light">
-        Varias fotos del catálogo vienen de Wikipedia y Wikimedia Commons y son de dominio público o tienen licencias
+        Varias fotos del menú vienen de Wikipedia y Wikimedia Commons y son de dominio público o tienen licencias
         libres (CC0, CC BY y CC BY-SA). Cada foto enlaza a su página en Commons, con el autor y la licencia completa.
       </p>
       <ul className="mt-8 divide-y divide-white/10 text-sm">

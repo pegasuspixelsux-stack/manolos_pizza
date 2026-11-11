@@ -19,7 +19,6 @@ import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
 import HeroArrow from '@/src/components/HeroArrow';
 import SwipeSection from '@/src/components/SwipeSection';
-import InfoSections from '@/src/components/InfoSections';
 import SiteFooter from '@/src/components/SiteFooter';
 import BrandName from '@/src/components/BrandName';
 
@@ -104,10 +103,10 @@ export default async function ItemPage({ params }: Props) {
 
   return (
     <div className="relative min-h-screen bg-transparent text-white font-sans antialiased">
-      <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-white md:border-b md:border-white/10 md:bg-[#FBFBFD]">
-        <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
-          <SiteNavLinks />
+      <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-white md:border-b md:border-white/10 md:bg-[#2E0505]">
+        <div className="max-w-[1440px] mx-auto px-6 h-28 md:h-32 flex items-center justify-between">
+          <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName bigLogoOnly={108} /></Link>
+          <SiteNavLinks light />
           <div className="flex items-center gap-3">
             <CartButton glass />
             <MobileNavMenu glass />
@@ -118,9 +117,9 @@ export default async function ItemPage({ params }: Props) {
       <main className="max-w-[1440px] mx-auto px-6 pt-10 pb-2 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-16 items-start">
         {/* Mobile hero: full-bleed image, vertical gradient overlay, product info on top of it */}
         <SwipeSection prevHref={prevHref} nextHref={nextHref} className="md:hidden relative -mx-6 -mt-10 min-h-[100svh] flex flex-col justify-end overflow-hidden bg-transparent">
-          {photo && (
+          {(
             <PropertyImage demoFallback
-              src={photo}
+              src={photo ?? ''}
               alt={item.title}
               variant="gallery"
               sizes="100vw"
@@ -129,12 +128,12 @@ export default async function ItemPage({ params }: Props) {
             />
           )}
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/70 from-25% via-black/35 via-55% to-transparent" aria-hidden="true" />
-          <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#2E0505] from-22% via-[#FBFBFD]/95 via-36% to-transparent to-58%" aria-hidden="true" />
+          <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#2E0505] from-22% via-[#2E0505]/95 via-36% to-transparent to-58%" aria-hidden="true" />
           <Link
             href="/items"
-            className="absolute top-20 left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"
+            className="absolute top-[7.75rem] left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"
           >
-            <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Catálogo
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Menú
           </Link>
           {!isSample && <FavoriteButton productId={String(item.id)} title={item.title} className="absolute top-20 right-4 w-10 h-10 z-10" />}
           {!inStock && (
@@ -175,14 +174,14 @@ export default async function ItemPage({ params }: Props) {
 
         <Link
           href="/items"
-          className="hidden md:inline-flex md:col-span-2 justify-self-start md:-mb-10 items-center gap-2 text-sm font-medium text-white/75 hover:text-white transition-colors"
+          className="hidden md:inline-flex md:col-span-2 justify-self-start md:mt-[20svh] md:-mb-10 items-center gap-2 text-sm font-medium text-white/75 hover:text-white transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Volver al Catálogo
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Volver al Menú
         </Link>
         <div className="hidden md:block relative aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10">
-          {photo && (
+          {(
             <PropertyImage demoFallback
-              src={photo}
+              src={photo ?? ''}
               alt={item.title}
               variant="gallery"
               sizes="(min-width: 768px) 50vw, 100vw"
@@ -237,9 +236,7 @@ export default async function ItemPage({ params }: Props) {
 
       <SimilarItems title="Más vendidos" items={similar} />
 
-      <InfoSections />
-
-      <SiteFooter />
+      <SiteFooter hideMessageForm />
     </div>
   );
 }

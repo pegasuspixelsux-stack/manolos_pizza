@@ -160,6 +160,26 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Inicio
             </Link>
             <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} className="mx-auto" />
+            {/* Desktop: the search sits on the right of this row */}
+            <form
+              role="search"
+              aria-label="Buscar en el menú"
+              onSubmit={(e) => {
+                e.preventDefault();
+                scrollToItems();
+              }}
+              className="hidden md:flex shrink-0 w-64 lg:w-72 items-center gap-2 rounded-full border border-white/25 px-4 h-10"
+            >
+              <Search className="w-4 h-4 text-white/70 shrink-0" aria-hidden="true" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => change(setQuery)(e.target.value)}
+                placeholder="Buscar…"
+                aria-label="Buscar artículos por nombre, categoría o precio"
+                className="min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/50 outline-none"
+              />
+            </form>
           </div>
         </div>
       </header>
@@ -167,7 +187,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       <h1 className="sr-only">Menú</h1>
 
       {/* Search bar (with the filters) */}
-      <section id="search" className="px-[10px] mt-4 md:mt-6 max-w-[1440px] mx-auto">
+      <section id="search" className="md:hidden px-[10px] mt-4 max-w-[1440px] mx-auto">
         <form
           role="search"
           aria-label="Búsqueda avanzada"

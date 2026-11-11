@@ -47,7 +47,7 @@ export function socialUrl(kind: 'instagram' | 'facebook' | 'youtube', value: str
 
 /** The social links that are set in Ajustes (plus WhatsApp), ready to render as icons. */
 export function socialLinks(b: BusinessSettings) {
-  const wa = b.whatsapp ? whatsappUrl(b.whatsapp, 'Hola, quiero consultar por el catálogo.') : null;
+  const wa = b.whatsapp ? whatsappUrl(b.whatsapp, 'Hola, quiero consultar por el menú.') : null;
   return [
     { key: 'instagram', label: 'Instagram', href: socialUrl('instagram', b.instagram), Icon: InstagramIcon },
     { key: 'facebook', label: 'Facebook', href: socialUrl('facebook', b.facebook), Icon: FacebookIcon },

@@ -45,7 +45,7 @@ export default function ClientPortal() {
             <Link href="/" className="inline-block text-sm font-medium underline underline-offset-4">Ir al inicio</Link>
           </>
         ) : (
-          <p role="status" className="text-sm text-white/75">Abriendo tu catálogo…</p>
+          <p role="status" className="text-sm text-white/75">Abriendo tu menú…</p>
         )}
       </div>
     </main>

@@ -107,7 +107,7 @@ export default function FavoritesPage() {
           <Heart className="w-7 h-7 fill-red-500 text-red-500" /> Mis favoritos
         </h1>
         <p className="text-sm text-white/75 font-light mt-2 mb-8">
-          Tu pedido habitual en un clic. Esta lista de muestra es editable: ajustá cantidades, quitá productos o sumá otros con el corazón del catálogo. Los precios se actualizan siempre: ves el precio de hoy.
+          Tu pedido habitual en un clic. Esta lista de muestra es editable: ajustá cantidades, quitá productos o sumá otros con el corazón del menú. Los precios se actualizan siempre: ves el precio de hoy.
         </p>
 
         {!client ? (
@@ -121,7 +121,7 @@ export default function FavoritesPage() {
             <p className="font-medium">Todavía no marcaste favoritos.</p>
             <p className="text-white/75 font-light">Tocá el corazón en cualquier producto para guardarlo acá.</p>
             <Link href="/items" className="inline-block rounded-full bg-white text-[#2E0505] px-6 py-2.5 text-xs font-medium hover:bg-white/90 transition-colors">
-              Ver el catálogo
+              Ver el menú
             </Link>
           </div>
         ) : (
