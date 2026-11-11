@@ -30,10 +30,10 @@ export default function PortadaHero() {
           <span aria-hidden="true"><strong className="font-semibold text-white">{GOOGLE_RATING}</strong> en Google · {GOOGLE_REVIEWS} reseñas</span>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo || DEFAULT_LOGO} alt="Manolo's Pizza" className="h-[16svh] w-[16svh] sm:h-72 sm:w-72 md:h-[340px] md:w-[340px] max-w-full object-contain drop-shadow-lg" />
+        <img src={logo || DEFAULT_LOGO} alt="Manolo's Pizza" className="h-[22svh] w-[22svh] sm:h-72 sm:w-72 md:h-[340px] md:w-[340px] max-w-full object-contain drop-shadow-lg" />
         <h1 className="sr-only">Manolo: la mejor pizza por metro en Maldonado</h1>
         <div className="w-full max-w-5xl -mt-2 -mb-3 sm:-mt-4 sm:-mb-5">
-          <HeroImageScroller className="-mx-6 px-6 scroll-pl-6 [&_[role=listitem]]:aspect-[100/95] max-sm:[&_[role=listitem]]:h-[24svh] max-sm:[&_[role=listitem]]:w-auto" dotsClassName="mt-3 mb-0" />
+          <HeroImageScroller className="-mx-6 px-6 scroll-pl-6 [&_[role=listitem]]:aspect-[100/95] max-sm:[&_[role=listitem]]:h-[32svh] max-sm:[&_[role=listitem]]:w-auto" dotsClassName="mt-3 mb-0" />
         </div>
         <Link
           href="/menu"
