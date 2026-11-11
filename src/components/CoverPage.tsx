@@ -13,6 +13,7 @@ import SearchModal from '@/src/components/SearchModal';
 import InstallButton from '@/src/components/InstallButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
+import MobileBottomBar from '@/src/components/MobileBottomBar';
 
 /** Counts from 0 up to `to` once it is on screen (no animation for people who prefer reduced motion). */
 function CountUp({ to, suffix = '', duration = 4000 }: { to: number; suffix?: string; duration?: number }) {
@@ -73,7 +74,7 @@ export default function CoverPage({ initialProperties = [] }: { initialPropertie
     return () => window.removeEventListener('hashchange', go);
   }, [router]);
   return (
-    <div className="min-h-svh bg-[#2E0505] text-white font-sans antialiased flex flex-col">
+    <div className="min-h-svh bg-[#2E0505] text-white font-sans antialiased flex flex-col pb-14 md:pb-0">
       <header className="sticky top-0 z-50 bg-[#2E0505] text-white">
         <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
           <span className="md:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
@@ -139,6 +140,7 @@ export default function CoverPage({ initialProperties = [] }: { initialPropertie
         </section>
       </main>
       <HomeSections />
+      <MobileBottomBar />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { unitPriceOf } from '@/src/components/CartDrawer';
 import { useCart } from '@/src/context/CartContext';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
+import MobileBottomBar from '@/src/components/MobileBottomBar';
 import HomeSections from '@/src/components/HomeSections';
 import InstallButton from '@/src/components/InstallButton';
 import { CategoryPills, LayoutSelector } from '@/src/components/ItemsShowcase';
@@ -159,7 +160,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     .flatMap((n, i, arr) => (i > 0 && n - arr[i - 1] > 1 ? ['gap' as const, n] : [n]));
 
   return (
-    <div className="min-h-screen bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
+    <div className="min-h-screen pb-14 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
       {/* --- NAVIGATION (same as the homepage) --- */}
       <header className="sticky top-0 z-50 bg-[#2E0505] text-white">
         <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
@@ -498,6 +499,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       </section>
 
       <HomeSections />
+      <MobileBottomBar />
 
     </div>
   );
