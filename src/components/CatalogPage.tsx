@@ -139,6 +139,10 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     <div className="page-slide-up min-h-screen pb-14 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
       {/* --- Category pills (no top navigation) --- */}
       <header className="sticky top-0 z-50 bg-[#2E0505] text-white">
+        <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
+          <span className="sm:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
+          <span className="hidden sm:inline">Pizza por metro hecha al momento. Delivery en Maldonado: elegí tus sabores y pedí por WhatsApp.</span>
+        </div>
         {/* Category pills (+ the cart on larger screens) */}
         <div>
           <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
@@ -291,7 +295,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       </section>
 
       {/* --- ALL PRODUCTS: 4-column grid --- */}
-      <section id="catalog" className={`pt-4 md:pt-6 pb-8 md:pb-12 px-0 max-w-[1440px] mx-auto scroll-mt-40`}>
+      <section id="catalog" className={`pt-0 md:pt-6 pb-8 md:pb-12 px-0 max-w-[1440px] mx-auto scroll-mt-40`}>
         <div className={`hidden md:grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-0`}>
           {filtered.length === 0 && (
             <div className="col-span-full text-center text-white/80 text-sm py-16">
@@ -374,7 +378,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           )}
           {groups.map((g) => (
             <div key={g.id}>
-              <h2 className="px-[10px] pt-10 pb-3 text-xl font-semibold tracking-tight">{g.label}</h2>
+              <h2 className="px-[10px] pt-5 pb-3 text-xl font-semibold tracking-tight">{g.label}</h2>
               <div className="flex flex-col gap-[5px]">
                 {g.items.map((prop) => {
                   const soldOut = prop.inStock === false;
