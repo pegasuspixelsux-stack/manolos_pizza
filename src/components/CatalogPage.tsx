@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ArrowLeft, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { typeLabels } from '@/src/utils/format';
 import PropertyImage from '@/src/components/PropertyImage';
@@ -16,8 +16,6 @@ import HomeSections from '@/src/components/HomeSections';
 import InstallButton from '@/src/components/InstallButton';
 import { CategoryPills, LayoutSelector } from '@/src/components/ItemsShowcase';
 import BrandName from '@/src/components/BrandName';
-
-const PAGE_SIZE = 12;
 
 type Sort = 'relevance' | 'price-asc' | 'price-desc' | 'name';
 type Availability = 'all' | 'in-stock' | 'on-sale';
@@ -57,7 +55,6 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sort, setSort] = useState<Sort>('relevance');
-  const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false); // mobile only
 
   // Cart: shared with every page (see CartContext).
@@ -116,7 +113,6 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     setMinPrice('');
     setMaxPrice('');
     setSort('relevance');
-    setPage(1);
   };
 
   // A filter change goes back to page 1; the page never exceeds the last one.
@@ -144,20 +140,9 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     <T,>(set: (v: T) => void) =>
     (v: T) => {
       set(v);
-      setPage(1);
     };
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const pageStart = (currentPage - 1) * PAGE_SIZE;
-  const visible = filtered.slice(pageStart, pageStart + PAGE_SIZE);
-  const goToPage = (n: number) => {
-    setPage(n);
-    document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
-  };
-  const pageItems = Array.from({ length: totalPages }, (_, i) => i + 1)
-    .filter((n) => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 1)
-    .flatMap((n, i, arr) => (i > 0 && n - arr[i - 1] > 1 ? ['gap' as const, n] : [n]));
+  const scrollToItems = () => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <div className="min-h-screen pb-14 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
@@ -204,7 +189,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           aria-label="Búsqueda avanzada"
           onSubmit={(e) => {
             e.preventDefault();
-            goToPage(1);
+            scrollToItems();
           }}
           className="w-full bg-transparent text-white rounded-[10px] border border-white/25 p-3 md:p-4"
         >
@@ -342,7 +327,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </button>
             </div>
           )}
-          {visible.map((prop) => {
+          {filtered.map((prop) => {
             const soldOut = prop.inStock === false;
             return (
             <div key={prop.id}>
@@ -449,52 +434,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
         </div>
 
         {filtered.length > 0 && (
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 items-center gap-4 text-sm">
-            <Link href="/" className="justify-self-center md:justify-self-start font-medium text-white hover:text-white/80 transition-colors">
-              ← Volver al inicio
-            </Link>
-            <nav aria-label="Paginación" className={`justify-self-center flex items-center gap-1 ${totalPages < 2 ? 'invisible' : ''}`}>
-              <button
-                type="button"
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                aria-label="Página anterior"
-                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              {pageItems.map((n, i) =>
-                n === 'gap' ? (
-                  <span key={`gap-${i}`} aria-hidden="true" className="px-1 text-white/60">…</span>
-                ) : (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => goToPage(n)}
-                    aria-label={`Página ${n}`}
-                    aria-current={n === currentPage ? 'page' : undefined}
-                    className={`w-9 h-9 rounded-full text-xs font-medium transition-colors ${
-                      n === currentPage ? 'bg-white/30 backdrop-blur-md text-white' : 'hover:bg-white/10'
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ),
-              )}
-              <button
-                type="button"
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                aria-label="Página siguiente"
-                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </nav>
-            <p className="justify-self-center md:justify-self-end text-xs text-white/70">
-              Mostrando {pageStart + 1}–{pageStart + visible.length} de {filtered.length} artículos
-            </p>
-          </div>
+          <p className="mt-6 text-center text-xs text-white/70">{filtered.length} {filtered.length === 1 ? 'artículo' : 'artículos'}</p>
         )}
       </section>
 
