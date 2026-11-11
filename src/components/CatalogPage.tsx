@@ -11,7 +11,7 @@ import { unitPriceOf } from '@/src/components/CartDrawer';
 import { useCart } from '@/src/context/CartContext';
 import MobileBottomBar from '@/src/components/MobileBottomBar';
 import HomeSections from '@/src/components/HomeSections';
-import { CategoryPills, LayoutSelector } from '@/src/components/ItemsShowcase';
+import { CategoryPills } from '@/src/components/ItemsShowcase';
 
 type Sort = 'relevance' | 'price-asc' | 'price-desc' | 'name';
 type Availability = 'all' | 'in-stock' | 'on-sale';
@@ -112,25 +112,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   };
 
   // A filter change goes back to page 1; the page never exceeds the last one.
-  // Phones only: one big card per row, two per row (default) or a compact list; remembered with the homepage's choice.
-  const [layout, setLayout] = useState<'one' | 'two' | 'list'>('two');
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('merkado-grid-layout');
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the visitor's choice
-      if (saved === 'two' || saved === 'list') setLayout(saved);
-    } catch {
-      /* private mode: the choice just is not remembered */
-    }
-  }, []);
-  const chooseLayout = (v: 'one' | 'two' | 'list') => {
-    setLayout(v);
-    try {
-      localStorage.setItem('merkado-grid-layout', v);
-    } catch {
-      /* ignore */
-    }
-  };
+  // Phones always show the compact list (there is no layout selector).
+  const layout = 'list' as 'one' | 'two' | 'list';
 
   const change =
     <T,>(set: (v: T) => void) =>
@@ -138,17 +121,28 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       set(v);
     };
 
+  // Phone list: items grouped under their category (in order of first appearance).
+  const groups = Array.from(
+    filtered
+      .reduce((m, p) => {
+        const id = p.type ?? 'otros';
+        const label = p.typeLabel ?? typeLabels[p.type as string] ?? p.type ?? 'Otros';
+        const g = m.get(id) ?? { id, label, items: [] as typeof filtered };
+        g.items.push(p);
+        return m.set(id, g);
+      }, new Map<string, { id: string; label: string; items: typeof filtered }>())
+      .values(),
+  );
   const scrollToItems = () => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <div className="page-slide-up min-h-screen pb-14 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
       {/* --- Category pills (no top navigation) --- */}
       <header className="sticky top-0 z-50 bg-[#2E0505] text-white">
-        {/* Category pills (+ the layout selector on phones, the cart on larger screens) */}
+        {/* Category pills (+ the cart on larger screens) */}
         <div>
           <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
             <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} />
-            <LayoutSelector value={layout} onChange={chooseLayout} className="ml-auto md:hidden" />
             <span className="hidden md:block ml-auto"><CartButton /></span>
           </div>
         </div>
@@ -297,8 +291,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       </section>
 
       {/* --- ALL PRODUCTS: 4-column grid --- */}
-      <section id="catalog" className={`pt-4 md:pt-6 pb-8 md:pb-12 px-[10px] max-w-[1440px] mx-auto scroll-mt-40`}>
-        <div className={`grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-[5px]`}>
+      <section id="catalog" className={`pt-4 md:pt-6 pb-8 md:pb-12 px-0 max-w-[1440px] mx-auto scroll-mt-40`}>
+        <div className={`hidden md:grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-0`}>
           {filtered.length === 0 && (
             <div className="col-span-full text-center text-white/80 text-sm py-16">
               <p>No hay artículos que coincidan con tu búsqueda.</p>
@@ -308,12 +302,11 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             </div>
           )}
           {filtered.map((prop) => {
-            const soldOut = prop.inStock === false;
             return (
             <div key={prop.id}>
             <div className={layout === 'list' ? 'hidden md:block' : ''}>
             <div
-              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
+              className={`group relative ${layout === 'one' ? 'aspect-[16/15] md:aspect-[4/5]' : 'aspect-[4/5]'} rounded-none overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
                 <PropertyImage
@@ -364,19 +357,41 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </div>
             </div>
             </div>
-            {layout === 'list' && (
-              <div className="md:hidden flex items-center gap-3 rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 p-2.5">
+            </div>
+            );
+          })}
+        </div>
+
+        {/* Phones: the list divided into categories */}
+        <div className="md:hidden">
+          {filtered.length === 0 && (
+            <div className="text-center text-white/80 text-sm py-16">
+              <p>No hay artículos que coincidan con tu búsqueda.</p>
+              <button type="button" onClick={reset} className="mt-3 font-medium text-white underline underline-offset-4">
+                Borrar filtros
+              </button>
+            </div>
+          )}
+          {groups.map((g) => (
+            <div key={g.id}>
+              <h2 className="px-[10px] pt-10 pb-3 text-xl font-semibold tracking-tight">{g.label}</h2>
+              <div className="flex flex-col gap-[5px]">
+                {g.items.map((prop) => {
+                  const soldOut = prop.inStock === false;
+                  return (
+                    <div key={prop.id}>
+              <div className="flex items-center gap-3 overflow-hidden bg-white/10 pr-2.5">
                 {prop.href ? (
                   <Link
                     href={prop.href}
                     aria-label={`Ver ${prop.title}`}
-                    className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}
+                    className={`relative w-36 h-36 shrink-0 overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}
                   >
-                    <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
+                    <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="144px" />
                   </Link>
                 ) : (
-                  <div className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}>
-                    <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
+                  <div className={`relative w-36 h-36 shrink-0 overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}>
+                    <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="144px" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -407,10 +422,12 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                   </button>
                 </div>
               </div>
-            )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            );
-          })}
+          ))}
         </div>
 
         {filtered.length > 0 && (
