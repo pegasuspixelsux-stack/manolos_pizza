@@ -3,6 +3,7 @@
 import NextImage from 'next/image';
 import { CldImage } from 'next-cloudinary';
 import { isCloudinaryUrl } from '@/src/utils/cloudinary';
+import { demoImageFor } from '@/src/data/demoImages';
 
 /** Ready-made sizes: thumbnails, cards and full-width gallery images. */
 const PRESETS = {
@@ -24,6 +25,8 @@ interface PropertyImageProps {
   sizes?: string;
   priority?: boolean;
   className?: string;
+  /** Show a demo photo (picked from the alt text) when the item has no photo. */
+  demoFallback?: boolean;
 }
 
 /**
@@ -38,7 +41,9 @@ export default function PropertyImage({
   sizes,
   priority,
   className = 'object-cover',
+  demoFallback = false,
 }: PropertyImageProps) {
+  if (!src && demoFallback) src = demoImageFor(alt);
   if (!src) return null;
 
   if (!isCloudinaryUrl(src)) {

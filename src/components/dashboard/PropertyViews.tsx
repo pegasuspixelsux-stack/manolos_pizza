@@ -93,9 +93,10 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, onToggleS
           className="group bg-white rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden transition-transform duration-500 hover:-translate-y-1"
         >
           <Link href={`/dashboard/properties/${p.id}`} className="block relative aspect-[4/3] bg-[#E5E5EA] overflow-hidden">
-            {p.photos[0] && (
+            {(
               <PropertyImage
-                src={p.photos[0].url}
+                demoFallback
+                src={p.photos[0]?.url ?? ''}
                 alt={p.title}
                 variant="card"
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
@@ -155,9 +156,7 @@ export function PropertyTable({ properties, onDelete, onToggleFeatured, onToggle
               <td className="px-5 py-3">
                 <div className="flex items-center gap-4 min-w-[220px]">
                   <div className="relative w-16 h-12 rounded-xl bg-[#E5E5EA] overflow-hidden shrink-0">
-                    {p.photos[0] && (
-                      <PropertyImage src={p.photos[0].url} alt="" variant="thumb" sizes="64px" />
-                    )}
+                    <PropertyImage demoFallback src={p.photos[0]?.url ?? ''} alt={p.title} variant="thumb" sizes="64px" />
                   </div>
                   <div className="min-w-0">
                     <Link href={`/dashboard/properties/${p.id}`} className="font-medium hover:underline truncate block">

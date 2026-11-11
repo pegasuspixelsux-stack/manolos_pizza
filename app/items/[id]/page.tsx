@@ -119,7 +119,7 @@ export default async function ItemPage({ params }: Props) {
         {/* Mobile hero: full-bleed image, vertical gradient overlay, product info on top of it */}
         <SwipeSection prevHref={prevHref} nextHref={nextHref} className="md:hidden relative -mx-6 -mt-10 min-h-[100svh] flex flex-col justify-end overflow-hidden bg-transparent">
           {photo && (
-            <PropertyImage
+            <PropertyImage demoFallback
               src={photo}
               alt={item.title}
               variant="gallery"
@@ -181,7 +181,7 @@ export default async function ItemPage({ params }: Props) {
         </Link>
         <div className="hidden md:block relative aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10">
           {photo && (
-            <PropertyImage
+            <PropertyImage demoFallback
               src={photo}
               alt={item.title}
               variant="gallery"

@@ -49,7 +49,7 @@ const gridClass: Record<Exclude<Layout, 'list'>, string> = {
 
 /** Pills: one per category that has items, in the order they first appear. */
 export function getCategories(items: HomeProperty[]): { id: string; label: string }[] {
-  return Array.from(
+  const list = Array.from(
     new Map(
       items
         .filter((p) => p.type)
@@ -57,6 +57,8 @@ export function getCategories(items: HomeProperty[]): { id: string; label: strin
     ),
     ([id, label]) => ({ id, label }),
   );
+  // Promos always shows first in the filters, even before it has items.
+  return list.some((c) => c.id === 'promos') ? list.sort((a, b) => Number(b.id === 'promos') - Number(a.id === 'promos')) : [{ id: 'promos', label: 'Promos' }, ...list];
 }
 
 /** The category pills ("Todas" + one per category). Used in the grid, and in the second row of the desktop top nav. */
@@ -218,7 +220,7 @@ export default function ItemsShowcase({
             return (
               <li key={prop.id} className="flex items-center gap-3 rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 p-2.5">
                 <div className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}>
-                  <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
+                  <PropertyImage demoFallback src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold leading-tight line-clamp-2">
@@ -261,7 +263,7 @@ export default function ItemsShowcase({
               className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
-                <PropertyImage src={prop.image} alt={prop.title} variant="card" sizes="(min-width: 768px) 25vw, 50vw" />
+                <PropertyImage demoFallback src={prop.image} alt={prop.title} variant="card" sizes="(min-width: 768px) 25vw, 50vw" />
               </div>
               {/* Whole card opens the item page; the buttons sit above it */}
               {prop.href && <Link href={prop.href} aria-label={`Ver ${prop.title}`} className="absolute inset-0 z-[5]" />}

@@ -63,9 +63,9 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      <div className="px-6 h-16 flex items-center justify-between shrink-0">
+      <div className="px-6 py-3 min-h-16 flex items-center justify-between shrink-0">
         <Link href="/dashboard" className="font-semibold text-[27px] tracking-tight min-w-0">
-          <BrandName large />
+          <BrandName bigLogoOnly />
         </Link>
         <button
           onClick={() => setMenuOpen(false)}

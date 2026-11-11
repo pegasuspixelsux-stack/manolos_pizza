@@ -186,7 +186,7 @@ export default function OverviewPage() {
                 <li key={p.id}>
                   <Link href={`/dashboard/properties/${p.id}`} className="flex items-center gap-4 p-4 hover:bg-[#FBFBFD] transition-colors">
                     <div className="relative w-16 h-12 rounded-xl bg-[#E5E5EA] overflow-hidden shrink-0">
-                      {p.photos[0] && <PropertyImage src={p.photos[0].url} alt="" variant="thumb" sizes="64px" />}
+                      <PropertyImage demoFallback src={p.photos[0]?.url ?? ''} alt={p.title} variant="thumb" sizes="64px" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-medium truncate">{p.title}</p>

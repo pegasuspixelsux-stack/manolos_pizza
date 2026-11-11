@@ -120,11 +120,9 @@ export default function ProductPickerModal({
                       const options = needsOptions(p.title);
                       return (
                         <li key={p.id} className="relative aspect-square rounded-[12px] overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 text-white">
-                          {p.photos[0] && (
-                            <div className="absolute inset-0">
-                              <PropertyImage src={p.photos[0].url} alt={p.title} variant="card" sizes="(min-width: 1024px) 220px, 45vw" />
-                            </div>
-                          )}
+                          <div className="absolute inset-0">
+                            <PropertyImage demoFallback src={p.photos[0]?.url ?? ''} alt={p.title} variant="card" sizes="(min-width: 1024px) 220px, 45vw" />
+                          </div>
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                           <button
                             type="button"

@@ -245,7 +245,7 @@ export default function CartDrawer({
                   return (
                     <li key={id} className="flex gap-3 py-4">
                       <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0">
-                        <PropertyImage src={item.image} alt={item.title} variant="thumb" sizes="64px" />
+                        <PropertyImage demoFallback src={item.image} alt={item.title} variant="thumb" sizes="64px" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{item.title}</p>

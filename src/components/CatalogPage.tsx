@@ -16,7 +16,7 @@ import MobileNavMenu from '@/src/components/MobileNavMenu';
 import InstallButton from '@/src/components/InstallButton';
 import MobileBottomBar from '@/src/components/MobileBottomBar';
 import HomeSections from '@/src/components/HomeSections';
-import { CategoryPills } from '@/src/components/ItemsShowcase';
+import { CategoryPills, getCategories } from '@/src/components/ItemsShowcase';
 
 type Sort = 'relevance' | 'price-asc' | 'price-desc' | 'name';
 type Availability = 'all' | 'in-stock' | 'on-sale';
@@ -62,18 +62,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   // Cart: shared with every page (see CartContext).
   const { add: addToCart } = useCart();
 
-  const categories = useMemo(
-    () =>
-      Array.from(
-        new Map(
-          items
-            .filter((p) => p.type)
-            .map((p) => [p.type as string, p.typeLabel ?? typeLabels[p.type as string] ?? (p.type as string)]),
-        ),
-        ([id, label]) => ({ id, label }),
-      ),
-    [items],
-  );
+  // The Promos category always shows first in the filters, even before it has items.
+  const categories = useMemo(() => getCategories(items), [items]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -332,7 +322,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               className={`group relative aspect-square rounded-[10px] overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
-                <PropertyImage
+                <PropertyImage demoFallback
                   src={prop.image}
                   alt={prop.title}
                   variant="card"
@@ -412,11 +402,11 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                     aria-label={`Ver ${prop.title}`}
                     className={`relative w-36 h-36 shrink-0 overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}
                   >
-                    <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="144px" />
+                    <PropertyImage demoFallback src={prop.image} alt={prop.title} variant="thumb" sizes="144px" />
                   </Link>
                 ) : (
                   <div className={`relative w-36 h-36 shrink-0 overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}>
-                    <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="144px" />
+                    <PropertyImage demoFallback src={prop.image} alt={prop.title} variant="thumb" sizes="144px" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">

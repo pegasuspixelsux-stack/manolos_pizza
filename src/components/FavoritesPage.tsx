@@ -133,7 +133,7 @@ export default function FavoritesPage() {
                 return (
                   <li key={id} className="flex items-center gap-3 p-4">
                     <Link href={item.href ?? '/items'} className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0">
-                      <PropertyImage src={item.image} alt={item.title} variant="thumb" sizes="64px" />
+                      <PropertyImage demoFallback src={item.image} alt={item.title} variant="thumb" sizes="64px" />
                     </Link>
                     <div className="flex-1 min-w-0">
                       <Link href={item.href ?? '/items'} className="text-sm font-medium truncate block hover:underline">{item.title}</Link>
@@ -156,7 +156,7 @@ export default function FavoritesPage() {
               {soldOut.map((item) => (
                 <li key={String(item.id)} className="flex items-center gap-3 p-4 opacity-60">
                   <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0 grayscale">
-                    <PropertyImage src={item.image} alt={item.title} variant="thumb" sizes="64px" />
+                    <PropertyImage demoFallback src={item.image} alt={item.title} variant="thumb" sizes="64px" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.title}</p>
