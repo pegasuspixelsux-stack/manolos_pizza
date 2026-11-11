@@ -25,7 +25,7 @@ export default function SiteFooter() {
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 mb-[75px]">
         {/* Column 1: Brand (tablets, portrait and landscape: its own full-width row) */}
         <div className="space-y-4 md:col-span-2 xl:col-span-1">
-          <span className="text-sm min-[420px]:text-base sm:text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName /></span>
+          <span className="text-sm min-[420px]:text-base sm:text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName bigLogoOnDesktop /></span>
           <p className="text-sm text-white/75 leading-relaxed font-light">
             Frutas y verduras frescas, directo del productor a tu negocio o a tu mesa.
           </p>

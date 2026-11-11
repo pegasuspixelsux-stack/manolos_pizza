@@ -41,7 +41,7 @@ export const unitPriceOf = (p: HomeProperty): number =>
   p.unitPrice ?? (Number((p.salePrice ?? p.price).replace(/[^0-9.]/g, '')) || 0);
 
 const fieldClass =
-  'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors';
+  'w-full bg-white/10 text-white placeholder:text-white/50 border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white transition-colors [color-scheme:dark]';
 
 export default function CartDrawer({
   open,
@@ -216,52 +216,52 @@ export default function CartDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Carrito de compras"
-        className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col"
+        className="absolute right-0 top-0 h-full w-full max-w-md bg-[#2E0505] text-white shadow-xl flex flex-col"
       >
-        <div className="flex items-center justify-between px-6 h-16 border-b border-[#000000]/5 shrink-0">
+        <div className="flex items-center justify-between px-6 h-16 border-b border-white/15 shrink-0">
           <h2 className="font-semibold tracking-tight inline-flex items-center gap-2">
             <ShoppingCart className="w-4 h-4" /> Tu carrito
           </h2>
-          <span className="ml-auto mr-2 text-xs font-medium text-[#515154]">Pedido {orderNumber}</span>
-          <button type="button" onClick={onClose} aria-label="Cerrar carrito" className="p-2 rounded-full hover:bg-[#F5F5F7]">
+          <span className="ml-auto mr-2 text-xs font-medium text-white/75">Pedido {orderNumber}</span>
+          <button type="button" onClick={onClose} aria-label="Cerrar carrito" className="p-2 rounded-full hover:bg-white/10">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {state === 'sent' && lines.length === 0 ? (
-            <p role="status" className="text-sm text-green-700 py-10 text-center">
+            <p role="status" className="text-sm text-green-300 py-10 text-center">
               ¡Gracias! Tu pedido {placedNumber} está listo: enviá el mensaje de WhatsApp para confirmarlo. Nos vamos a comunicar con vos en breve.
             </p>
           ) : lines.length === 0 ? (
-            <p className="text-sm text-[#515154] py-10 text-center">Tu carrito está vacío.</p>
+            <p className="text-sm text-white/75 py-10 text-center">Tu carrito está vacío.</p>
           ) : (
             <>
-              <ul className="divide-y divide-[#000000]/5">
+              <ul className="divide-y divide-white/15">
                 {lines.map((line) => {
                   const { item, qty, key, selection } = line;
                   const id = key ?? String(item.id);
                   const unit = lineUnit(line);
                   return (
                     <li key={id} className="flex gap-3 py-4">
-                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#E5E5EA] shrink-0">
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0">
                         <PropertyImage src={item.image} alt={item.title} variant="thumb" sizes="64px" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{item.title}</p>
-                        {selection && <p className="text-xs text-[#515154] leading-snug">{describeSelection(selection)}</p>}
-                        <p className="text-xs text-[#515154]">
+                        {selection && <p className="text-xs text-white/75 leading-snug">{describeSelection(selection)}</p>}
+                        <p className="text-xs text-white/75">
                           {priceWithShortUnit(unit, item.pricingMode)}
                         </p>
                         <div className="mt-2 flex items-center gap-2">
-                          <button type="button" onClick={() => onChangeQty(id, -1)} disabled={qty <= 1} aria-label={`Disminuir ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center disabled:opacity-30">
+                          <button type="button" onClick={() => onChangeQty(id, -1)} disabled={qty <= 1} aria-label={`Disminuir ${item.title}`} className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center disabled:opacity-30">
                             <Minus className="w-3.5 h-3.5" />
                           </button>
                           <span className="min-w-16 text-center text-sm font-medium" aria-live="polite">{quantityLabel(qty, item.pricingMode)}</span>
-                          <button type="button" onClick={() => onChangeQty(id, 1)} aria-label={`Aumentar ${item.title}`} className="w-7 h-7 rounded-full bg-[#F5F5F7] flex items-center justify-center">
+                          <button type="button" onClick={() => onChangeQty(id, 1)} aria-label={`Aumentar ${item.title}`} className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
                             <Plus className="w-3.5 h-3.5" />
                           </button>
-                          <button type="button" onClick={() => onRemove(id)} aria-label={`Quitar ${item.title}`} className="ml-auto p-2 rounded-full text-red-600 hover:bg-red-50">
+                          <button type="button" onClick={() => onRemove(id)} aria-label={`Quitar ${item.title}`} className="ml-auto p-2 rounded-full text-red-300 hover:bg-white/10">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -279,7 +279,7 @@ export default function CartDrawer({
                 <fieldset className="grid grid-cols-3 gap-2 pt-1">
                   <legend className="sr-only">Cómo recibís tu pedido</legend>
                   {(['delivery', 'pickup', 'dinein'] as const).map((value) => (
-                    <label key={value} className={`cursor-pointer rounded-xl border px-2 py-3 text-xs text-center transition-colors ${form.fulfillment === value ? 'border-[#1D1D1F] bg-[#1D1D1F] text-white' : 'border-[#000000]/10 bg-[#FBFBFD] hover:bg-[#F5F5F7]'}`}>
+                    <label key={value} className={`cursor-pointer rounded-xl border px-2 py-3 text-xs text-center transition-colors ${form.fulfillment === value ? 'border-white bg-white text-[#2E0505]' : 'border-white/20 bg-white/10 hover:bg-white/10'}`}>
                       <input type="radio" name="fulfillment" value={value} checked={form.fulfillment === value} onChange={() => setForm({ ...form, fulfillment: value })} className="sr-only" />
                       {fulfillmentLabels[value]}
                     </label>
@@ -290,18 +290,18 @@ export default function CartDrawer({
                 )}
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block">
-                    <span className="block text-xs text-[#515154] mb-1">Fecha (opcional)</span>
+                    <span className="block text-xs text-white/75 mb-1">Fecha (opcional)</span>
                     <input className={fieldClass} type="date" min={new Date().toLocaleDateString('en-CA')} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
                   </label>
                   <label className="block">
-                    <span className="block text-xs text-[#515154] mb-1">{form.fulfillment === 'delivery' ? 'Hora de recepción' : form.fulfillment === 'dinein' ? 'Hora de llegada' : 'Hora de retiro'} (opcional)</span>
+                    <span className="block text-xs text-white/75 mb-1">{form.fulfillment === 'delivery' ? 'Hora de recepción' : form.fulfillment === 'dinein' ? 'Hora de llegada' : 'Hora de retiro'} (opcional)</span>
                     <input className={fieldClass} type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} />
                   </label>
                 </div>
                 <fieldset className="grid grid-cols-2 gap-2">
-                  <legend className="block text-xs text-[#515154] mb-1">Forma de pago</legend>
+                  <legend className="block text-xs text-white/75 mb-1">Forma de pago</legend>
                   {PAYMENT_METHODS.map((m) => (
-                    <label key={m} className={`cursor-pointer rounded-xl border px-3 py-2.5 text-xs text-center transition-colors ${form.payment === m ? 'border-[#1D1D1F] bg-[#1D1D1F] text-white' : 'border-[#000000]/10 bg-[#FBFBFD] hover:bg-[#F5F5F7]'}`}>
+                    <label key={m} className={`cursor-pointer rounded-xl border px-3 py-2.5 text-xs text-center transition-colors ${form.payment === m ? 'border-white bg-white text-[#2E0505]' : 'border-white/20 bg-white/10 hover:bg-white/10'}`}>
                       <input type="radio" name="payment" value={m} checked={form.payment === m} onChange={() => setForm({ ...form, payment: m })} className="sr-only" />
                       {paymentMethodLabels[m]}
                     </label>
@@ -314,31 +314,31 @@ export default function CartDrawer({
         </div>
 
         {lines.length > 0 && (
-          <div className="border-t border-[#000000]/5 px-6 py-5 space-y-3 shrink-0">
+          <div className="border-t border-white/15 px-6 py-5 space-y-3 shrink-0">
             <dl className="text-sm space-y-1">
-              <div className="flex justify-between text-[#515154]">
+              <div className="flex justify-between text-white/75">
                 <dt>Subtotal</dt>
                 <dd>{formatMoney(subtotal)}</dd>
               </div>
               {tax > 0 && (
-                <div className="flex justify-between text-[#515154]">
+                <div className="flex justify-between text-white/75">
                   <dt>Impuestos ({taxRate}%)</dt>
                   <dd>{formatMoney(tax)}</dd>
                 </div>
               )}
               {deliveryFee > 0 && (
-                <div className="flex justify-between text-[#515154]">
+                <div className="flex justify-between text-white/75">
                   <dt>Delivery</dt>
                   <dd>{formatMoney(deliveryFee)}</dd>
                 </div>
               )}
               <div className="flex items-center justify-between pt-1">
-                <dt className="text-[#515154]">Total</dt>
+                <dt className="text-white/75">Total</dt>
                 <dd className="text-lg font-semibold">{formatMoney(total)}</dd>
               </div>
             </dl>
             {(formError || state === 'error') && (
-              <p role="alert" className="text-xs text-red-600">
+              <p role="alert" className="text-xs text-red-300">
                 {formError ?? 'Se abrió WhatsApp con tu pedido, pero no pudimos guardarlo en el sistema. Enviá el mensaje igual.'}
               </p>
             )}

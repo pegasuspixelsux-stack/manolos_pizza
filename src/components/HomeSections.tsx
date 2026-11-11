@@ -217,7 +217,7 @@ function Footer() {
     <footer id="contact" className="bg-[#2E0505] text-white/85 px-[10px] pt-12 pb-8 mt-4 scroll-mt-24">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
         <div className="space-y-4">
-          <span className="text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName /></span>
+          <span className="text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName bigLogoOnDesktop /></span>
           <p className="text-sm leading-relaxed font-light">La auténtica pizza por metro en Maldonado.</p>
           <div className="flex items-center gap-2 pt-1" aria-label="Redes sociales">
             {socials.map(({ key, label, href, Icon }) => (

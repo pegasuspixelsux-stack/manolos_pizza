@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
@@ -9,6 +9,11 @@ import PropertyImage from '@/src/components/PropertyImage';
 import CartButton from '@/src/components/CartButton';
 import { unitPriceOf } from '@/src/components/CartDrawer';
 import { useCart } from '@/src/context/CartContext';
+import { DEFAULT_LOGO } from '@/src/components/BrandName';
+import { useBusiness } from '@/src/context/BusinessContext';
+import SiteNavLinks from '@/src/components/SiteNavLinks';
+import MobileNavMenu from '@/src/components/MobileNavMenu';
+import InstallButton from '@/src/components/InstallButton';
 import MobileBottomBar from '@/src/components/MobileBottomBar';
 import HomeSections from '@/src/components/HomeSections';
 import { CategoryPills } from '@/src/components/ItemsShowcase';
@@ -34,6 +39,7 @@ const fieldClass =
 const labelClass = 'block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5';
 
 export default function CatalogPage({ items: baseItems }: { items: HomeProperty[] }) {
+  const { logo } = useBusiness();
   // Every item has one price, set on its own page.
   const items = baseItems;
   const [query, setQuery] = useState('');
@@ -143,22 +149,32 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           <span className="sm:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
           <span className="hidden sm:inline">Pizza por metro hecha al momento. Delivery en Maldonado: elegí tus sabores y pedí por WhatsApp.</span>
         </div>
-        {/* Category pills (+ the cart on larger screens) */}
+        <div className="relative max-w-[1440px] mx-auto px-[10px] pt-[10px] md:pt-0 h-[106px] md:h-32 flex items-center justify-between">
+          <div className="flex items-center gap-1 lg:hidden">
+            <MobileNavMenu align="left" />
+            <InstallButton />
+          </div>
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logo || DEFAULT_LOGO} alt="Manolo's Pizza" className="h-24 w-24 md:h-[108px] md:w-[108px] object-contain" /></Link>
+          <SiteNavLinks light />
+          <div className="flex items-center gap-1">
+            <span className="hidden lg:contents"><InstallButton /></span>
+            <CartButton />
+          </div>
+        </div>
+        {/* Category pills  */}
         <div>
           <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
-            <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} />
-            <span className="hidden md:block ml-auto"><CartButton /></span>
+            <Link href="/" className="shrink-0 inline-flex items-center gap-1.5 text-sm text-white/85 hover:text-white transition-colors">
+              <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Inicio
+            </Link>
+            <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} className="mx-auto" />
           </div>
         </div>
       </header>
 
-      {/* Back to the homepage, top left (the page title is only for screen readers) */}
-      <div className="max-w-[1440px] mx-auto px-[10px] pt-4 md:pt-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-white/85 hover:text-white transition-colors">
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Inicio
-        </Link>
-        <h1 className="sr-only">Menú</h1>
-      </div>
+      <h1 className="sr-only">Menú</h1>
 
       {/* Search bar (with the filters) */}
       <section id="search" className="px-[10px] mt-4 md:mt-6 max-w-[1440px] mx-auto">
@@ -169,7 +185,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             e.preventDefault();
             scrollToItems();
           }}
-          className="w-full bg-transparent text-white rounded-[10px] border border-white/25 p-3 md:p-4"
+          className="w-full md:max-w-xl md:mx-auto bg-transparent text-white rounded-[10px] border border-white/25 p-3 md:p-2"
         >
           <div className="flex items-center gap-2">
             <Search className="hidden md:block ml-2 w-5 h-5 text-white/70 shrink-0" />
@@ -208,7 +224,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
           <div
             id="advanced-filters"
-            className={`${filtersOpen ? 'grid' : 'hidden'} md:grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mt-3 pt-3 md:mt-4 md:pt-4 border-t border-white/20`}
+            className={`${filtersOpen ? 'grid' : 'hidden'} md:hidden grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mt-3 pt-3 md:mt-4 md:pt-4 border-t border-white/20`}
           >
             <div>
               <label htmlFor="f-category" className={labelClass}>Categoría</label>
@@ -281,7 +297,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           </div>
 
           {(activeFilters > 0 || sort !== 'relevance') && (
-            <div className="flex justify-end mt-3 md:mt-4 px-1 text-xs">
+            <div className="flex justify-end mt-3 md:hidden px-1 text-xs">
               <button
                 type="button"
                 onClick={reset}
@@ -296,7 +312,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
       {/* --- ALL PRODUCTS: 4-column grid --- */}
       <section id="catalog" className={`pt-0 md:pt-6 pb-8 md:pb-12 px-0 max-w-[1440px] mx-auto scroll-mt-40`}>
-        <div className={`hidden md:grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-0`}>
+        <div className={`hidden md:grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-[5px]`}>
           {filtered.length === 0 && (
             <div className="col-span-full text-center text-white/80 text-sm py-16">
               <p>No hay artículos que coincidan con tu búsqueda.</p>
@@ -305,12 +321,15 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </button>
             </div>
           )}
-          {filtered.map((prop) => {
+          {groups.map((g) => (
+            <Fragment key={g.id}>
+              <h2 className="col-span-full pt-2 pb-1 first:pt-0 text-2xl font-semibold tracking-tight">{g.label}</h2>
+              {g.items.map((prop) => {
             return (
             <div key={prop.id}>
             <div className={layout === 'list' ? 'hidden md:block' : ''}>
             <div
-              className={`group relative ${layout === 'one' ? 'aspect-[16/15] md:aspect-[4/5]' : 'aspect-[4/5]'} rounded-none overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
+              className={`group relative aspect-square rounded-[10px] overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
                 <PropertyImage
@@ -364,6 +383,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             </div>
             );
           })}
+            </Fragment>
+          ))}
         </div>
 
         {/* Phones: the list divided into categories */}
@@ -378,7 +399,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           )}
           {groups.map((g) => (
             <div key={g.id}>
-              <h2 className="px-[10px] pt-5 pb-3 text-xl font-semibold tracking-tight">{g.label}</h2>
+              <h2 className="px-[10px] pt-2 pb-2 text-xl font-semibold tracking-tight">{g.label}</h2>
               <div className="flex flex-col gap-[5px]">
                 {g.items.map((prop) => {
                   const soldOut = prop.inStock === false;
