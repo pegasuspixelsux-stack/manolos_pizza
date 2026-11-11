@@ -6,7 +6,7 @@ import { useBusiness } from '@/src/context/BusinessContext';
 import { useHeroFolderImages } from '@/src/context/HeroImagesContext';
 
 const tile =
-  'snap-start shrink-0 w-[90%] md:w-[60%] lg:w-[calc((100%-24px)/3)] aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 overflow-hidden';
+  'snap-start shrink-0 w-[90%] md:w-[60%] lg:w-[calc((100%-24px)/3)] aspect-square rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 overflow-hidden';
 
 const GAP = 12; // px, matches gap-3
 

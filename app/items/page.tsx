@@ -4,8 +4,8 @@ import { loadHomeData } from '@/src/lib/homeData';
 import { sampleHomeProperties } from '@/src/lib/sampleItems';
 
 export const metadata: Metadata = {
-  title: 'Catálogo Mayorista | Merkado',
-  description: 'Buscá y filtrá todo el catálogo de frutas, verduras y hojas verdes de Merkado.',
+  title: "Menú | Manolo's Pizza",
+  description: 'Buscá y filtrá todo el menú de Manolo: pizza por metro, bebidas y más.',
 };
 
 // Same cache window as the homepage.

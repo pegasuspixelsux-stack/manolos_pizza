@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { needsOptions, productForTitle } from '@/src/data/pizzaMenu';
 import { pizzaSelection } from '@/src/utils/pizzaPricing';
-import { ArrowUpRight, LayoutGrid, List, Minus, Plus, Square } from 'lucide-react';
+import { ArrowUpRight, LayoutGrid, List, Minus, Plus } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { formatMoney, typeLabels } from '@/src/utils/format';
 import { useCart } from '@/src/context/CartContext';
@@ -13,17 +13,86 @@ import PropertyImage from '@/src/components/PropertyImage';
 
 const PAGE_SIZE = 12;
 
-type Layout = 'one' | 'two' | 'list';
+export type Layout = 'one' | 'two' | 'list';
 const LAYOUTS = [
-  ['one', Square, '1 columna'],
   ['two', LayoutGrid, '2 columnas'],
   ['list', List, 'Lista'],
 ] as const;
+
+/** The 1 column / 2 columns / list selector (phones). Used in the grid, and in the second row of the top nav. */
+export function LayoutSelector({ value, onChange, className = '' }: { value: Layout; onChange: (l: Layout) => void; className?: string }) {
+  return (
+    <div role="group" aria-label="Diseño de la lista" className={`shrink-0 inline-flex rounded-full bg-transparent p-0.5 ${className}`}>
+      {LAYOUTS.map(([v, Icon, label]) => (
+        <button
+          key={v}
+          type="button"
+          onClick={() => onChange(v)}
+          aria-pressed={value === v}
+          aria-label={label}
+          title={label}
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+            value === v ? 'bg-white/30 backdrop-blur-md text-white' : 'text-white hover:bg-white/10'
+          }`}
+        >
+          <Icon className="w-4 h-4" />
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const gridClass: Record<Exclude<Layout, 'list'>, string> = {
   one: 'grid-cols-1 md:grid-cols-3 xl:grid-cols-4',
   two: 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4',
 };
+
+/** Pills: one per category that has items, in the order they first appear. */
+export function getCategories(items: HomeProperty[]): { id: string; label: string }[] {
+  return Array.from(
+    new Map(
+      items
+        .filter((p) => p.type)
+        .map((p) => [p.type as string, p.typeLabel ?? typeLabels[p.type as string] ?? (p.type as string)]),
+    ),
+    ([id, label]) => ({ id, label }),
+  );
+}
+
+/** The category pills ("Todas" + one per category). Used in the grid, and in the second row of the desktop top nav. */
+export function CategoryPills({
+  categories,
+  value,
+  onChange,
+  className = '',
+}: {
+  categories: { id: string; label: string }[];
+  value: string;
+  onChange: (id: string) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="Categorías"
+      className={`flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
+    >
+      {[{ id: 'all', label: 'Todas' }, ...categories].map((c) => (
+        <button
+          key={c.id}
+          type="button"
+          onClick={() => onChange(c.id)}
+          aria-pressed={value === c.id}
+          className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
+            value === c.id ? 'bg-white/30 backdrop-blur-md text-white' : 'bg-transparent text-white hover:bg-white/10'
+          }`}
+        >
+          {c.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 /**
  * The items grid for the homepage and the cover: category pills (the categories of the items), a layout selector,
@@ -34,16 +103,34 @@ export default function ItemsShowcase({
   items,
   query = '',
   className = '',
+  category: controlledCategory,
+  onCategoryChange,
+  pillsOnlyBelowDesktop = false,
+  layout: controlledLayout,
+  onLayoutChange,
 }: {
+  /** Controlled layout (the phone cover keeps the selector in its top nav's second row). */
+  layout?: Layout;
+  onLayoutChange?: (l: Layout) => void;
   items: HomeProperty[];
   query?: string;
   className?: string;
+  /** Controlled category (the homepage keeps it in its top nav's second row on desktop). */
+  category?: string;
+  onCategoryChange?: (id: string) => void;
+  /** Hide the pills of the grid on desktop because they live in the top nav there. */
+  pillsOnlyBelowDesktop?: boolean;
 }) {
   const { add: addToCart, setOpen: setCartOpen } = useCart();
   const properties = items;
 
-  const [category, setCategory] = useState('all');
-  const [layout, setLayout] = useState<Layout>('two');
+  const [innerCategory, setInnerCategory] = useState('all');
+  const category = controlledCategory ?? innerCategory;
+  const setCategory = (id: string) => (onCategoryChange ? onCategoryChange(id) : setInnerCategory(id));
+  const [lastCategory, setLastCategory] = useState(category);
+  const [innerLayout, setInnerLayout] = useState<Layout>('two');
+  const layout = controlledLayout ?? innerLayout;
+  const setLayout = (l: Layout) => (onLayoutChange ? onLayoutChange(l) : setInnerLayout(l));
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [lastQuery, setLastQuery] = useState(query);
   // A new search starts over from the first batch.
@@ -51,16 +138,13 @@ export default function ItemsShowcase({
     setLastQuery(query);
     setLimit(PAGE_SIZE);
   }
+  // Same when the category changes (also from the pills in the top nav).
+  if (category !== lastCategory) {
+    setLastCategory(category);
+    setLimit(PAGE_SIZE);
+  }
 
-  // Pills: one per category that has items, in the order they first appear.
-  const categories = Array.from(
-    new Map(
-      properties
-        .filter((p) => p.type)
-        .map((p) => [p.type as string, p.typeLabel ?? typeLabels[p.type as string] ?? (p.type as string)]),
-    ),
-    ([id, label]) => ({ id, label }),
-  );
+  const categories = getCategories(properties);
 
   const q = query.trim().toLowerCase();
   const filtered = properties.filter((p) => {
@@ -116,67 +200,23 @@ export default function ItemsShowcase({
   };
 
   return (
-    <div id="items-grid" className={`scroll-mt-24 ${className}`}>
-      {/* Category pills + layout selector */}
-      <div className="flex items-center gap-2 mb-4">
-        <div
-          role="group"
-          aria-label="Categorías"
-          className="flex flex-1 min-w-0 flex-nowrap items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {[{ id: 'all', label: 'Todas' }, ...categories].map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => {
-                setCategory(c.id);
-                setLimit(PAGE_SIZE);
-              }}
-              aria-pressed={category === c.id}
-              className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
-                category === c.id
-                  ? 'bg-white/30 backdrop-blur-md text-white'
-                  : 'bg-transparent text-white hover:bg-white/10'
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
+    <div id="items-grid" className={`scroll-mt-40 lg:scroll-mt-40 ${className}`}>
+      {/* Category pills + layout selector (when they don't live in the top nav) */}
+      {!pillsOnlyBelowDesktop && (
+        <div className="flex items-center gap-2 mb-4">
+          <CategoryPills categories={categories} value={category} onChange={(id) => setCategory(id)} className="flex-1" />
+          <LayoutSelector value={layout} onChange={setLayout} className="md:hidden" />
         </div>
-        <div role="group" aria-label="Diseño de la lista" className="shrink-0 inline-flex md:hidden rounded-full bg-transparent p-0.5">
-          {LAYOUTS.map(([value, Icon, label]) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setLayout(value)}
-              aria-pressed={layout === value}
-              aria-label={label}
-              title={label}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                layout === value ? 'bg-white/30 backdrop-blur-md text-white' : 'text-white hover:bg-white/10'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-            </button>
-          ))}
-        </div>
-        <Link
-          href="/items"
-          className="hidden md:inline-flex shrink-0 items-center gap-2 rounded-full bg-white text-[#480A0A] px-4 py-2 text-xs font-semibold hover:bg-white/90 transition-colors"
-        >
-          Ver todo el menú
-          <ArrowUpRight className="w-4 h-4" />
-        </Link>
-      </div>
+      )}
 
       {filtered.length === 0 && <p className="text-center text-white/80 text-sm py-8">No hay artículos que coincidan con tu búsqueda.</p>}
 
       {layout === 'list' ? (
-        <ul className="flex flex-col gap-3">
+        <ul className="flex flex-col gap-[5px]">
           {visible.map((prop) => {
             const soldOut = prop.inStock === false;
             return (
-              <li key={prop.id} className="flex items-center gap-3 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 p-2.5">
+              <li key={prop.id} className="flex items-center gap-3 rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 p-2.5">
                 <div className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}>
                   <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
                 </div>
@@ -214,11 +254,11 @@ export default function ItemsShowcase({
           })}
         </ul>
       ) : (
-        <ul className={`grid ${gridClass[layout]} gap-3`}>
+        <ul className={`grid ${gridClass[layout]} gap-[5px]`}>
           {visible.map((prop) => (
             <li
               key={prop.id}
-              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
+              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
                 <PropertyImage src={prop.image} alt={prop.title} variant="card" sizes="(min-width: 768px) 25vw, 50vw" />

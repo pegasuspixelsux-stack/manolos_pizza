@@ -2,19 +2,18 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, LayoutGrid, List, Plus, Search, SlidersHorizontal, Square, X } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { typeLabels } from '@/src/utils/format';
 import PropertyImage from '@/src/components/PropertyImage';
 import CartButton from '@/src/components/CartButton';
 import { unitPriceOf } from '@/src/components/CartDrawer';
 import { useCart } from '@/src/context/CartContext';
-import SiteFooter from '@/src/components/SiteFooter';
-import FavoriteButton from '@/src/components/FavoriteButton';
 import SiteNavLinks from '@/src/components/SiteNavLinks';
 import MobileNavMenu from '@/src/components/MobileNavMenu';
-import InfoSections from '@/src/components/InfoSections';
-import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
+import HomeSections from '@/src/components/HomeSections';
+import InstallButton from '@/src/components/InstallButton';
+import { CategoryPills, LayoutSelector } from '@/src/components/ItemsShowcase';
 import BrandName from '@/src/components/BrandName';
 
 const PAGE_SIZE = 12;
@@ -36,8 +35,8 @@ const availabilityLabels: Record<Availability, string> = {
 };
 
 const fieldClass =
-  'w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-3 py-2.5 text-sm text-[#1D1D1F] focus:outline-none focus:border-[#1D1D1F] transition-colors';
-const labelClass = 'block text-[10px] uppercase tracking-wider font-semibold text-[#515154] mb-1.5';
+  'w-full bg-transparent border border-white/25 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/50 [&>option]:text-[#1D1D1F] focus:outline-none focus:border-white transition-colors';
+const labelClass = 'block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5';
 
 export default function CatalogPage({ items: baseItems }: { items: HomeProperty[] }) {
   // Every item has one price, set on its own page.
@@ -102,21 +101,6 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     return list;
   }, [items, query, category, availability, minPrice, maxPrice, sort]);
 
-  // Orders are private, so sales can't be counted here: the slider shows the "destacado" items
-  // (or the first ones if none is marked).
-  const bestSellers: SimilarItem[] = useMemo(() => {
-    const featured = items.filter((p) => p.featured);
-    return (featured.length ? featured : items).slice(0, 10).map((p) => ({
-      id: String(p.id),
-      title: p.title,
-      image: p.image,
-      price: p.price,
-      salePrice: p.salePrice,
-      quantity: p.area,
-      inStock: p.inStock !== false,
-    }));
-  }, [items]);
-
   const activeFilters =
     (query.trim() ? 1 : 0) +
     (category !== 'all' ? 1 : 0) +
@@ -141,7 +125,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     try {
       const saved = localStorage.getItem('merkado-grid-layout');
       // eslint-disable-next-line react-hooks/set-state-in-effect -- restore the visitor's choice
-      if (saved === 'one' || saved === 'two' || saved === 'list') setLayout(saved);
+      if (saved === 'two' || saved === 'list') setLayout(saved);
     } catch {
       /* private mode: the choice just is not remembered */
     }
@@ -175,26 +159,45 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     .flatMap((n, i, arr) => (i > 0 && n - arr[i - 1] > 1 ? ['gap' as const, n] : [n]));
 
   return (
-    <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] selection:bg-[#000000] selection:text-[#FFFFFF] font-sans antialiased">
-      {/* --- NAVIGATION --- */}
-      <header className="sticky top-0 z-50 bg-[#FBFBFD]/80 backdrop-blur-md">
+    <div className="min-h-screen bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
+      {/* --- NAVIGATION (same as the homepage) --- */}
+      <header className="sticky top-0 z-50 bg-[#2E0505] text-white">
         <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
           <span className="md:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
           <span className="hidden md:inline lg:hidden">Pizza por metro hecha al momento. Delivery en Maldonado: pedí por WhatsApp.</span>
           <span className="hidden lg:inline">Pizza por metro hecha al momento, con masa de fermentación lenta. Delivery en Maldonado: elegí tus sabores y pedí por WhatsApp.</span>
         </div>
-        <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
-          <SiteNavLinks />
+        <div className="relative max-w-[1440px] mx-auto px-[10px] pt-[10px] md:pt-0 h-[106px] md:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-1 lg:hidden">
+            <MobileNavMenu align="left" />
+            <InstallButton />
+          </div>
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName logoOnlyOnMobile /></Link>
+          <SiteNavLinks light />
           <div className="flex items-center gap-1">
-          <CartButton />
-          <MobileNavMenu />
+            <span className="hidden lg:contents"><InstallButton /></span>
+            <CartButton />
+          </div>
+        </div>
+        {/* Second row: the category pills (+ the layout selector on phones) */}
+        <div className="border-t border-white/10">
+          <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
+            <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} />
+            <LayoutSelector value={layout} onChange={chooseLayout} className="ml-auto md:hidden" />
           </div>
         </div>
       </header>
 
-      {/* Search bar (with the filters) above the hero, like the homepage */}
-      <section id="search" className="px-3 md:px-6 pt-0 md:pt-2 max-w-[1440px] mx-auto">
+      {/* Back to the homepage, top left (the page title is only for screen readers) */}
+      <div className="max-w-[1440px] mx-auto px-[10px] pt-4 md:pt-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-white/85 hover:text-white transition-colors">
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Inicio
+        </Link>
+        <h1 className="sr-only">Menú</h1>
+      </div>
+
+      {/* Search bar (with the filters) */}
+      <section id="search" className="px-[10px] mt-4 md:mt-6 max-w-[1440px] mx-auto">
         <form
           role="search"
           aria-label="Búsqueda avanzada"
@@ -202,29 +205,29 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             e.preventDefault();
             goToPage(1);
           }}
-          className="w-full bg-white text-[#1D1D1F] rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] p-3 md:p-4"
+          className="w-full bg-transparent text-white rounded-[10px] border border-white/25 p-3 md:p-4"
         >
           <div className="flex items-center gap-2">
-            <Search className="hidden md:block ml-2 w-5 h-5 text-[#515154] shrink-0" />
+            <Search className="hidden md:block ml-2 w-5 h-5 text-white/70 shrink-0" />
             <input
               type="search"
               value={query}
               onChange={(e) => change(setQuery)(e.target.value)}
               placeholder="Buscá por nombre, categoría o precio…"
               aria-label="Buscar artículos por nombre, categoría o precio"
-              className="min-w-0 flex-1 bg-transparent px-3 md:px-2 py-3 text-sm placeholder:text-[#86868B] outline-none"
+              className="min-w-0 flex-1 bg-transparent px-3 md:px-2 py-3 text-sm text-white placeholder:text-white/50 outline-none"
             />
             <button
               type="button"
               onClick={() => setFiltersOpen((o) => !o)}
               aria-expanded={filtersOpen}
               aria-controls="advanced-filters"
-              className="md:hidden shrink-0 relative w-11 h-11 rounded-full bg-[#F5F5F7] flex items-center justify-center"
+              className="md:hidden shrink-0 relative w-11 h-11 rounded-full bg-white/15 text-white flex items-center justify-center"
               aria-label="Mostrar filtros"
             >
               <SlidersHorizontal className="w-4 h-4" />
               {activeFilters > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-[#1D1D1F] text-white text-[10px] font-semibold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-white text-[#480A0A] text-[10px] font-semibold flex items-center justify-center">
                   {activeFilters}
                 </span>
               )}
@@ -232,7 +235,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             <button
               type="submit"
               aria-label="Buscar"
-              className="shrink-0 bg-[#2E7D32] text-white text-xs font-medium w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-[#2E7D32]/85 transition-all flex items-center justify-center"
+              className="shrink-0 bg-white text-[#480A0A] text-xs font-semibold w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-white/90 transition-all flex items-center justify-center"
             >
               <Search className="w-4 h-4 md:hidden" />
               <span className="hidden md:inline">Buscar</span>
@@ -241,7 +244,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
           <div
             id="advanced-filters"
-            className={`${filtersOpen ? 'grid' : 'hidden'} md:grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mt-3 pt-3 md:mt-4 md:pt-4 border-t border-[#000000]/5`}
+            className={`${filtersOpen ? 'grid' : 'hidden'} md:grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mt-3 pt-3 md:mt-4 md:pt-4 border-t border-white/20`}
           >
             <div>
               <label htmlFor="f-category" className={labelClass}>Categoría</label>
@@ -318,7 +321,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex items-center gap-1 font-medium text-[#1D1D1F] hover:text-[#515154]"
+                className="inline-flex items-center gap-1 font-medium text-white hover:text-white/80"
               >
                 <X className="w-3.5 h-3.5" /> Borrar filtros
               </button>
@@ -327,67 +330,13 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
         </form>
       </section>
 
-      {/* Page title */}
-      <div className="max-w-[1440px] mx-auto px-3 md:px-6 pt-5 md:pt-8">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight text-[#1D1D1F] whitespace-nowrap text-center md:text-left">Catálogo Mayorista</h1>
-      </div>
-
-      {/* Category buttons (and, on phones, the layout selector) below the hero, like the homepage */}
-      <div className="max-w-[1440px] mx-auto px-3 md:px-6 mt-3 md:mt-4">
-        <div className="flex items-center gap-2">
-          <div
-            role="group"
-            aria-label="Categorías"
-            className="flex flex-1 min-w-0 flex-nowrap items-center gap-2 overflow-x-auto -ml-3 pl-3 md:mx-0 md:pl-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {[{ id: 'all', label: 'Todas' }, ...categories].map((c) => {
-              const active = category === c.id;
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => change(setCategory)(c.id)}
-                  aria-pressed={active}
-                  className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
-                    active ? 'bg-[#2E7D32] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E8E8ED]'
-                  }`}
-                >
-                  {c.label}
-                </button>
-              );
-            })}
-          </div>
-          <div role="group" aria-label="Diseño de la lista" className="md:hidden shrink-0 inline-flex rounded-full bg-[#F5F5F7] p-0.5">
-            {([
-              ['one', Square, '1 columna'],
-              ['two', LayoutGrid, '2 columnas'],
-              ['list', List, 'Lista'],
-            ] as const).map(([value, Icon, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => chooseLayout(value)}
-                aria-pressed={layout === value}
-                aria-label={label}
-                title={label}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                  layout === value ? 'bg-[#2E7D32] text-white' : 'text-[#515154] hover:bg-[#E8E8ED]'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* --- ALL PRODUCTS: 4-column grid --- */}
-      <section id="catalog" className={`pt-4 md:pt-6 ${activeFilters === 0 && bestSellers.length > 0 ? 'pb-8 md:pb-12' : 'pb-32'} px-3 md:px-6 max-w-[1440px] mx-auto scroll-mt-32`}>
-        <div className={`grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6`}>
+      <section id="catalog" className={`pt-4 md:pt-6 pb-8 md:pb-12 px-[10px] max-w-[1440px] mx-auto scroll-mt-40`}>
+        <div className={`grid ${layout === 'two' ? 'grid-cols-2' : 'grid-cols-1'} md:grid-cols-3 lg:grid-cols-4 gap-[5px]`}>
           {filtered.length === 0 && (
-            <div className="col-span-full text-center text-[#515154] text-sm py-16">
+            <div className="col-span-full text-center text-white/80 text-sm py-16">
               <p>No hay artículos que coincidan con tu búsqueda.</p>
-              <button type="button" onClick={reset} className="mt-3 font-medium text-[#1D1D1F] underline underline-offset-4">
+              <button type="button" onClick={reset} className="mt-3 font-medium text-white underline underline-offset-4">
                 Borrar filtros
               </button>
             </div>
@@ -398,7 +347,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             <div key={prop.id}>
             <div className={layout === 'list' ? 'hidden md:block' : ''}>
             <div
-              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-[#E5E5EA] flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
+              className={`group relative ${layout === 'one' ? 'aspect-[4/3] md:aspect-square' : 'aspect-square'} rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10 flex flex-col justify-end p-3 md:p-5 transition-transform duration-500 hover:-translate-y-1`}
             >
               <div className={`absolute inset-0 transition-transform duration-700 group-hover:scale-105 ${prop.inStock === false ? 'opacity-50 grayscale' : ''}`}>
                 <PropertyImage
@@ -420,13 +369,12 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </div>
 
               <div className="absolute top-3 right-3 md:top-5 md:right-5 z-10 flex items-center gap-1.5">
-                {typeof prop.id === 'string' && <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8" />}
                 <button
                   type="button"
                   onClick={() => addToCart(prop)}
                   disabled={prop.inStock === false}
                   aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
-                  className="w-8 h-8 rounded-full bg-[#2E7D32] text-white flex items-center justify-center shadow-sm hover:bg-[#256628] active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -451,29 +399,29 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             </div>
             </div>
             {layout === 'list' && (
-              <div className="md:hidden flex items-center gap-3 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white p-2.5">
+              <div className="md:hidden flex items-center gap-3 rounded-[10px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 p-2.5">
                 {prop.href ? (
                   <Link
                     href={prop.href}
                     aria-label={`Ver ${prop.title}`}
-                    className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-[#E5E5EA] ${soldOut ? 'opacity-50 grayscale' : ''}`}
+                    className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}
                   >
                     <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
                   </Link>
                 ) : (
-                  <div className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-[#E5E5EA] ${soldOut ? 'opacity-50 grayscale' : ''}`}>
+                  <div className={`relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-white/10 ${soldOut ? 'opacity-50 grayscale' : ''}`}>
                     <PropertyImage src={prop.image} alt={prop.title} variant="thumb" sizes="96px" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold leading-tight line-clamp-2">{prop.href ? <Link href={prop.href}>{prop.title}</Link> : prop.title}</p>
-                  <p className="text-xs text-[#515154] mt-0.5 truncate">{prop.area}</p>
+                  <p className="text-xs text-white/70 mt-0.5 truncate">{prop.area}</p>
                   <p className="text-base font-semibold mt-1">
                     {soldOut ? (
-                      <span className="text-xs font-semibold text-[#515154]">Sin stock</span>
+                      <span className="text-xs font-semibold text-white/70">Sin stock</span>
                     ) : prop.salePrice ? (
                       <>
-                        <s className="text-[#86868B] font-normal mr-1.5">{prop.price}</s>
+                        <s className="text-white/60 font-normal mr-1.5">{prop.price}</s>
                         {prop.salePrice}
                       </>
                     ) : (
@@ -482,15 +430,12 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  {typeof prop.id === 'string' && (
-                    <FavoriteButton productId={prop.id} title={prop.title} className="w-8 h-8 border border-[#000000]/5" />
-                  )}
                   <button
                     type="button"
                     onClick={() => addToCart(prop)}
                     disabled={soldOut}
                     aria-label={soldOut ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
-                    className="w-8 h-8 rounded-full bg-[#2E7D32] text-white flex items-center justify-center hover:bg-[#256628] active:scale-95 transition disabled:opacity-40"
+                    className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition disabled:opacity-40"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -504,7 +449,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
         {filtered.length > 0 && (
           <div className="mt-10 grid grid-cols-1 md:grid-cols-3 items-center gap-4 text-sm">
-            <Link href="/" className="justify-self-center md:justify-self-start font-medium text-[#1D1D1F] hover:text-[#515154] transition-colors">
+            <Link href="/" className="justify-self-center md:justify-self-start font-medium text-white hover:text-white/80 transition-colors">
               ← Volver al inicio
             </Link>
             <nav aria-label="Paginación" className={`justify-self-center flex items-center gap-1 ${totalPages < 2 ? 'invisible' : ''}`}>
@@ -513,13 +458,13 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
                 aria-label="Página anterior"
-                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] disabled:opacity-30 disabled:hover:bg-transparent"
+                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               {pageItems.map((n, i) =>
                 n === 'gap' ? (
-                  <span key={`gap-${i}`} aria-hidden="true" className="px-1 text-[#86868B]">…</span>
+                  <span key={`gap-${i}`} aria-hidden="true" className="px-1 text-white/60">…</span>
                 ) : (
                   <button
                     key={n}
@@ -528,7 +473,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                     aria-label={`Página ${n}`}
                     aria-current={n === currentPage ? 'page' : undefined}
                     className={`w-9 h-9 rounded-full text-xs font-medium transition-colors ${
-                      n === currentPage ? 'bg-[#2E7D32] text-white' : 'hover:bg-[#F5F5F7]'
+                      n === currentPage ? 'bg-white/30 backdrop-blur-md text-white' : 'hover:bg-white/10'
                     }`}
                   >
                     {n}
@@ -540,28 +485,20 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 aria-label="Página siguiente"
-                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F7] disabled:opacity-30 disabled:hover:bg-transparent"
+                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </nav>
-            <p className="justify-self-center md:justify-self-end text-xs text-[#515154]">
+            <p className="justify-self-center md:justify-self-end text-xs text-white/70">
               Mostrando {pageStart + 1}–{pageStart + visible.length} de {filtered.length} artículos
             </p>
           </div>
         )}
       </section>
 
-      {/* --- MÁS VENDIDOS: just above the footer (hidden while filtering) --- */}
-      {activeFilters === 0 && bestSellers.length > 0 && (
-        <div className="pt-12 md:pt-20 pb-6 md:pb-8 [&>section]:pb-0 [&>section]:px-3 md:[&>section]:px-6 [&>section>ul]:-mx-3 [&>section>ul]:px-3 md:[&>section>ul]:mx-0 md:[&>section>ul]:px-0">
-          <SimilarItems title="Más vendidos" items={bestSellers} />
-        </div>
-      )}
+      <HomeSections />
 
-      <InfoSections />
-
-      <SiteFooter />
     </div>
   );
 }
