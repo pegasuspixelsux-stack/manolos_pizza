@@ -15,7 +15,7 @@ export default function ContactMessageForm({ tone = 'dark', wide = false, hideIn
   const field = `w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors ${
     dark
       ? 'bg-white/10 border border-white/25 text-white placeholder:text-white/60 focus:border-white'
-      : 'bg-white border border-black/15 text-[#1D1D1F] placeholder:text-[#86868B] focus:border-[#1D1D1F]'
+      : 'bg-transparent border border-white/15 text-white placeholder:text-white/60 focus:border-white'
   }`;
 
   const submit = async (e: React.FormEvent) => {
@@ -35,8 +35,8 @@ export default function ContactMessageForm({ tone = 'dark', wide = false, hideIn
     <form onSubmit={submit} className={`space-y-3 w-full ${wide ? '' : 'max-w-xl'}`} aria-label="Enviar un mensaje a la gerencia">
       {!hideIntro && (
         <>
-        <p className={`text-xs uppercase tracking-widest font-semibold ${dark ? 'text-white/60' : 'text-[#515154]'}`}>Escribinos</p>
-        <p className={`text-sm font-light ${dark ? 'text-white/85' : 'text-[#515154]'}`}>
+        <p className={`text-xs uppercase tracking-widest font-semibold ${dark ? 'text-white/60' : 'text-white/75'}`}>Escribinos</p>
+        <p className={`text-sm font-light ${dark ? 'text-white/85' : 'text-white/75'}`}>
           ¿Una consulta, un reclamo o una sugerencia? Tu mensaje le llega directo a la gerencia.
         </p>
         </>
@@ -51,7 +51,7 @@ export default function ContactMessageForm({ tone = 'dark', wide = false, hideIn
         type="submit"
         disabled={state === 'sending'}
         className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors disabled:opacity-50 ${
-          dark ? 'bg-white text-[#480A0A] hover:bg-white/90' : 'bg-[#1D1D1F] text-white hover:bg-[#333336]'
+          dark ? 'bg-white text-[#480A0A] hover:bg-white/90' : 'bg-white text-[#2E0505] hover:bg-white/90'
         }`}
       >
         <Send className="w-4 h-4" aria-hidden="true" /> {state === 'sending' ? 'Enviando…' : 'Enviar mensaje'}

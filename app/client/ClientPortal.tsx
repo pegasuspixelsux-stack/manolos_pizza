@@ -36,16 +36,16 @@ export default function ClientPortal() {
   const text = !token ? messages.invalid : result ? messages[result] : null;
 
   return (
-    <main className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased flex items-center justify-center px-6">
+    <main className="min-h-screen bg-transparent text-white font-sans antialiased flex items-center justify-center px-6">
       <div className="max-w-sm text-center space-y-4">
         <p className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></p>
         {text ? (
           <>
-            <p role="alert" className="text-sm text-[#515154]">{text}</p>
+            <p role="alert" className="text-sm text-white/75">{text}</p>
             <Link href="/" className="inline-block text-sm font-medium underline underline-offset-4">Ir al inicio</Link>
           </>
         ) : (
-          <p role="status" className="text-sm text-[#515154]">Abriendo tu catálogo…</p>
+          <p role="status" className="text-sm text-white/75">Abriendo tu catálogo…</p>
         )}
       </div>
     </main>

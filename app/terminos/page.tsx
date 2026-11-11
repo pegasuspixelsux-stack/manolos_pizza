@@ -13,12 +13,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="mt-10">
       <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-      <div className="mt-3 space-y-3 text-sm leading-relaxed text-[#515154] font-light">{children}</div>
+      <div className="mt-3 space-y-3 text-sm leading-relaxed text-white/75 font-light">{children}</div>
     </section>
   );
 }
 
-const strong = 'font-medium text-[#1D1D1F]';
+const strong = 'font-medium text-white';
 
 export default async function TermsPage() {
   const b = await getBusinessSettings();
@@ -26,12 +26,12 @@ export default async function TermsPage() {
   const contact = b.email || b.whatsapp || b.phone;
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-14 text-[#1D1D1F]">
-      <Link href="/" className="text-sm text-[#515154] hover:text-[#1D1D1F]">← Volver al inicio</Link>
+    <main className="max-w-3xl mx-auto px-6 py-14 text-white">
+      <Link href="/" className="text-sm text-white/75 hover:text-white">← Volver al inicio</Link>
       <h1 className="mt-6 text-3xl md:text-4xl font-semibold tracking-tight">Términos de uso de la plataforma</h1>
-      <p className="mt-3 text-sm text-[#86868B]">Última actualización: {UPDATED}</p>
+      <p className="mt-3 text-sm text-white/60">Última actualización: {UPDATED}</p>
 
-      <p className="mt-8 text-sm leading-relaxed text-[#515154] font-light">
+      <p className="mt-8 text-sm leading-relaxed text-white/75 font-light">
         Estas condiciones regulan el uso de esta plataforma de pedidos de <strong className={strong}>{name}</strong>.
         Al usar el sitio y hacer un pedido aceptás estos términos.
       </p>

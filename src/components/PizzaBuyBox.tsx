@@ -14,10 +14,10 @@ import {
   type OrderSelection,
 } from '@/src/utils/pizzaPricing';
 
-const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2';
+const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2';
 const chip = (on: boolean) =>
   `px-4 py-2 rounded-full text-xs font-medium border transition-colors ${
-    on ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'bg-white text-[#1D1D1F] border-black/15 hover:bg-[#F5F5F7]'
+    on ? 'bg-white text-[#2E0505] border-white' : 'bg-white text-white border-white/15 hover:bg-white/10'
   }`;
 
 /**
@@ -177,7 +177,7 @@ export default function PizzaBuyBox({
       )}
 
       {size && (
-        <p className="text-sm text-[#515154] leading-relaxed" aria-live="polite">
+        <p className="text-sm text-white/75 leading-relaxed" aria-live="polite">
           Base {formatMoney(size.price)}
           {extras.length > 0 && (
             <>
@@ -186,7 +186,7 @@ export default function PizzaBuyBox({
               {quarters} {quarters === 1 ? 'cuarto' : 'cuartos'} = {formatMoney(extraToppingsCost(extras.length, quarters))})
             </>
           )}{' '}
-          = <strong className="text-[#1D1D1F]">{formatMoney(unit)}</strong>
+          = <strong className="text-white">{formatMoney(unit)}</strong>
         </p>
       )}
 
@@ -198,7 +198,7 @@ export default function PizzaBuyBox({
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             disabled={qty <= 1}
             aria-label="Disminuir cantidad"
-            className="w-10 h-10 rounded-full bg-[#F5F5F7] flex items-center justify-center disabled:opacity-30"
+            className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center disabled:opacity-30"
           >
             <Minus className="w-4 h-4" />
           </button>
@@ -209,7 +209,7 @@ export default function PizzaBuyBox({
             type="button"
             onClick={() => setQty((q) => Math.min(999, q + 1))}
             aria-label="Aumentar cantidad"
-            className="w-10 h-10 rounded-full bg-[#F5F5F7] flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -219,7 +219,7 @@ export default function PizzaBuyBox({
       <button
         type="submit"
         disabled={!inStock || missingIncluded}
-        className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-[#1D1D1F] text-white hover:bg-[#333336]"
+        className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white text-[#2E0505] hover:bg-white/90"
       >
         {!inStock ? 'Sin stock' : missingIncluded ? 'Elegí el gusto incluido' : `Agregar al carrito · ${formatMoney(unit * qty)}`}
       </button>
@@ -240,11 +240,11 @@ export default function PizzaBuyBox({
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="flex-1 bg-[#1D1D1F] text-white py-3 rounded-full text-sm font-medium hover:bg-[#333336]"
+              className="flex-1 bg-white text-[#2E0505] py-3 rounded-full text-sm font-medium hover:bg-white/90"
             >
               Ver carrito y pedir
             </button>
-            <Link href="/items" className="flex-1 text-center border border-[#1D1D1F]/30 py-3 rounded-full text-sm font-medium hover:bg-white">
+            <Link href="/items" className="flex-1 text-center border border-white/30 py-3 rounded-full text-sm font-medium hover:bg-white">
               Seguir pidiendo
             </Link>
           </div>

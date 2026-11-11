@@ -103,8 +103,8 @@ export default async function ItemPage({ params }: Props) {
     }));
 
   return (
-    <div className="relative min-h-screen bg-[#FBFBFD] text-[#1D1D1F] font-sans antialiased">
-      <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-[#1D1D1F] md:border-b md:border-[#000000]/5 md:bg-[#FBFBFD]">
+    <div className="relative min-h-screen bg-transparent text-white font-sans antialiased">
+      <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-white md:border-b md:border-white/10 md:bg-[#FBFBFD]">
         <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName /></Link>
           <SiteNavLinks />
@@ -117,7 +117,7 @@ export default async function ItemPage({ params }: Props) {
 
       <main className="max-w-[1440px] mx-auto px-6 pt-10 pb-2 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-16 items-start">
         {/* Mobile hero: full-bleed image, vertical gradient overlay, product info on top of it */}
-        <SwipeSection prevHref={prevHref} nextHref={nextHref} className="md:hidden relative -mx-6 -mt-10 min-h-[100svh] flex flex-col justify-end overflow-hidden bg-[#FBFBFD]">
+        <SwipeSection prevHref={prevHref} nextHref={nextHref} className="md:hidden relative -mx-6 -mt-10 min-h-[100svh] flex flex-col justify-end overflow-hidden bg-transparent">
           {photo && (
             <PropertyImage
               src={photo}
@@ -129,7 +129,7 @@ export default async function ItemPage({ params }: Props) {
             />
           )}
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/70 from-25% via-black/35 via-55% to-transparent" aria-hidden="true" />
-          <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#FBFBFD] from-22% via-[#FBFBFD]/95 via-36% to-transparent to-58%" aria-hidden="true" />
+          <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#2E0505] from-22% via-[#FBFBFD]/95 via-36% to-transparent to-58%" aria-hidden="true" />
           <Link
             href="/items"
             className="absolute top-20 left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"
@@ -144,10 +144,10 @@ export default async function ItemPage({ params }: Props) {
           )}
           {prevHref && <HeroArrow dir="prev" href={prevHref} />}
           {nextHref && <HeroArrow dir="next" href={nextHref} />}
-          <div className="relative z-10 px-6 pb-[12.5svh] pt-24 space-y-4 text-[#1D1D1F]">
+          <div className="relative z-10 px-6 pb-[12.5svh] pt-24 space-y-4 text-white">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 space-y-1">
-                <p className="text-xs uppercase tracking-widest text-[#515154] font-semibold">{category}</p>
+                <p className="text-xs uppercase tracking-widest text-white/75 font-semibold">{category}</p>
                 <h1 className="text-2xl font-semibold tracking-tight">{item.title}</h1>
               </div>
               <div className="shrink-0 text-right">
@@ -155,7 +155,7 @@ export default async function ItemPage({ params }: Props) {
               </div>
             </div>
             {item.description && (
-              <p className="text-sm text-[#515154] font-light leading-relaxed whitespace-pre-line">{item.description}</p>
+              <p className="text-sm text-white/75 font-light leading-relaxed whitespace-pre-line">{item.description}</p>
             )}
             {!product && (
               <BuyBox
@@ -175,11 +175,11 @@ export default async function ItemPage({ params }: Props) {
 
         <Link
           href="/items"
-          className="hidden md:inline-flex md:col-span-2 justify-self-start md:-mb-10 items-center gap-2 text-sm font-medium text-[#515154] hover:text-[#1D1D1F] transition-colors"
+          className="hidden md:inline-flex md:col-span-2 justify-self-start md:-mb-10 items-center gap-2 text-sm font-medium text-white/75 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Volver al Catálogo
         </Link>
-        <div className="hidden md:block relative aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-[#E5E5EA]">
+        <div className="hidden md:block relative aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10">
           {photo && (
             <PropertyImage
               src={photo}
@@ -201,21 +201,21 @@ export default async function ItemPage({ params }: Props) {
         <div className="hidden md:block space-y-8">
           <div className="space-y-4">
             <div className="hidden md:block space-y-4">
-              <p className="text-xs uppercase tracking-widest text-[#515154] font-semibold">{category}</p>
+              <p className="text-xs uppercase tracking-widest text-white/75 font-semibold">{category}</p>
               <h1 className="text-5xl font-semibold tracking-tight">{item.title}</h1>
               {product ? <p className="text-3xl font-semibold">{fromPrice}</p> : <ItemPriceView pricing={pricing} />}
               {quantity && (
-                <p className="text-sm text-[#515154]">
-                  <span className="font-medium text-[#1D1D1F]">Peso:</span> {quantity}
+                <p className="text-sm text-white/75">
+                  <span className="font-medium text-white">Peso:</span> {quantity}
                 </p>
               )}
-              <p className="text-sm text-[#515154]">
-                <span className="font-medium text-[#1D1D1F]">Entrega en:</span>{' '}
+              <p className="text-sm text-white/75">
+                <span className="font-medium text-white">Entrega en:</span>{' '}
                 {(item.deliveryAreas?.length ? item.deliveryAreas : ['Maldonado']).join(', ')}
               </p>
             </div>
             {item.description && (
-              <p className="hidden md:block text-[#515154] font-light leading-relaxed whitespace-pre-line">{item.description}</p>
+              <p className="hidden md:block text-white/75 font-light leading-relaxed whitespace-pre-line">{item.description}</p>
             )}
           </div>
 

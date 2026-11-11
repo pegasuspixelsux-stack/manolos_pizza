@@ -152,13 +152,13 @@ export default function InfoSections() {
       <section id="vision" className={`pt-0 ${openVision ? 'pb-14' : 'pb-0'} md:pt-8 md:pb-36 px-6 max-w-[1440px] mx-auto`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="md:space-y-6 [container-type:inline-size]">
-            <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold">Quiénes somos</h2>
+            <h2 className="hidden md:block text-xs uppercase tracking-widest text-white/75 font-semibold">Quiénes somos</h2>
             <button
               type="button"
               onClick={() => setOpenVision((o) => !o)}
               aria-expanded={openVision}
               aria-controls="vision-body"
-              className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-[#000000]/10 px-6 py-4 text-left text-lg font-semibold tracking-tight"
+              className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-white/15 px-6 py-4 text-left text-lg font-semibold tracking-tight"
             >
               <span>Quiénes somos</span>
               <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openVision ? 'rotate-180' : ''}`} />
@@ -168,7 +168,7 @@ export default function InfoSections() {
             <p className="text-2xl md:text-3xl xl:text-4xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">
               Insumos frescos para tu cocina, todos los días.
             </p>
-            <p className="text-[#515154] font-light leading-relaxed">
+            <p className="text-white/75 font-light leading-relaxed">
               En Merkado somos especialistas en la distribución hortifrutícola para el sector
               gastronómico y comercial. Seleccionamos frutas, verduras y hojas verdes directamente
               en el mercado y las llevamos a la puerta de tu establecimiento con entregas en el
@@ -176,7 +176,7 @@ export default function InfoSections() {
             </p>
             <a
               href="#contact"
-              className="inline-flex items-center space-x-2 text-sm font-medium text-[#1D1D1F] hover:text-[#515154] transition-colors"
+              className="inline-flex items-center space-x-2 text-sm font-medium text-white hover:text-white/75 transition-colors"
             >
               <span>Contactanos</span>
               <ArrowUpRight className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function InfoSections() {
             </div>
           </div>
           <div
-            className={`${openVision ? '' : 'hidden'} md:block aspect-[4/3] md:aspect-square lg:aspect-[4/3] rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-cover bg-center bg-[#E5E5EA]`}
+            className={`${openVision ? '' : 'hidden'} md:block aspect-[4/3] md:aspect-square lg:aspect-[4/3] rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-cover bg-center bg-white/10`}
             style={{
               backgroundImage:
                 'url(https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?q=80&w=1200&auto=format&fit=crop)',
@@ -200,21 +200,21 @@ export default function InfoSections() {
           onClick={() => setOpenFaqSection((o) => !o)}
           aria-expanded={openFaqSection}
           aria-controls="faq-body"
-          className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-[#000000]/10 px-6 py-4 text-left text-lg font-semibold tracking-tight"
+          className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-white/15 px-6 py-4 text-left text-lg font-semibold tracking-tight"
         >
           <span>Preguntas frecuentes</span>
           <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openFaqSection ? 'rotate-180' : ''}`} />
         </button>
         <div id="faq-body" className={`${openFaqSection ? 'block mt-6' : 'hidden'} md:block md:mt-0`}>
           <div className="mb-8 md:mb-14 space-y-4">
-            <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold">Preguntas frecuentes</h2>
+            <h2 className="hidden md:block text-xs uppercase tracking-widest text-white/75 font-semibold">Preguntas frecuentes</h2>
             <p className="text-2xl md:text-3xl xl:text-4xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">Todo lo que necesitás saber para pedir.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-16">
             {FAQ.map((item, i) => {
               const open = openFaq === i;
               return (
-                <div key={item.q} className="border-b border-[#000000]/10 py-1 md:py-4">
+                <div key={item.q} className="border-b border-white/15 py-1 md:py-4">
                   <button
                     type="button"
                     onClick={() => setOpenFaq(open ? null : i)}
@@ -225,7 +225,7 @@ export default function InfoSections() {
                     <span>{item.q}</span>
                     <ChevronDown className={`w-5 h-5 shrink-0 md:hidden transition-transform ${open ? 'rotate-180' : ''}`} />
                   </button>
-                  <p id={`faq-a-${i}`} className={`${open ? 'block' : 'hidden'} md:block pb-3 md:pb-0 text-[#515154] font-light leading-relaxed`}>
+                  <p id={`faq-a-${i}`} className={`${open ? 'block' : 'hidden'} md:block pb-3 md:pb-0 text-white/75 font-light leading-relaxed`}>
                     {item.a}
                   </p>
                 </div>
@@ -236,18 +236,18 @@ export default function InfoSections() {
       </section>
 
       {/* --- CALL TO ACTION & CONTACT FORM --- */}
-      <section id="contact" className={`${openContact ? 'pt-0 pb-12' : 'py-0'} md:py-44 bg-[#F2F2F7] border-t border-b border-[#000000]/5`}>
+      <section id="contact" className={`${openContact ? 'pt-0 pb-12' : 'py-0'} md:py-44 bg-transparent border-t border-b border-white/10`}>
         <div className="max-w-[1440px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
           {/* Left Column: wholesale pitch + company data */}
           <div>
-            <h2 className="hidden md:block text-xs uppercase tracking-widest text-[#515154] font-semibold mb-3">Solicite su Acceso Mayorista</h2>
+            <h2 className="hidden md:block text-xs uppercase tracking-widest text-white/75 font-semibold mb-3">Solicite su Acceso Mayorista</h2>
             <button
               type="button"
               onClick={() => setOpenContact((o) => !o)}
               aria-expanded={openContact}
               aria-controls="contact-body"
-              className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-[#000000]/10 px-6 py-4 text-left text-lg font-semibold tracking-tight"
+              className="md:hidden -mx-6 w-[calc(100%+3rem)] flex items-center justify-between gap-3 border-b border-white/15 px-6 py-4 text-left text-lg font-semibold tracking-tight"
             >
               <span>Solicite su Acceso Mayorista</span>
               <ChevronDown className={`w-5 h-5 shrink-0 transition-transform ${openContact ? 'rotate-180' : ''}`} />
@@ -256,12 +256,12 @@ export default function InfoSections() {
             <p className="text-2xl md:text-3xl xl:text-4xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance] mb-6">
               Comprá más, pagá menos. Pedí tu acceso mayorista.
             </p>
-            <p className="text-[#515154] font-light leading-relaxed mb-12">
+            <p className="text-white/75 font-light leading-relaxed mb-12">
               Restaurantes, almacenes, hoteles y servicios de catering: solicitá tu acceso mayorista y
               conseguí mejores precios por las cantidades que compra tu negocio. Contanos qué
               necesitás cada semana y revisamos tu solicitud y, una vez aprobada y configurada la forma de pago, te enviamos tu contraseña de acceso para ver tus precios y hacer tus pedidos.
             </p>
-            <div className="mt-10 pt-8 border-t border-[#000000]/10">
+            <div className="mt-10 pt-8 border-t border-white/15">
               <h3 className="text-lg font-semibold tracking-tight mb-5">Por qué usar el sistema de pedidos de Merkado</h3>
               <ul className="space-y-5">
                 {ORDER_BENEFITS.map((b) => (
@@ -271,9 +271,9 @@ export default function InfoSections() {
                     </span>
                     <div>
                       <p className="font-semibold tracking-tight">
-                        {b.title} <span className="font-normal text-[#515154]">· {b.who}</span>
+                        {b.title} <span className="font-normal text-white/75">· {b.who}</span>
                       </p>
-                      <p className="mt-1 text-sm text-[#515154] font-light leading-relaxed">{b.text}</p>
+                      <p className="mt-1 text-sm text-white/75 font-light leading-relaxed">{b.text}</p>
                     </div>
                   </li>
                 ))}
@@ -283,48 +283,48 @@ export default function InfoSections() {
           </div>
 
           {/* Right Column: wholesale enrollment form */}
-          <div className={`${openContact ? '' : 'hidden'} md:block bg-white p-8 md:p-10 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)]`}>
+          <div className={`${openContact ? '' : 'hidden'} md:block bg-transparent p-8 md:p-10 rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)]`}>
             <form onSubmit={submitWholesale} className="space-y-5">
               <div>
-                <label htmlFor="w-business" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Nombre del negocio</label>
-                <input id="w-business" type="text" required value={wholesale.business} onChange={(e) => setWholesale({ ...wholesale, business: e.target.value })} placeholder="Restaurante La Esquina" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
+                <label htmlFor="w-business" className="block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2">Nombre del negocio</label>
+                <input id="w-business" type="text" required value={wholesale.business} onChange={(e) => setWholesale({ ...wholesale, business: e.target.value })} placeholder="Restaurante La Esquina" className="w-full bg-transparent border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white transition-colors" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="w-name" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Nombre de contacto</label>
-                  <input id="w-name" type="text" required value={wholesale.name} onChange={(e) => setWholesale({ ...wholesale, name: e.target.value })} className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
+                  <label htmlFor="w-name" className="block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2">Nombre de contacto</label>
+                  <input id="w-name" type="text" required value={wholesale.name} onChange={(e) => setWholesale({ ...wholesale, name: e.target.value })} className="w-full bg-transparent border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white transition-colors" />
                 </div>
                 <div>
-                  <label htmlFor="w-phone" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Teléfono</label>
-                  <input id="w-phone" type="tel" required value={wholesale.phone} onChange={(e) => setWholesale({ ...wholesale, phone: e.target.value })} className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
+                  <label htmlFor="w-phone" className="block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2">Teléfono</label>
+                  <input id="w-phone" type="tel" required value={wholesale.phone} onChange={(e) => setWholesale({ ...wholesale, phone: e.target.value })} className="w-full bg-transparent border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white transition-colors" />
                 </div>
               </div>
               <div>
-                <label htmlFor="w-email" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Correo electrónico</label>
-                <input id="w-email" type="email" required value={wholesale.email} onChange={(e) => setWholesale({ ...wholesale, email: e.target.value })} className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
+                <label htmlFor="w-email" className="block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2">Correo electrónico</label>
+                <input id="w-email" type="email" required value={wholesale.email} onChange={(e) => setWholesale({ ...wholesale, email: e.target.value })} className="w-full bg-transparent border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white transition-colors" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="w-kind" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Tipo de negocio</label>
-                  <select id="w-kind" value={wholesale.kind} onChange={(e) => setWholesale({ ...wholesale, kind: e.target.value })} className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors">
+                  <label htmlFor="w-kind" className="block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2">Tipo de negocio</label>
+                  <select id="w-kind" value={wholesale.kind} onChange={(e) => setWholesale({ ...wholesale, kind: e.target.value })} className="w-full bg-transparent border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white transition-colors">
                     {['Restaurante', 'Almacén o mercado', 'Hotel o catering', 'Revendedor', 'Otro'].map((k) => (
                       <option key={k} value={k}>{k}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="w-volume" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">Volumen semanal</label>
-                  <input id="w-volume" type="text" value={wholesale.volume} onChange={(e) => setWholesale({ ...wholesale, volume: e.target.value })} placeholder="ej. 200 lb de tomates" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors" />
+                  <label htmlFor="w-volume" className="block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2">Volumen semanal</label>
+                  <input id="w-volume" type="text" value={wholesale.volume} onChange={(e) => setWholesale({ ...wholesale, volume: e.target.value })} placeholder="ej. 200 lb de tomates" className="w-full bg-transparent border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white transition-colors" />
                 </div>
               </div>
               <div>
-                <label htmlFor="w-message" className="block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2">¿Qué necesitás? (opcional)</label>
-                <textarea id="w-message" rows={3} value={wholesale.message} onChange={(e) => setWholesale({ ...wholesale, message: e.target.value })} placeholder="Productos, días de entrega, cualquier cosa que debamos saber…" className="w-full bg-[#FBFBFD] border border-[#000000]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1D1D1F] transition-colors resize-none" />
+                <label htmlFor="w-message" className="block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2">¿Qué necesitás? (opcional)</label>
+                <textarea id="w-message" rows={3} value={wholesale.message} onChange={(e) => setWholesale({ ...wholesale, message: e.target.value })} placeholder="Productos, días de entrega, cualquier cosa que debamos saber…" className="w-full bg-transparent border border-white/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white transition-colors resize-none" />
               </div>
               <button
                 type="submit"
                 disabled={leadState === 'sending'}
-                className="w-full bg-[#1D1D1F] text-white py-3.5 rounded-xl text-sm font-medium hover:bg-[#333336] transition-all flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50"
+                className="w-full bg-white text-[#2E0505] py-3.5 rounded-xl text-sm font-medium hover:bg-white/90 transition-all flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50"
               >
                 <span>{leadState === 'sending' ? 'Enviando…' : 'Solicitar acceso mayorista'}</span>
                 <Send className="w-4 h-4" />

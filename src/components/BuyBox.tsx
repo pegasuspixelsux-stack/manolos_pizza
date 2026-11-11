@@ -7,7 +7,7 @@ import { formatMoney, priceWithShortUnit, quantityLabel, quantityNounPlural } fr
 import { useCart } from '@/src/context/CartContext';
 import type { PricingMode } from '@/src/types/firestore';
 
-const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-[#515154] mb-2';
+const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2';
 
 /**
  * Unit, quantity and an "Agregar al carrito" button. The item goes into the shared cart; the customer then closes the
@@ -34,7 +34,7 @@ export default function BuyBox({
   onPhoto?: boolean;
 }) {
   const label = onPhoto ? labelClass : labelClass;
-  const soft = onPhoto ? 'bg-black/5 text-[#1D1D1F]' : 'bg-[#F5F5F7]';
+  const soft = onPhoto ? 'bg-black/5 text-white' : 'bg-transparent';
   const [qty, setQty] = useState(1);
   // One price per item: the sale price while on sale, else the price set on the item.
   const mode: PricingMode = pricing.pricingMode ?? 'por_unidad';
@@ -78,13 +78,13 @@ export default function BuyBox({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex-1 bg-[#1D1D1F] text-white py-3.5 rounded-full text-sm font-medium hover:bg-[#333336] transition-all"
+            className="flex-1 bg-white text-[#2E0505] py-3.5 rounded-full text-sm font-medium hover:bg-white/90 transition-all"
           >
             Cerrar pedido
           </button>
           <Link
             href="/items"
-            className="flex-1 text-center border border-[#1D1D1F]/30 py-3.5 rounded-full text-sm font-medium hover:bg-white transition-all"
+            className="flex-1 text-center border border-white/30 py-3.5 rounded-full text-sm font-medium hover:bg-white transition-all"
           >
             Seguir comprando
           </Link>
@@ -100,7 +100,7 @@ export default function BuyBox({
     <form onSubmit={addToCart} className="space-y-5">
       {onPhoto ? (
         // One translucent glass pill: quantity stepper on the left, the add-to-cart button inside it on the right.
-        <div className="flex items-center rounded-full bg-white/50 backdrop-blur-md border border-black/10 p-1 text-[#1D1D1F]">
+        <div className="flex items-center rounded-full bg-white/50 backdrop-blur-md border border-white/15 p-1 text-white">
           <div className="flex items-center shrink-0">
             <button
               type="button"
@@ -124,7 +124,7 @@ export default function BuyBox({
           <button
             type="submit"
             disabled={!inStock}
-            className="flex-1 min-w-0 ml-1 bg-[#1D1D1F] text-white py-2.5 px-3 rounded-full text-xs font-medium leading-tight transition-all hover:bg-[#333336] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 min-w-0 ml-1 bg-white text-[#2E0505] py-2.5 px-3 rounded-full text-xs font-medium leading-tight transition-all hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
           </button>
@@ -158,7 +158,7 @@ export default function BuyBox({
           <button
             type="submit"
             disabled={!inStock}
-            className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-[#1D1D1F] text-white hover:bg-[#333336]"
+            className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white text-[#2E0505] hover:bg-white/90"
           >
             {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
           </button>

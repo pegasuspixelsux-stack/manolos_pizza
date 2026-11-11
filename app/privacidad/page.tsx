@@ -13,12 +13,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="mt-10">
       <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-      <div className="mt-3 space-y-3 text-sm leading-relaxed text-[#515154] font-light">{children}</div>
+      <div className="mt-3 space-y-3 text-sm leading-relaxed text-white/75 font-light">{children}</div>
     </section>
   );
 }
 
-const strong = 'font-medium text-[#1D1D1F]';
+const strong = 'font-medium text-white';
 
 export default async function PrivacyPage() {
   const b = await getBusinessSettings();
@@ -26,14 +26,14 @@ export default async function PrivacyPage() {
   const contact = b.email || b.whatsapp || b.phone;
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-14 text-[#1D1D1F]">
-      <Link href="/" className="text-sm text-[#515154] hover:text-[#1D1D1F]">← Volver al inicio</Link>
+    <main className="max-w-3xl mx-auto px-6 py-14 text-white">
+      <Link href="/" className="text-sm text-white/75 hover:text-white">← Volver al inicio</Link>
       <h1 className="mt-6 text-3xl md:text-4xl font-semibold tracking-tight">Política de privacidad y uso de datos</h1>
-      <p className="mt-3 text-sm text-[#86868B]">Última actualización: {UPDATED}</p>
+      <p className="mt-3 text-sm text-white/60">Última actualización: {UPDATED}</p>
 
-      <section id="datos" className="mt-8 rounded-[12px] bg-[#F5F5F7] p-6 scroll-mt-24">
+      <section id="datos" className="mt-8 rounded-[12px] bg-transparent p-6 scroll-mt-24">
         <h2 className="text-lg font-semibold tracking-tight">Qué hacemos con tus datos, en resumen</h2>
-        <ul className="mt-3 list-disc pl-5 space-y-1.5 text-sm leading-relaxed text-[#1D1D1F]">
+        <ul className="mt-3 list-disc pl-5 space-y-1.5 text-sm leading-relaxed text-white">
           <li>Pedimos <strong>lo mínimo para poder contactarte</strong> y entregarte tu pedido: tu nombre, tu WhatsApp o teléfono y, si pedís delivery, tu dirección.</li>
           <li><strong>No guardamos datos de pago.</strong> No pedimos ni almacenamos números de tarjeta de crédito ni claves. La forma de pago que elegís (efectivo, tarjeta, prepago o crédito) es solo una indicación para nuestro equipo: el pago se coordina y se hace por fuera de este sitio.</li>
           <li>No vendemos tus datos, no hacemos publicidad con ellos y no creamos una cuenta ni un perfil de cliente: guardamos tus pedidos, no un registro de vos.</li>
@@ -41,7 +41,7 @@ export default async function PrivacyPage() {
         </ul>
       </section>
 
-      <p className="mt-8 text-sm leading-relaxed text-[#515154] font-light">
+      <p className="mt-8 text-sm leading-relaxed text-white/75 font-light">
         Esta política explica qué datos personales tratamos, para qué, con quién los compartimos y cómo podés ejercer tus
         derechos, de acuerdo con la Ley N.º 18.331 de Protección de Datos Personales de Uruguay y su normativa complementaria.
       </p>

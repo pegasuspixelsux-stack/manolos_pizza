@@ -49,7 +49,7 @@ export default function FavoriteButton({
       aria-pressed={on}
       aria-label={on ? `Quitar ${title} de favoritos` : `Agregar ${title} a favoritos`}
       title={failed ? 'No se pudo guardar. Probá de nuevo.' : on ? 'Quitar de favoritos' : client ? 'Agregar a favoritos' : 'Ingresá como cliente para guardar favoritos'}
-      className={`flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-[#F5F5F7] active:scale-95 transition disabled:opacity-60 ${className}`}
+      className={`flex items-center justify-center rounded-full bg-transparent shadow-sm hover:bg-white/10 active:scale-95 transition disabled:opacity-60 ${className}`}
     >
       <Heart className={`w-4 h-4 ${on ? 'fill-red-500 text-red-500' : failed ? 'text-red-600' : 'text-black'}`} />
     </button>

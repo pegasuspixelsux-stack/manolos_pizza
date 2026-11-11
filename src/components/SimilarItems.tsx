@@ -31,10 +31,10 @@ export default function SimilarItems({ title, items }: { title: string; items: S
       <div className="flex items-end justify-between mb-6">
         <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
         <div className="hidden md:flex gap-2">
-          <button type="button" onClick={() => scroll(-1)} aria-label="Desplazar a la izquierda" className="w-10 h-10 rounded-full bg-white border border-[#000000]/5 flex items-center justify-center hover:bg-[#F5F5F7]">
+          <button type="button" onClick={() => scroll(-1)} aria-label="Desplazar a la izquierda" className="w-10 h-10 rounded-full bg-transparent border border-white/10 flex items-center justify-center hover:bg-white/10">
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button type="button" onClick={() => scroll(1)} aria-label="Desplazar a la derecha" className="w-10 h-10 rounded-full bg-white border border-[#000000]/5 flex items-center justify-center hover:bg-[#F5F5F7]">
+          <button type="button" onClick={() => scroll(1)} aria-label="Desplazar a la derecha" className="w-10 h-10 rounded-full bg-transparent border border-white/10 flex items-center justify-center hover:bg-white/10">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -46,7 +46,7 @@ export default function SimilarItems({ title, items }: { title: string; items: S
       >
         {items.map((item) => (
           <li key={item.id} className="snap-start shrink-0 w-[60%] sm:w-[40%] md:w-[28%] lg:w-[22%]">
-            <Link href={`/items/${item.id}`} className="group relative block aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-[#E5E5EA]">
+            <Link href={`/items/${item.id}`} className="group relative block aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] overflow-hidden bg-white/10">
               <PropertyImage
                 src={item.image}
                 alt={item.title}
