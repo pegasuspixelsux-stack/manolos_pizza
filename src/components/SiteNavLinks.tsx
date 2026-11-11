@@ -3,9 +3,9 @@ import Link from 'next/link';
 export const navLinks = [
   { href: '/items', label: 'Menú' },
   { href: '/menu', label: 'Sabores' },
-  { href: '/#vision', label: 'Quiénes somos' },
-  { href: '/#faq', label: 'FAQ' },
-  { href: '/#contact', label: 'Contacto' },
+  { href: '/inicio#vision', label: 'Quiénes somos' },
+  { href: '/inicio#faq', label: 'FAQ' },
+  { href: '/inicio#contact', label: 'Contacto' },
 ];
 
 /** Top-navigation links shared by the homepage, catalog and item pages (desktop; phones use the burger menu). Desktop also shows "Inicio". */

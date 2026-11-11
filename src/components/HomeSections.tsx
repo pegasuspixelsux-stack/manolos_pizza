@@ -264,8 +264,8 @@ function Footer() {
           <p className="text-xs uppercase tracking-widest text-white/60 font-semibold">Enlaces</p>
           <ul className="space-y-3 text-sm font-light">
             <li><Link href="/items" className={linkClass}>Menú y sabores</Link></li>
-            <li><Link href="/#vision" className={linkClass}>Quiénes somos</Link></li>
-            <li><Link href="/#faq" className={linkClass}>Preguntas frecuentes</Link></li>
+            <li><Link href="/inicio#vision" className={linkClass}>Quiénes somos</Link></li>
+            <li><Link href="/inicio#faq" className={linkClass}>Preguntas frecuentes</Link></li>
             <li><Link href="/privacidad" className={linkClass}>Política de privacidad</Link></li>
             <li><Link href="/admin/login" className={linkClass}>Iniciar sesión</Link></li>
           </ul>

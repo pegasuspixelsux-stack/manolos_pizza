@@ -1,12 +1,11 @@
-import HomeSwitch from '@/src/components/HomeSwitch';
-import { loadHomeData } from '@/src/lib/homeData';
-import { sampleHomeProperties } from '@/src/lib/sampleItems';
+import type { Metadata } from 'next';
+import PortadaHero from '@/src/components/PortadaHero';
 
-// Rebuilt at most once a minute, so new or featured listings appear quickly
-// without a database request for every visitor.
-export const revalidate = 60;
+export const metadata: Metadata = {
+  title: "Manolo's Pizza",
+  description: 'La auténtica pizza por metro en Maldonado. Ordená ahora.',
+};
 
-export default async function Page() {
-  const { properties } = await loadHomeData();
-  return <HomeSwitch initialProperties={properties.length ? properties : sampleHomeProperties} />;
+export default function Page() {
+  return <PortadaHero />;
 }
