@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Star } from 'lucide-react';
 import { DEFAULT_LOGO } from '@/src/components/BrandName';
 import HeroImageScroller from '@/src/components/HeroImageScroller';
@@ -14,8 +16,21 @@ const GOOGLE_REVIEWS = 120;
 /** Portada: full-screen hero with just the logo and the order button. No top navigation; phones get the bottom bar. */
 export default function PortadaHero() {
   const { logo } = useBusiness();
+  const router = useRouter();
+  const [leaving, setLeaving] = useState(false);
+  // Slide the portada up and off the screen, then open the menu (which slides up into place).
+  const order = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (leaving) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      router.push('/items');
+      return;
+    }
+    setLeaving(true);
+    setTimeout(() => router.push('/items'), 380);
+  };
   return (
-    <div className="h-svh overflow-hidden flex flex-col bg-[#2E0505]">
+    <div className={`h-svh overflow-hidden flex flex-col bg-[#2E0505] transition-transform duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${leaving ? '-translate-y-full' : ''}`}>
       <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
         <span className="sm:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
         <span className="hidden sm:inline">Pizza por metro hecha al momento. Delivery en Maldonado: elegí tus sabores y pedí por WhatsApp.</span>
@@ -36,7 +51,8 @@ export default function PortadaHero() {
           <HeroImageScroller className="-mx-6 px-6 scroll-pl-6 [&_[role=listitem]]:aspect-[100/95] [&_[role=listitem]]:h-[33.6svh] [&_[role=listitem]]:w-auto" dotsClassName="mt-3 mb-0" />
         </div>
         <Link
-          href="/menu"
+          href="/items"
+          onClick={order}
           className="flex w-full max-w-sm sm:max-w-md items-center justify-center rounded-full bg-white text-[#2E0505] px-10 py-4 text-lg sm:text-xl font-semibold tracking-tight shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-transform hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           Ordenar ahora

@@ -9,13 +9,9 @@ import PropertyImage from '@/src/components/PropertyImage';
 import CartButton from '@/src/components/CartButton';
 import { unitPriceOf } from '@/src/components/CartDrawer';
 import { useCart } from '@/src/context/CartContext';
-import SiteNavLinks from '@/src/components/SiteNavLinks';
-import MobileNavMenu from '@/src/components/MobileNavMenu';
 import MobileBottomBar from '@/src/components/MobileBottomBar';
 import HomeSections from '@/src/components/HomeSections';
-import InstallButton from '@/src/components/InstallButton';
 import { CategoryPills, LayoutSelector } from '@/src/components/ItemsShowcase';
-import BrandName from '@/src/components/BrandName';
 
 type Sort = 'relevance' | 'price-asc' | 'price-desc' | 'name';
 type Availability = 'all' | 'in-stock' | 'on-sale';
@@ -145,31 +141,15 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   const scrollToItems = () => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
 
   return (
-    <div className="min-h-screen pb-14 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
-      {/* --- NAVIGATION (same as the homepage) --- */}
+    <div className="page-slide-up min-h-screen pb-14 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
+      {/* --- Category pills (no top navigation) --- */}
       <header className="sticky top-0 z-50 bg-[#2E0505] text-white">
-        <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
-          <span className="md:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
-          <span className="hidden md:inline lg:hidden">Pizza por metro hecha al momento. Delivery en Maldonado: pedí por WhatsApp.</span>
-          <span className="hidden lg:inline">Pizza por metro hecha al momento, con masa de fermentación lenta. Delivery en Maldonado: elegí tus sabores y pedí por WhatsApp.</span>
-        </div>
-        <div className="relative max-w-[1440px] mx-auto px-[10px] pt-[10px] md:pt-0 h-[106px] md:h-16 flex items-center justify-between">
-          <div className="flex items-center gap-1 lg:hidden">
-            <MobileNavMenu align="left" />
-            <InstallButton />
-          </div>
-          <Link href="/" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap"><BrandName logoOnlyOnMobile /></Link>
-          <SiteNavLinks light />
-          <div className="flex items-center gap-1">
-            <span className="hidden lg:contents"><InstallButton /></span>
-            <CartButton />
-          </div>
-        </div>
-        {/* Second row: the category pills (+ the layout selector on phones) */}
-        <div className="border-t border-white/10">
+        {/* Category pills (+ the layout selector on phones, the cart on larger screens) */}
+        <div>
           <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
             <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} />
             <LayoutSelector value={layout} onChange={chooseLayout} className="ml-auto md:hidden" />
+            <span className="hidden md:block ml-auto"><CartButton /></span>
           </div>
         </div>
       </header>

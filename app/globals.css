@@ -22,3 +22,15 @@ body {
 html {
   scroll-padding-top: 8rem;
 }
+
+/* Page slides up into place (used by the menu after the portada slides away). */
+@keyframes page-slide-up {
+  from { transform: translateY(100svh); }
+  to { transform: translateY(0); }
+}
+.page-slide-up {
+  animation: page-slide-up 450ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-slide-up { animation: none; }
+}
