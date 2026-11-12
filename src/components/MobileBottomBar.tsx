@@ -21,7 +21,7 @@ export default function MobileBottomBar() {
           <span className="relative">
             <ShoppingCart className="w-6 h-6" aria-hidden="true" />
             {count > 0 && (
-              <span className="absolute -top-2 -right-3 min-w-4 h-4 px-1 rounded-full bg-white text-[#2E0505] text-[10px] font-semibold flex items-center justify-center">{count}</span>
+              <span className="absolute -top-2 -right-3 min-w-4 h-4 px-1 rounded-full bg-white text-[#000000] text-[10px] font-semibold flex items-center justify-center">{count}</span>
             )}
           </span>
         </button>

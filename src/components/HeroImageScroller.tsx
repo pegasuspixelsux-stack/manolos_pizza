@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { ImageIcon } from 'lucide-react';
+import type { PromoSlide } from '@/src/lib/promos';
 import { useBusiness } from '@/src/context/BusinessContext';
 import { useHeroFolderImages } from '@/src/context/HeroImagesContext';
 
@@ -20,18 +22,21 @@ export default function HeroImageScroller({
   className = '',
   dotsClassName = 'mt-3 mb-4 md:mb-5',
   autoPlayMs = 0,
+  slides,
 }: {
   placeholders?: number;
   className?: string;
   dotsClassName?: string;
   /** Advance to the next slide every this many ms (looping back to the first); 0 = off. Pauses while the user is touching it. */
   autoPlayMs?: number;
+  /** Promo slides (from the dashboard); each opens its item page. Without it the Ajustes / folder photos are used. */
+  slides?: PromoSlide[];
 }) {
   const business = useBusiness();
   const folderImages = useHeroFolderImages();
   // Photos from Ajustes win; otherwise every image in public/hero_images; otherwise placeholders.
-  const heroImages = business.heroImages.length > 0 ? business.heroImages : folderImages;
-  const count = heroImages.length > 0 ? heroImages.length : placeholders;
+  const heroImages = slides ? slides.map((s) => s.src) : business.heroImages.length > 0 ? business.heroImages : folderImages;
+  const count = heroImages.length > 0 ? heroImages.length : slides ? 0 : placeholders;
 
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -70,13 +75,25 @@ export default function HeroImageScroller({
         className={`flex flex-nowrap gap-3 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
       >
         {heroImages.length > 0
-          ? heroImages.map((src, i) => (
-              <div key={`${src}-${i}`} role="listitem" className={tile}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" loading={i === 0 ? 'eager' : 'lazy'} draggable={false} className="h-full w-full object-cover" />
-              </div>
-            ))
-          : Array.from({ length: placeholders }, (_, i) => (
+          ? heroImages.map((src, i) => {
+              const slide = slides?.[i];
+              const img = (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={src} alt={slide?.title ?? ''} loading={i === 0 ? 'eager' : 'lazy'} draggable={false} className="h-full w-full object-cover" />
+              );
+              return (
+                <div key={`${src}-${i}`} role="listitem" className={tile}>
+                  {slide?.href ? (
+                    <Link href={slide.href} aria-label={`Ver ${slide.title}`} draggable={false} className="block h-full w-full">
+                      {img}
+                    </Link>
+                  ) : (
+                    img
+                  )}
+                </div>
+              );
+            })
+          : slides ? [] : Array.from({ length: placeholders }, (_, i) => (
               <div key={i} role="listitem" className={`${tile} flex flex-col items-center justify-center gap-1.5 text-white/70`}>
                 <ImageIcon className="w-[4.5rem] h-[4.5rem] md:w-[5.25rem] md:h-[5.25rem]" aria-hidden="true" />
                 <span className="text-[11px] font-medium tabular-nums">{i + 1}</span>

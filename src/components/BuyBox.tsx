@@ -81,7 +81,7 @@ export default function BuyBox({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex-1 bg-white text-[#2E0505] py-3.5 rounded-full text-sm font-medium hover:bg-white/90 transition-all"
+            className="flex-1 bg-white text-[#000000] py-3.5 rounded-full text-sm font-medium hover:bg-white/90 transition-all"
           >
             Cerrar pedido
           </button>
@@ -139,7 +139,7 @@ export default function BuyBox({
           <button
             type="submit"
             disabled={!inStock}
-            className="flex-1 min-w-0 ml-1 bg-white text-[#2E0505] py-2.5 px-3 rounded-full text-xs font-medium leading-tight transition-all hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 min-w-0 ml-1 bg-white text-[#000000] py-2.5 px-3 rounded-full text-xs font-medium leading-tight transition-all hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
           </button>
@@ -173,7 +173,7 @@ export default function BuyBox({
           <button
             type="submit"
             disabled={!inStock}
-            className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white text-[#2E0505] hover:bg-white/90"
+            className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white text-[#000000] hover:bg-white/90"
           >
             {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
           </button>

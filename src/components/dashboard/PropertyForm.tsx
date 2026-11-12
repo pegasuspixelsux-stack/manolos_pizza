@@ -9,6 +9,8 @@ import PropertyImage from '../PropertyImage';
 import { DELIVERY_AREAS, PRICING_MODES, type DeliveryArea, type PricingMode, type Property, type PropertyInput, type PropertyPhoto } from '../../types/firestore';
 import { unitLabels, weightUnits, pricingModeLabels, pricingSuffix } from '../../utils/format';
 import { useCategories } from '../../hooks/useCategories';
+import { getActiveProperties } from '../../services/dbService';
+import { MAX_PROMOS } from '../../lib/promos';
 import { cardClass, inputClass, labelClass } from './ui';
 
 interface FormState {
@@ -147,6 +149,15 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
     setSaving(true);
     setError(null);
     try {
+      // The promo slider holds at most MAX_PROMOS items.
+      if (form.featured && !initial?.featured) {
+        const others = (await getActiveProperties()).filter((p) => p.featured && p.id !== initial?.id).length;
+        if (others >= MAX_PROMOS) {
+          setError(`El slider de promos ya tiene ${MAX_PROMOS} artículos. Sacá uno del slider para agregar este.`);
+          setSaving(false);
+          return;
+        }
+      }
       await onSubmit({
         title: form.title.trim(),
         description: form.description.trim(),
@@ -343,8 +354,8 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
           <label className="flex items-start gap-3 rounded-2xl bg-[#F5F5F7] px-5 py-4 text-sm cursor-pointer">
             <input type="checkbox" className="mt-0.5" checked={form.featured} onChange={(e) => set('featured', e.target.checked)} />
             <span>
-              <span className="font-medium">Destacado</span>
-              <span className="block text-xs text-[#515154] mt-0.5">Se muestra como diapositiva en el inicio del sitio (los 5 destacados más recientes).</span>
+              <span className="font-medium">Agregar al slider de promos</span>
+              <span className="block text-xs text-[#515154] mt-0.5">Se muestra como diapositiva en la portada del sitio y abre la página de este artículo (máximo {MAX_PROMOS}).</span>
             </span>
           </label>
 

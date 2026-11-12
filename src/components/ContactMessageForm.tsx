@@ -51,7 +51,7 @@ export default function ContactMessageForm({ tone = 'dark', wide = false, hideIn
         type="submit"
         disabled={state === 'sending'}
         className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors disabled:opacity-50 ${
-          dark ? 'bg-white text-[#480A0A] hover:bg-white/90' : 'bg-white text-[#2E0505] hover:bg-white/90'
+          dark ? 'bg-white text-[#000000] hover:bg-white/90' : 'bg-white text-[#000000] hover:bg-white/90'
         }`}
       >
         <Send className="w-4 h-4" aria-hidden="true" /> {state === 'sending' ? 'Enviando…' : 'Enviar mensaje'}

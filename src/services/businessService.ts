@@ -1,6 +1,6 @@
 import { doc, getDoc, onSnapshot, serverTimestamp, setDoc, type Unsubscribe } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { emptyBusiness, MAX_HERO_IMAGES, type BusinessSettings } from '../types/firestore';
+import { emptyBusiness, MAX_FAQS, MAX_HERO_IMAGES, type BusinessSettings } from '../types/firestore';
 
 const REF = ['settings', 'business'] as const;
 
@@ -23,6 +23,20 @@ export function toBusiness(d: Record<string, unknown> | undefined): BusinessSett
     logo: clip(d?.logo, 500),
     heroImages: Array.isArray(d?.heroImages)
       ? d.heroImages.map((u: unknown) => clip(u, 500)).filter(Boolean).slice(0, MAX_HERO_IMAGES)
+      : [],
+    heroTitle: clip(d?.heroTitle, 120),
+    heroText: clip(d?.heroText, 400),
+    nosotrosImage: clip(d?.nosotrosImage, 500),
+    nosotrosTitle: clip(d?.nosotrosTitle, 200),
+    nosotrosText: clip(d?.nosotrosText, 1500),
+    faqs: Array.isArray(d?.faqs)
+      ? d.faqs
+          .map((f: unknown) => {
+            const o = (f ?? {}) as Record<string, unknown>;
+            return { q: clip(o.q, 200), a: clip(o.a, 600) };
+          })
+          .filter((f: { q: string; a: string }) => f.q && f.a)
+          .slice(0, MAX_FAQS)
       : [],
     taxRate: num(d?.taxRate, 100),
     deliveryFee: num(d?.deliveryFee, 999999),

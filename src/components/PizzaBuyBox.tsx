@@ -17,7 +17,7 @@ import {
 const labelClass = 'block text-xs uppercase tracking-wider font-semibold text-white/75 mb-2';
 const chip = (on: boolean) =>
   `px-4 py-2 rounded-full text-xs font-medium border transition-colors ${
-    on ? 'bg-white text-[#2E0505] border-white' : 'bg-white text-white border-white/15 hover:bg-white/10'
+    on ? 'bg-white text-[#000000] border-white' : 'bg-white text-white border-white/15 hover:bg-white/10'
   }`;
 
 /**
@@ -236,7 +236,7 @@ export default function PizzaBuyBox({
       <button
         type="submit"
         disabled={!inStock || missingIncluded}
-        className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white text-[#2E0505] hover:bg-white/90"
+        className="w-full py-4 text-sm rounded-full font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white text-[#000000] hover:bg-white/90"
       >
         {!inStock ? 'Sin stock' : missingIncluded ? 'Elegí el gusto incluido' : `Agregar al carrito · ${formatMoney(unit * qty)}`}
       </button>
@@ -257,7 +257,7 @@ export default function PizzaBuyBox({
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="flex-1 bg-white text-[#2E0505] py-3 rounded-full text-sm font-medium hover:bg-white/90"
+              className="flex-1 bg-white text-[#000000] py-3 rounded-full text-sm font-medium hover:bg-white/90"
             >
               Ver carrito y pedir
             </button>

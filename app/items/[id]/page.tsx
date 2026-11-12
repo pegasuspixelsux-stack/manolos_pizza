@@ -103,7 +103,7 @@ export default async function ItemPage({ params }: Props) {
 
   return (
     <div className="relative min-h-screen bg-transparent text-white font-sans antialiased">
-      <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-white md:border-b md:border-white/10 md:bg-[#2E0505]">
+      <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-white md:border-b md:border-white/10 md:bg-[#000000]">
         <div className="max-w-[1440px] mx-auto px-6 h-28 md:h-32 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName bigLogoOnly={108} /></Link>
           <SiteNavLinks light />
@@ -128,7 +128,7 @@ export default async function ItemPage({ params }: Props) {
             />
           )}
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/70 from-25% via-black/35 via-55% to-transparent" aria-hidden="true" />
-          <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#2E0505] from-22% via-[#2E0505]/95 via-36% to-transparent to-58%" aria-hidden="true" />
+          <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#000000] from-22% via-[#000000]/95 via-36% to-transparent to-58%" aria-hidden="true" />
           <Link
             href="/"
             className="absolute top-[7.75rem] left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"

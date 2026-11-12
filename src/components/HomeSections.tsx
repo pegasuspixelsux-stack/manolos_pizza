@@ -21,7 +21,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: '¿Cómo hago mi pedido?',
-    a: 'Mirá el menú y los sabores, y escribinos por WhatsApp con lo que quieras. Te confirmamos el pedido por ahí.',
+    a: 'Elegí tus ítems en el menú, agregalos al carrito y completá tu nombre, dirección de entrega y forma de pago. Enviás el pedido ahí mismo y te lo confirmamos.',
   },
   {
     q: '¿En qué horario atienden?',
@@ -45,7 +45,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: '¿Qué medios de pago aceptan?',
-    a: 'Te confirmamos las formas de pago disponibles por WhatsApp al momento de coordinar tu pedido.',
+    a: 'Elegís la forma de pago al hacer tu pedido en el carrito.',
   },
   {
     q: '¿Hacen pedidos para eventos y cumpleaños?',
@@ -116,6 +116,8 @@ function Collapsible({
 }
 
 function Nosotros() {
+  const business = useBusiness();
+  const customParagraphs = business.nosotrosText.split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
   const [open, setOpen] = useState(true);
   useOpenOnHash('vision', () => setOpen(true));
   return (
@@ -132,15 +134,30 @@ function Nosotros() {
         <ChevronDown className={`w-6 h-6 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       <div id="vision-body" className={`${open ? '' : 'hidden md:grid'} grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center pb-6 md:pb-0`}>
-        {/* Placeholder: replace with a photo */}
-        <div className="aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 flex items-center justify-center text-white/70 md:w-[75%] md:mx-auto md:order-last order-last">
-          <ImageIcon className="w-14 h-14" aria-hidden="true" />
+        {/* Photo set in Ajustes (Imagen de «Quiénes somos»); a placeholder until then */}
+        <div className="relative overflow-hidden aspect-square rounded-[12px] shadow-[0_6px_20px_rgba(0,0,0,0.35)] bg-white/10 flex items-center justify-center text-white/70 md:w-[75%] md:mx-auto md:order-last order-last">
+          {business.nosotrosImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={business.nosotrosImage} alt="Quiénes somos" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <ImageIcon className="w-14 h-14" aria-hidden="true" />
+          )}
         </div>
         <div className="space-y-4 md:self-center md:w-[85%] lg:w-[60%] md:mx-auto">
-          <p className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">
-            <span className="md:max-lg:hidden">Quiénes somos: la auténtica pizza por metro en Maldonado.</span>
-            <span className="hidden md:max-lg:inline">La auténtica pizza por metro en Maldonado.</span>
-          </p>
+          {business.nosotrosTitle ? (
+            <p className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">{business.nosotrosTitle}</p>
+          ) : (
+            <p className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.15] [text-wrap:balance]">
+              <span className="md:max-lg:hidden">Quiénes somos: la auténtica pizza por metro en Maldonado.</span>
+              <span className="hidden md:max-lg:inline">La auténtica pizza por metro en Maldonado.</span>
+            </p>
+          )}
+          {customParagraphs.length > 0 ? (
+            customParagraphs.map((t, i) => (
+              <p key={i} className="text-white/85 font-light leading-relaxed">{t}</p>
+            ))
+          ) : (
+            <>
           <p className="text-white/85 font-light leading-relaxed">
             Somos una pizzería familiar con una idea simple: que la pizza se comparta. Por eso hacemos la pizza por
             metro, una tabla interminable al centro de la mesa, para juntarse con amigos y familia y no parar de
@@ -157,9 +174,11 @@ function Nosotros() {
             </span>
           </p>
           <p className="text-white/85 font-light leading-relaxed md:max-lg:hidden">
-            Podés venir a disfrutarla o pedirla directo a tu casa en Maldonado: elegís los sabores, nos escribís
-            por WhatsApp y nosotros nos encargamos del resto.
+            Podés venir a disfrutarla o pedirla directo a tu casa en Maldonado: elegís los ítems, completás tus datos
+            en el carrito y nosotros nos encargamos del resto.
           </p>
+            </>
+          )}
         </div>
       </div>
     </section>
@@ -167,13 +186,15 @@ function Nosotros() {
 }
 
 function Faq() {
+  const business = useBusiness();
+  const faqs = business.faqs.length > 0 ? business.faqs : FAQ;
   const [open, setOpen] = useState(false);
   const [openItem, setOpenItem] = useState<number | null>(null);
   useOpenOnHash('faq', () => setOpen(true));
   return (
     <Collapsible id="faq" title="Preguntas frecuentes" boxless desktopOpen open={open} onToggle={() => setOpen((o) => !o)}>
       <ul className="divide-y divide-white/20 border-t border-white/20">
-        {FAQ.map((f, i) => (
+        {faqs.map((f, i) => (
           <li key={f.q}>
             <button
               type="button"
@@ -214,7 +235,7 @@ function Footer() {
   const hours = business.hours || FALLBACK.hours;
   const wa = business.whatsapp ? whatsappUrl(business.whatsapp, 'Hola, quiero pedir pizza por metro.') : null;
   return (
-    <footer id="contact" className="bg-[#2E0505] text-white/85 px-[10px] pt-12 pb-8 mt-4 scroll-mt-24">
+    <footer id="contact" className="bg-[#000000] text-white/85 px-[10px] pt-12 pb-8 mt-4 scroll-mt-24">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
         <div className="space-y-4">
           <span className="text-lg md:text-2xl font-semibold tracking-tight text-white"><BrandName bigLogoOnDesktop /></span>
@@ -255,7 +276,7 @@ function Footer() {
             <li className="flex items-start gap-3"><Clock className="w-5 h-5 shrink-0" aria-hidden="true" /><span className="whitespace-pre-line">{hours}</span></li>
             <li className="flex items-start gap-3">
               <Bike className="w-5 h-5 shrink-0" aria-hidden="true" />
-              <span><strong className="font-semibold text-white">Hacemos delivery</strong> a toda la zona de Maldonado. Pedí por WhatsApp y te lo llevamos a casa.</span>
+              <span><strong className="font-semibold text-white">Hacemos delivery</strong> a toda la zona de Maldonado. Pedí desde el carrito y te lo llevamos a casa.</span>
             </li>
           </ul>
         </div>

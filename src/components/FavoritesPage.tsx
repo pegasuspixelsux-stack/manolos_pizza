@@ -120,7 +120,7 @@ export default function FavoritesPage() {
           <div className="rounded-2xl bg-transparent px-6 py-10 text-center text-sm space-y-3">
             <p className="font-medium">Todavía no marcaste favoritos.</p>
             <p className="text-white/75 font-light">Tocá el corazón en cualquier producto para guardarlo acá.</p>
-            <Link href="/" className="inline-block rounded-full bg-white text-[#2E0505] px-6 py-2.5 text-xs font-medium hover:bg-white/90 transition-colors">
+            <Link href="/" className="inline-block rounded-full bg-white text-[#000000] px-6 py-2.5 text-xs font-medium hover:bg-white/90 transition-colors">
               Ver el menú
             </Link>
           </div>
@@ -179,7 +179,7 @@ export default function FavoritesPage() {
                   setExcluded(new Set());
                   setCartOpen(true);
                 }}
-                className="inline-flex items-center gap-2 rounded-full bg-white text-[#2E0505] px-7 py-3.5 text-sm font-medium hover:bg-white/90 disabled:opacity-40 transition-colors"
+                className="inline-flex items-center gap-2 rounded-full bg-white text-[#000000] px-7 py-3.5 text-sm font-medium hover:bg-white/90 disabled:opacity-40 transition-colors"
               >
                 <ShoppingCart className="w-4 h-4" /> Cargar favoritos al carrito
               </button>

@@ -21,5 +21,5 @@ export const sampleHomeProperties: HomeProperty[] = sampleProperties.map((p, i) 
   type: p.type,
   typeLabel: categoryName(p.type as string),
   inStock: p.inStock !== false,
-  featured: i < 6,
+  featured: p.featured === true,
 }));

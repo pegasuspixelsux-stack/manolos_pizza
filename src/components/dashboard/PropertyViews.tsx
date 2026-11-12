@@ -59,9 +59,9 @@ function RowActions({
     <div className="flex items-center gap-1">
       <button
         onClick={() => onToggleFeatured(p)}
-        aria-label={p.featured ? `Quitar ${p.title} de destacados` : `Destacar ${p.title} en el inicio`}
+        aria-label={p.featured ? `Quitar ${p.title} del slider de promos` : `Agregar ${p.title} al slider de promos`}
         aria-pressed={Boolean(p.featured)}
-        title={p.featured ? 'Destacado en el inicio' : 'Destacar en el inicio'}
+        title={p.featured ? 'En el slider de promos' : 'Agregar al slider de promos'}
         className="p-2 rounded-full hover:bg-[#F5F5F7]"
       >
         <Star className={`w-4 h-4 ${p.featured ? 'fill-[#1D1D1F]' : ''}`} />
@@ -118,7 +118,7 @@ export function PropertyGrid({ properties, onDelete, onToggleFeatured, onToggleS
                 {operationLabels[p.operation]} · {categoryLabel(p.type)}
               </p>
               <h3 className="text-lg font-semibold tracking-tight truncate">
-                {p.featured && <Star aria-label="Destacado" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
+                {p.featured && <Star aria-label="En el slider de promos" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
                 {p.title}
               </h3>
               <p className="text-sm text-[#515154] font-light inline-flex items-center gap-1.5">
@@ -160,7 +160,7 @@ export function PropertyTable({ properties, onDelete, onToggleFeatured, onToggle
                   </div>
                   <div className="min-w-0">
                     <Link href={`/dashboard/properties/${p.id}`} className="font-medium hover:underline truncate block">
-                      {p.featured && <Star aria-label="Destacado" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
+                      {p.featured && <Star aria-label="En el slider de promos" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 fill-[#1D1D1F]" />}
                       {p.title}
                     </Link>
                     <p className="text-xs text-[#515154] truncate">{locationText(p) || '—'}</p>

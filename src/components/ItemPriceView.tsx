@@ -17,7 +17,7 @@ export default function ItemPriceView({
         <span className="text-2xl font-semibold">{withUnitSuffix(formatMoney(unit), pricing.pricingMode)}</span>
         {onSale && <s className="text-sm text-white/60">{formatMoney(pricing.price)}</s>}
       </p>
-      {onSale && <span className="inline-block mt-2 bg-white text-[#2E0505] text-[10px] font-semibold px-2 py-0.5 rounded-full">Oferta</span>}
+      {onSale && <span className="inline-block mt-2 bg-white text-[#000000] text-[10px] font-semibold px-2 py-0.5 rounded-full">Oferta</span>}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useState } from 'react';
+import { MAX_PROMOS } from '@/src/lib/promos';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutGrid, Plus, Rows3 } from 'lucide-react';
@@ -59,6 +60,10 @@ function PropertiesContent() {
   const onToggleFeatured = async (p: Property) => {
     setActionError(null);
     try {
+      if (!p.featured && featuredCount >= MAX_PROMOS) {
+        setActionError(`El slider de promos ya tiene ${MAX_PROMOS} artículos. Sacá uno para agregar otro.`);
+        return;
+      }
       await update(p, { featured: !p.featured });
     } catch {
       setActionError('No se pudo actualizar el artículo. Solo podés modificar tus propios artículos.');
@@ -147,9 +152,9 @@ function PropertiesContent() {
         </div>
       </div>
 
-      {featuredCount > 5 && (
+      {featuredCount > MAX_PROMOS && (
         <p className="mb-4 rounded-2xl bg-[#F5F5F7] px-5 py-3 text-sm">
-          Hay {featuredCount} artículos destacados. El inicio del sitio muestra los 5 más recientes.
+          Hay {featuredCount} artículos en el slider de promos. La portada muestra {MAX_PROMOS}.
         </p>
       )}
 

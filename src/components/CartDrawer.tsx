@@ -219,7 +219,7 @@ export default function CartDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Carrito de compras"
-        className="absolute right-0 top-0 h-full w-full max-w-md bg-[#2E0505] text-white shadow-xl flex flex-col"
+        className="absolute right-0 top-0 h-full w-full max-w-md bg-[#000000] text-white shadow-xl flex flex-col"
       >
         <div className="flex items-center justify-between px-6 h-16 border-b border-white/15 shrink-0">
           <h2 className="font-semibold tracking-tight inline-flex items-center gap-2">
@@ -283,7 +283,7 @@ export default function CartDrawer({
                 <fieldset className="grid grid-cols-3 gap-2 pt-1">
                   <legend className="sr-only">Cómo recibís tu pedido</legend>
                   {(['delivery', 'pickup', 'dinein'] as const).map((value) => (
-                    <label key={value} className={`cursor-pointer rounded-xl border px-2 py-3 text-xs text-center transition-colors ${form.fulfillment === value ? 'border-white bg-white text-[#2E0505]' : 'border-white/20 bg-white/10 hover:bg-white/10'}`}>
+                    <label key={value} className={`cursor-pointer rounded-xl border px-2 py-3 text-xs text-center transition-colors ${form.fulfillment === value ? 'border-white bg-white text-[#000000]' : 'border-white/20 bg-white/10 hover:bg-white/10'}`}>
                       <input type="radio" name="fulfillment" value={value} checked={form.fulfillment === value} onChange={() => setForm({ ...form, fulfillment: value })} className="sr-only" />
                       {fulfillmentLabels[value]}
                     </label>
@@ -305,7 +305,7 @@ export default function CartDrawer({
                 <fieldset className="grid grid-cols-2 gap-2">
                   <legend className="block text-xs text-white/75 mb-1">Forma de pago</legend>
                   {PAYMENT_METHODS.map((m) => (
-                    <label key={m} className={`cursor-pointer rounded-xl border px-3 py-2.5 text-xs text-center transition-colors ${form.payment === m ? 'border-white bg-white text-[#2E0505]' : 'border-white/20 bg-white/10 hover:bg-white/10'}`}>
+                    <label key={m} className={`cursor-pointer rounded-xl border px-3 py-2.5 text-xs text-center transition-colors ${form.payment === m ? 'border-white bg-white text-[#000000]' : 'border-white/20 bg-white/10 hover:bg-white/10'}`}>
                       <input type="radio" name="payment" value={m} checked={form.payment === m} onChange={() => setForm({ ...form, payment: m })} className="sr-only" />
                       {paymentMethodLabels[m]}
                     </label>
@@ -352,7 +352,7 @@ export default function CartDrawer({
               disabled={state === 'sending'}
               className="w-full inline-flex items-center justify-center gap-2 bg-[#25D366] text-[#0B3D1E] text-sm font-semibold px-6 py-3.5 rounded-full hover:bg-[#20BD5A] transition-all disabled:opacity-50"
             >
-              <MessageCircle className="w-4 h-4" aria-hidden="true" /> {state === 'sending' ? 'Enviando…' : 'Pedir por WhatsApp'}
+              <MessageCircle className="w-4 h-4" aria-hidden="true" /> {state === 'sending' ? 'Enviando…' : 'Enviar pedido'}
             </button>
           </div>
         )}

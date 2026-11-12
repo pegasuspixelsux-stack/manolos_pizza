@@ -1,21 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
-import { useBusiness } from '@/src/context/BusinessContext';
-import { useHeroFolderImages } from '@/src/context/HeroImagesContext';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import type { PromoSlide } from '@/src/lib/promos';
 
 const INTERVAL_MS = 5000;
 
 /**
  * Desktop-only full-width promo hero (fills the space above the order button): square slides at the full height of the strip, so each promo shows uncropped, auto-advancing, with arrows and dots.
- * Uses the same photos as the home scroller (Ajustes → hero images, else public/hero_images).
+ * Slides are the dashboard items marked for the promo slider; each opens its item page.
  */
-export default function PromoHeroSlider({ placeholders = 3 }: { placeholders?: number }) {
-  const business = useBusiness();
-  const folderImages = useHeroFolderImages();
-  const images = business.heroImages.length > 0 ? business.heroImages : folderImages;
-  const count = images.length > 0 ? images.length : placeholders;
+export default function PromoHeroSlider({ slides }: { slides: PromoSlide[] }) {
+  const count = slides.length;
 
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -61,19 +58,23 @@ export default function PromoHeroSlider({ placeholders = 3 }: { placeholders?: n
         onScroll={onScroll}
         className="flex h-full w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {images.length > 0
-          ? images.map((src, i) => (
-              <div key={`${src}-${i}`} className="relative h-full aspect-square shrink-0 snap-start" aria-label={`Promo ${i + 1} de ${count}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" loading={i === 0 ? 'eager' : 'lazy'} draggable={false} className="h-full w-full object-cover" />
-              </div>
-            ))
-          : Array.from({ length: placeholders }, (_, i) => (
-              <div key={i} className="h-full aspect-square shrink-0 snap-start flex flex-col items-center justify-center gap-2 bg-white/10 text-white/70">
-                <ImageIcon className="w-20 h-20" aria-hidden="true" />
-                <span className="text-sm font-medium tabular-nums">Promo {i + 1}</span>
-              </div>
-            ))}
+        {slides.map((slide, i) => {
+          const img = (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={slide.src} alt={slide.title} loading={i === 0 ? 'eager' : 'lazy'} draggable={false} className="h-full w-full object-cover" />
+          );
+          return (
+            <div key={`${slide.src}-${i}`} className="relative h-full aspect-square shrink-0 snap-start" aria-label={`Promo ${i + 1} de ${count}`}>
+              {slide.href ? (
+                <Link href={slide.href} aria-label={`Ver ${slide.title}`} draggable={false} className="block h-full w-full">
+                  {img}
+                </Link>
+              ) : (
+                img
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {count > 1 && (

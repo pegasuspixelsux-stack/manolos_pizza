@@ -275,6 +275,11 @@ export interface ClientAccess {
 // ------------------------------------------------------------ Business
 
 /** settings/business: the operator's public details, set in Ajustes and shown across the site and on printed sheets. */
+export interface FaqItem {
+  q: string;
+  a: string;
+}
+
 export interface BusinessSettings {
   /** Operator / business name: the title of the catalogue. */
   businessName: string;
@@ -297,6 +302,15 @@ export interface BusinessSettings {
   logo: string;
   /** Photos for the scroller at the top of the hero (image URLs, in order); empty = square placeholders. */
   heroImages: string[];
+  /** Hero headline and paragraph under the promo slides (empty = the built-in text). */
+  heroTitle: string;
+  heroText: string;
+  /** "Quiénes somos" section: photo, title and text (paragraphs separated by a blank line). Empty = built-in. */
+  nosotrosImage: string;
+  nosotrosTitle: string;
+  nosotrosText: string;
+  /** Frequently asked questions (empty = the built-in list). */
+  faqs: FaqItem[];
   /** Default tax (%) added to an order and default delivery fee ($). Managers, admins and operators can override both on each order. */
   taxRate: number;
   deliveryFee: number;
@@ -308,6 +322,7 @@ export interface BusinessSettings {
 }
 
 export const MAX_HERO_IMAGES = 12;
+export const MAX_FAQS = 12;
 
 export const emptyBusiness: BusinessSettings = {
   businessName: '',
@@ -323,6 +338,12 @@ export const emptyBusiness: BusinessSettings = {
   youtube: '',
   logo: '',
   heroImages: [],
+  heroTitle: '',
+  heroText: '',
+  nosotrosImage: '',
+  nosotrosTitle: '',
+  nosotrosText: '',
+  faqs: [],
   taxRate: 0,
   deliveryFee: 0,
   saveOrders: true,

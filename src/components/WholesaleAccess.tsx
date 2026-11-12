@@ -131,7 +131,7 @@ export default function WholesaleAccess({ glass }: { glass?: boolean } = {}) {
                 <input id="wa-code" value={code} onChange={(e) => setCode(e.target.value)} autoCapitalize="characters" autoComplete="off" spellCheck={false} placeholder="Contraseña o PIN" className={`${fieldClass} uppercase tracking-widest`} />
               </div>
               {error && <p role="alert" className="text-xs text-red-600">{error}</p>}
-              <button type="submit" disabled={busy} className="w-full bg-white text-[#2E0505] py-3.5 rounded-full text-sm font-medium hover:bg-white/90 transition-all disabled:opacity-50">
+              <button type="submit" disabled={busy} className="w-full bg-white text-[#000000] py-3.5 rounded-full text-sm font-medium hover:bg-white/90 transition-all disabled:opacity-50">
                 {busy ? 'Verificando…' : 'Ingresar'}
               </button>
             </form>

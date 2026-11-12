@@ -168,11 +168,11 @@ export async function seedSampleProperties(
   for (const p of menuProducts) {
     batch.set(doc(firestore, 'products', p.id), { ...clean(p), createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
   }
-  for (const [index, sample] of sampleProperties.entries()) {
+  for (const sample of sampleProperties) {
     batch.set(doc(collection(firestore, PROPERTIES)), {
       ...clean(sample),
       agentId,
-      featured: index < 5, // the first five become the homepage hero slides
+      featured: sample.featured === true, // the promo samples become the hero slides
       ...clean({ agentName: contact.name || undefined, agentPhone: contact.phone || undefined }),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),

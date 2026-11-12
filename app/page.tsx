@@ -5,7 +5,7 @@ import { sampleHomeProperties } from '@/src/lib/sampleItems';
 
 export const metadata: Metadata = {
   title: "Manolo's Pizza",
-  description: 'La auténtica pizza por metro en Maldonado. Mirá el menú y pedí por WhatsApp.',
+  description: 'La auténtica pizza por metro en Maldonado. Elegí tus ítems y pedí online.',
 };
 
 // Same cache window as before.

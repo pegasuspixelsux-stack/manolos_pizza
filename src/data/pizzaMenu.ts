@@ -22,6 +22,7 @@ export interface MenuItem {
 }
 
 export const menuCategories: MenuCategory[] = [
+  { id: 'promos', name: 'Promos' },
   { id: 'pizza-por-metro', name: 'Pizza por metro' },
   { id: 'pizza-de-masa-madre', name: 'Pizza de masa madre' },
   { id: 'faina', name: 'Fainá' },

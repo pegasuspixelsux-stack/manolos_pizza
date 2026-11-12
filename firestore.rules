@@ -288,7 +288,7 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if isAdmin()
         && id == 'business'
-        && request.resource.data.keys().hasOnly(['businessName', 'address', 'email', 'whatsapp', 'phone', 'rut', 'license', 'hours', 'instagram', 'facebook', 'youtube', 'logo', 'heroImages', 'taxRate', 'deliveryFee', 'saveOrders', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['businessName', 'address', 'email', 'whatsapp', 'phone', 'rut', 'license', 'hours', 'instagram', 'facebook', 'youtube', 'logo', 'heroImages', 'heroTitle', 'heroText', 'nosotrosImage', 'nosotrosTitle', 'nosotrosText', 'faqs', 'taxRate', 'deliveryFee', 'saveOrders', 'updatedAt'])
         && request.resource.data.businessName is string && request.resource.data.businessName.size() <= 120
         && request.resource.data.address is string && request.resource.data.address.size() <= 200
         && request.resource.data.email is string && request.resource.data.email.size() <= 200
@@ -302,6 +302,12 @@ service cloud.firestore {
         && request.resource.data.youtube is string && request.resource.data.youtube.size() <= 200
         && request.resource.data.logo is string && request.resource.data.logo.size() <= 500
         && request.resource.data.heroImages is list && request.resource.data.heroImages.size() <= 12
+        && request.resource.data.heroTitle is string && request.resource.data.heroTitle.size() <= 120
+        && request.resource.data.heroText is string && request.resource.data.heroText.size() <= 400
+        && request.resource.data.nosotrosImage is string && request.resource.data.nosotrosImage.size() <= 500
+        && request.resource.data.nosotrosTitle is string && request.resource.data.nosotrosTitle.size() <= 200
+        && request.resource.data.nosotrosText is string && request.resource.data.nosotrosText.size() <= 1500
+        && request.resource.data.faqs is list && request.resource.data.faqs.size() <= 12
         && request.resource.data.taxRate is number && request.resource.data.taxRate >= 0 && request.resource.data.taxRate <= 100
         && request.resource.data.deliveryFee is number && request.resource.data.deliveryFee >= 0 && request.resource.data.deliveryFee < 1000000
         && request.resource.data.saveOrders is bool

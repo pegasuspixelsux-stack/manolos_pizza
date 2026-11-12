@@ -18,6 +18,7 @@ import MobileBottomBar from '@/src/components/MobileBottomBar';
 import HomeSections from '@/src/components/HomeSections';
 import HeroImageScroller from '@/src/components/HeroImageScroller';
 import PromoHeroSlider from '@/src/components/PromoHeroSlider';
+import { promoSlides } from '@/src/lib/promos';
 import { CategoryPills, getCategories } from '@/src/components/ItemsShowcase';
 
 type Sort = 'relevance' | 'price-asc' | 'price-desc' | 'name';
@@ -41,11 +42,13 @@ const fieldClass =
 const labelClass = 'block text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1.5';
 
 export default function CatalogPage({ items: baseItems }: { items: HomeProperty[] }) {
-  const { logo } = useBusiness();
+  const { logo, heroTitle, heroText } = useBusiness();
   // Every item has one price, set on its own page.
   const items = baseItems;
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
+  // Hero -> menu: "Ordenar ahora" slides the hero up and away, then the menu slides up into place.
+  const [hero, setHero] = useState<'show' | 'leaving' | 'gone'>('show');
   // Footer links open the catalog already filtered: /?category=<id>.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -54,6 +57,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial filter from the URL
     if (c) setCategory(c);
     if (q) setQuery(q);
+    // Links that already pick a category or search go straight to the menu.
+    if (c || q) setHero('gone');
   }, []);
   const [availability, setAvailability] = useState<Availability>('all');
   const [minPrice, setMinPrice] = useState('');
@@ -131,31 +136,44 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       }, new Map<string, { id: string; label: string; items: typeof filtered }>())
       .values(),
   );
+  const slides = useMemo(() => promoSlides(baseItems), [baseItems]);
   const scrollToItems = () => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+  const enterMenu = () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setHero('gone');
+      window.scrollTo(0, 0);
+      return;
+    }
+    setHero('leaving');
+    window.setTimeout(() => {
+      setHero('gone');
+      window.scrollTo(0, 0);
+    }, 400);
+  };
 
   const tagline = (
     <div className="px-[10px] text-left">
-      <p className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight leading-tight">La auténtica pizza por metro de Maldonado</p>
+      <p className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight leading-tight">{heroTitle || 'La auténtica pizza por metro de Maldonado'}</p>
       <p className="mt-2 text-sm md:text-base text-white/75">
-        Hecha al momento con masa de fermentación lenta. Delivery en Maldonado y Punta del Este: elegí tus sabores y pedí por WhatsApp.
+        {heroText || 'Hecha al momento con masa de fermentación lenta. Delivery en Maldonado y Punta del Este: pedí acá, elegí tus ítems y completá tus datos de entrega y pago.'}
       </p>
     </div>
   );
 
   return (
-    <div className="page-slide-up min-h-screen pb-24 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
+    <div className="min-h-screen pb-24 md:pb-0 bg-[#000000] text-white selection:bg-white selection:text-[#000000] font-sans antialiased">
       {/* --- Category pills (no top navigation) --- */}
-      <header className="sticky top-0 z-50 bg-[#2E0505] text-white">
+      <header className="sticky top-0 z-50 bg-[#000000] text-white">
         <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
           <span className="sm:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
-          <span className="hidden sm:inline">Pizza por metro hecha al momento. Delivery en Maldonado: elegí tus sabores y pedí por WhatsApp.</span>
+          <span className="hidden sm:inline">Pizza por metro hecha al momento. Delivery en Maldonado: pedí acá, elegí tus ítems y completá tus datos.</span>
         </div>
         <div className="relative max-w-[1440px] mx-auto px-[10px] pt-[10px] md:pt-0 h-[106px] md:h-32 flex items-center justify-between">
           <div className="flex items-center gap-1 lg:hidden">
             <MobileNavMenu align="left" />
             <InstallButton />
           </div>
-          <Link href="/" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap">
+          <Link href="/" onClick={() => setHero('show')} className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 font-semibold text-[21px] min-[420px]:text-2xl md:text-lg tracking-tight whitespace-nowrap">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logo || DEFAULT_LOGO} alt="Manolo's Pizza" className="h-24 w-24 md:h-[108px] md:w-[108px] object-contain" /></Link>
           <SiteNavLinks light />
@@ -168,20 +186,21 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       {/* Hero: fills the first screen (header + slideshow + order button = 100% of the viewport height) */}
       <section
         aria-label="Promos"
-        className="flex flex-col justify-end md:justify-center bg-[#2E0505] min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:pb-0"
+        aria-hidden={hero !== 'show'}
+        className={`${hero === 'gone' ? 'hidden' : ''} ${hero === 'leaving' ? '-translate-y-full opacity-0 transition-[transform,opacity] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none' : ''} flex flex-col justify-end md:justify-center bg-[#000000] min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:pb-0`}
       >
         {/* Phones: square promo slideshow (one full tile plus a sliver of the next) */}
         <div className="md:hidden flex-1 flex flex-col justify-center">
-          <HeroImageScroller
+          {slides.length > 0 && <HeroImageScroller slides={slides}
             className="px-[10px] scroll-pl-[10px] [&_[role=listitem]]:w-[calc(100%-42px)]"
             dotsClassName="mt-3 mb-0"
             autoPlayMs={2000}
-          />
+          />}
           <div className="mt-4">{tagline}</div>
         </div>
 
         {/* Desktop: full-width promo slider */}
-        <PromoHeroSlider />
+        {slides.length > 0 ? <PromoHeroSlider slides={slides} /> : <div className="hidden lg:block flex-1" />}
 
         {/* Tablet and desktop: same tagline under the slider */}
         <div className="hidden md:block shrink-0 pt-4">{tagline}</div>
@@ -189,19 +208,20 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
         <div className="shrink-0 px-[10px] pt-4 pb-0 md:pb-3 lg:py-6 flex justify-center md:translate-y-[5svh]">
           <button
             type="button"
-            onClick={scrollToItems}
-            className="relative w-full max-w-md lg:max-w-lg rounded-full bg-white text-[#2E0505] pl-16 pr-20 py-4 lg:py-5 text-lg lg:text-xl font-semibold tracking-tight shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-transform hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            onClick={enterMenu}
+            className="relative w-full max-w-md lg:max-w-lg rounded-full bg-white text-[#000000] pl-16 pr-20 py-4 lg:py-5 text-lg lg:text-xl font-semibold tracking-tight shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-transform hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             Ordenar ahora
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-[#2E0505] text-white flex items-center justify-center" aria-hidden="true">
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-[#000000] text-white flex items-center justify-center" aria-hidden="true">
               <ArrowRight className="w-6 h-6 lg:w-7 lg:h-7" />
             </span>
           </button>
         </div>
       </section>
 
+      <div key={hero === 'gone' ? 'menu-in' : 'menu'} className={hero === 'gone' ? 'page-slide-up' : ''}>
       {/* Category pills  */}
-      <div className="bg-[#2E0505]">
+      <div className="bg-[#000000]">
         <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
           <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} className="mx-auto" />
           {/* Desktop: the search sits on the right of this row */}
@@ -260,7 +280,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             >
               <SlidersHorizontal className="w-4 h-4" />
               {activeFilters > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-white text-[#480A0A] text-[10px] font-semibold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-white text-[#000000] text-[10px] font-semibold flex items-center justify-center">
                   {activeFilters}
                 </span>
               )}
@@ -268,7 +288,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
             <button
               type="submit"
               aria-label="Buscar"
-              className="shrink-0 bg-white text-[#480A0A] text-xs font-semibold w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-white/90 transition-all flex items-center justify-center"
+              className="shrink-0 bg-white text-[#000000] text-xs font-semibold w-11 h-11 md:w-auto md:h-auto md:px-6 md:py-3 rounded-full hover:bg-white/90 transition-all flex items-center justify-center"
             >
               <Search className="w-4 h-4 md:hidden" />
               <span className="hidden md:inline">Buscar</span>
@@ -533,6 +553,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           <p className="mt-6 text-center text-xs text-white/70">{filtered.length} {filtered.length === 1 ? 'artículo' : 'artículos'}</p>
         )}
       </section>
+
+      </div>
 
       <HomeSections />
       <MobileBottomBar />

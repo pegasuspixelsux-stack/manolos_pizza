@@ -3,11 +3,14 @@ import { menuItems } from './pizzaMenu';
 
 type Sample = Omit<PropertyInput, 'agentId'>;
 
+/** Promo images (public/hero_images). */
+const PROMO_IMAGES = ['/hero_images/promos_octubre.png', '/hero_images/hamburguer_especial.png', '/hero_images/tortugon_sale.png'];
+
 /**
  * The menu items (src/data/pizzaMenu.ts) in the shape of the database. The dashboard button "Importar artículos de
  * muestra" loads these, and the catalogue shows them while the database has no items yet.
  */
-export const sampleProperties: Sample[] = menuItems.map((m) => ({
+const menuSamples: Sample[] = menuItems.map((m) => ({
   title: m.title,
   description: m.description,
   type: m.category,
@@ -26,3 +29,19 @@ export const sampleProperties: Sample[] = menuItems.map((m) => ({
   location: { city: '', country: '' },
   specs: { bedrooms: 0, bathrooms: 0, areaM2: 0 },
 }));
+
+/**
+ * Promo 1, 2 and 3: in the "Promos" category and in the hero slider (featured). They go last so the sample item
+ * numbers (/items/sample-N) of the rest of the menu do not change. Edit the price and text in the dashboard.
+ */
+const promoSamples: Sample[] = PROMO_IMAGES.map((url, i) => ({
+  ...menuSamples[0],
+  title: `Promo ${i + 1}`,
+  description: `Promoción ${i + 1} de Manolo's Pizza.`,
+  type: 'promos',
+  price: 400,
+  photos: [{ url }],
+  featured: true,
+}));
+
+export const sampleProperties: Sample[] = [...menuSamples, ...promoSamples];

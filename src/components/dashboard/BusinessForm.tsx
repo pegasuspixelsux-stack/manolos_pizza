@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { useAuth } from '@/src/context/AuthContext';
 import { useBusiness } from '@/src/context/BusinessContext';
 import { saveBusinessSettings } from '@/src/services/businessService';
-import { MAX_HERO_IMAGES, type BusinessSettings } from '@/src/types/firestore';
+import { MAX_FAQS, type BusinessSettings } from '@/src/types/firestore';
 import { cardClass, inputClass, labelClass } from '@/src/components/dashboard/ui';
 import ImageUpload from '@/src/components/ImageUpload';
+import { MAX_PROMOS } from '@/src/lib/promos';
 import { DEFAULT_LOGO } from '@/src/components/BrandName';
 
 /**
@@ -21,13 +22,15 @@ export default function BusinessForm() {
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const canEdit = agent?.role === 'admin';
 
-  const set = <K extends Exclude<keyof BusinessSettings, 'heroImages' | 'taxRate' | 'deliveryFee' | 'saveOrders'>>(key: K, value: string) => setForm((f) => ({ ...f, [key]: value }));
+  const set = <K extends Exclude<keyof BusinessSettings, 'heroImages' | 'faqs' | 'taxRate' | 'deliveryFee' | 'saveOrders'>>(key: K, value: string) => setForm((f) => ({ ...f, [key]: value }));
   const setNumber = (key: 'taxRate' | 'deliveryFee', text: string, max: number) => {
     const n = Number(text.replace(',', '.'));
     setForm((f) => ({ ...f, [key]: Number.isFinite(n) && n >= 0 ? Math.min(n, max) : 0 }));
   };
-  const addHeroImage = (url: string) => setForm((f) => ({ ...f, heroImages: [...f.heroImages, url].slice(0, MAX_HERO_IMAGES) }));
-  const removeHeroImage = (i: number) => setForm((f) => ({ ...f, heroImages: f.heroImages.filter((_, j) => j !== i) }));
+  const setFaq = (i: number, patch: Partial<{ q: string; a: string }>) =>
+    setForm((f) => ({ ...f, faqs: f.faqs.map((x, j) => (j === i ? { ...x, ...patch } : x)) }));
+  const addFaq = () => setForm((f) => ({ ...f, faqs: [...f.faqs, { q: '', a: '' }].slice(0, MAX_FAQS) }));
+  const removeFaq = (i: number) => setForm((f) => ({ ...f, faqs: f.faqs.filter((_, j) => j !== i) }));
   const dirty =
     (Object.keys(form) as (keyof BusinessSettings)[]).some((k) => {
       const v = form[k];
@@ -91,33 +94,61 @@ export default function BusinessForm() {
         <p className="text-xs text-[#86868B] mt-1.5">Sale al lado del nombre, arriba y en el pie del sitio. Mejor una imagen cuadrada con fondo transparente (PNG).</p>
       </div>
       <div>
-        <span className={labelClass}>Fotos del carrusel de la portada</span>
-        {form.heroImages.length > 0 && (
-          <ul className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
-            {form.heroImages.map((url, i) => (
-              <li key={`${url}-${i}`} className="relative aspect-square rounded-xl overflow-hidden border border-[#000000]/10 bg-[#F5F5F7]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" />
-                {canEdit && (
-                  <button
-                    type="button"
-                    onClick={() => removeHeroImage(i)}
-                    aria-label={`Quitar la foto ${i + 1}`}
-                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/65 text-white text-sm leading-none hover:bg-black"
-                  >
-                    ×
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+        <span className={labelClass}>Imagen de «Quiénes somos»</span>
+        <div className="flex items-center gap-4">
+          {form.nosotrosImage && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={form.nosotrosImage} alt="Imagen actual de Quiénes somos" className="h-20 w-20 rounded-xl object-cover" />
+          )}
+          <div className="space-y-2">
+            {canEdit && <ImageUpload folder="manolos_pizza/branding" onUploaded={({ url }) => set('nosotrosImage', url)} onError={(text) => setMessage({ ok: false, text })} />}
+            {canEdit && form.nosotrosImage && (
+              <button type="button" onClick={() => set('nosotrosImage', '')} className="text-xs underline underline-offset-2 text-[#515154] hover:text-[#1D1D1F]">
+                Quitar la imagen
+              </button>
+            )}
+          </div>
+        </div>
+        <p className="text-xs text-[#86868B] mt-1.5">Se ve junto al texto de «Quiénes somos». Mejor una foto cuadrada.</p>
+      </div>
+      <div>
+        <label htmlFor="b-nos-title" className={labelClass}>Quiénes somos: título</label>
+        <input id="b-nos-title" className={inputClass} value={form.nosotrosTitle} disabled={!canEdit} maxLength={200} onChange={(e) => set('nosotrosTitle', e.target.value)} placeholder="Quiénes somos: la auténtica pizza por metro en Maldonado." />
+      </div>
+      <div>
+        <label htmlFor="b-nos-text" className={labelClass}>Quiénes somos: texto</label>
+        <textarea id="b-nos-text" className={`${inputClass} resize-y`} rows={6} value={form.nosotrosText} disabled={!canEdit} maxLength={1500} onChange={(e) => set('nosotrosText', e.target.value)} placeholder="Separá los párrafos con una línea en blanco. Vacío = el texto por defecto." />
+      </div>
+      <div>
+        <label htmlFor="b-hero-title" className={labelClass}>Portada: título</label>
+        <input id="b-hero-title" className={inputClass} value={form.heroTitle} disabled={!canEdit} maxLength={120} onChange={(e) => set('heroTitle', e.target.value)} placeholder="La auténtica pizza por metro de Maldonado" />
+      </div>
+      <div>
+        <label htmlFor="b-hero-text" className={labelClass}>Portada: texto</label>
+        <textarea id="b-hero-text" className={`${inputClass} resize-y`} rows={3} value={form.heroText} disabled={!canEdit} maxLength={400} onChange={(e) => set('heroText', e.target.value)} placeholder="Texto bajo las promos. Vacío = el texto por defecto." />
+        <p className="text-xs text-[#86868B] mt-1.5">Las diapositivas de promos se agregan desde Artículos: marcá «Agregar al slider de promos» en el artículo (máximo {MAX_PROMOS}).</p>
+      </div>
+      <div>
+        <span className={labelClass}>Preguntas frecuentes (máximo {MAX_FAQS})</span>
+        <ul className="space-y-3">
+          {form.faqs.map((f, i) => (
+            <li key={i} className="rounded-xl border border-[#000000]/10 p-3 space-y-2">
+              <input className={inputClass} aria-label={`Pregunta ${i + 1}`} value={f.q} disabled={!canEdit} maxLength={200} placeholder="Pregunta" onChange={(e) => setFaq(i, { q: e.target.value })} />
+              <textarea className={`${inputClass} resize-y`} aria-label={`Respuesta ${i + 1}`} rows={2} value={f.a} disabled={!canEdit} maxLength={600} placeholder="Respuesta" onChange={(e) => setFaq(i, { a: e.target.value })} />
+              {canEdit && (
+                <button type="button" onClick={() => removeFaq(i)} className="text-xs underline underline-offset-2 text-[#515154] hover:text-[#1D1D1F]">
+                  Quitar esta pregunta
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+        {canEdit && form.faqs.length < MAX_FAQS && (
+          <button type="button" onClick={addFaq} className="mt-2 text-sm font-medium underline underline-offset-2">
+            + Agregar pregunta
+          </button>
         )}
-        {canEdit && form.heroImages.length < MAX_HERO_IMAGES && (
-          <ImageUpload multiple folder="manolos_pizza/hero_images" onUploaded={({ url }) => addHeroImage(url)} onError={(text) => setMessage({ ok: false, text })} />
-        )}
-        <p className="text-xs text-[#86868B] mt-1.5">
-          Cuadradas, hasta {MAX_HERO_IMAGES}. Se ven en el carrusel arriba de la portada, en el orden en que se subieron. Si no hay ninguna se muestran recuadros vacíos.
-        </p>
+        <p className="text-xs text-[#86868B] mt-1.5">Si no hay ninguna se muestran las preguntas por defecto.</p>
       </div>
       <div>
         <label htmlFor="b-address" className={labelClass}>Dirección</label>
