@@ -133,6 +133,15 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   );
   const scrollToItems = () => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
 
+  const tagline = (
+    <div className="px-[10px] text-left">
+      <p className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight leading-tight">La auténtica pizza por metro de Maldonado</p>
+      <p className="mt-2 text-sm md:text-base text-white/75">
+        Hecha al momento con masa de fermentación lenta. Delivery en Maldonado y Punta del Este: elegí tus sabores y pedí por WhatsApp.
+      </p>
+    </div>
+  );
+
   return (
     <div className="page-slide-up min-h-screen pb-24 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
       {/* --- Category pills (no top navigation) --- */}
@@ -159,21 +168,25 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       {/* Hero: fills the first screen (header + slideshow + order button = 100% of the viewport height) */}
       <section
         aria-label="Promos"
-        className="flex flex-col justify-center bg-[#2E0505] min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-24 md:pb-0"
+        className="flex flex-col justify-end md:justify-center bg-[#2E0505] min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:pb-0"
       >
         {/* Phones: square promo slideshow (one full tile plus a sliver of the next) */}
-        <div className="md:hidden">
+        <div className="md:hidden flex-1 flex flex-col justify-center">
           <HeroImageScroller
             className="px-[10px] scroll-pl-[10px] [&_[role=listitem]]:w-[calc(100%-42px)]"
             dotsClassName="mt-3 mb-0"
             autoPlayMs={2000}
           />
+          <div className="mt-4">{tagline}</div>
         </div>
 
         {/* Desktop: full-width promo slider */}
         <PromoHeroSlider />
 
-        <div className="shrink-0 px-[10px] pt-4 pb-3 lg:py-6 flex justify-center">
+        {/* Tablet and desktop: same tagline under the slider */}
+        <div className="hidden md:block shrink-0 pt-4">{tagline}</div>
+
+        <div className="shrink-0 px-[10px] pt-4 pb-0 md:pb-3 lg:py-6 flex justify-center md:translate-y-[5svh]">
           <button
             type="button"
             onClick={scrollToItems}
