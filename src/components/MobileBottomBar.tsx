@@ -15,7 +15,7 @@ export default function MobileBottomBar() {
   const map = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.address || CONTACT_MOCKUP.address)}`;
   const item = 'relative flex-1 h-12 flex items-center justify-center rounded-full text-white hover:bg-white/15 active:scale-95 transition';
   return (
-    <nav aria-label="Acceso rápido" className="md:hidden fixed bottom-[calc(1.75rem+env(safe-area-inset-bottom))] inset-x-[10px] z-40 mx-auto max-w-md">
+    <nav aria-label="Acceso rápido" className="md:hidden fixed bottom-[calc(max(0.5rem,1.75rem-5svh)+env(safe-area-inset-bottom))] inset-x-[10px] z-40 mx-auto max-w-md">
       <div className="flex items-center gap-1 rounded-full bg-white/15 backdrop-blur-xl border border-white/30 p-1 shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
         <button type="button" onClick={() => setOpen(true)} className={item} aria-label={`Abrir carrito, ${count} ${count === 1 ? 'artículo' : 'artículos'}`}>
           <span className="relative">

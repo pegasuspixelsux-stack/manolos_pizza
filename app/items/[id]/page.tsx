@@ -18,6 +18,7 @@ import MobileNavMenu from '@/src/components/MobileNavMenu';
 import SimilarItems, { type SimilarItem } from '@/src/components/SimilarItems';
 import PropertyImage from '@/src/components/PropertyImage';
 import HeroArrow from '@/src/components/HeroArrow';
+import MobileBottomBar from '@/src/components/MobileBottomBar';
 import SwipeSection from '@/src/components/SwipeSection';
 import SiteFooter from '@/src/components/SiteFooter';
 import BrandName from '@/src/components/BrandName';
@@ -102,7 +103,7 @@ export default async function ItemPage({ params }: Props) {
     }));
 
   return (
-    <div className="relative min-h-screen bg-transparent text-white font-sans antialiased">
+    <div className="relative min-h-screen pb-24 md:pb-0 bg-transparent text-white font-sans antialiased">
       <header className="absolute inset-x-0 top-0 z-30 text-white md:static md:text-white md:border-b md:border-white/10 md:bg-[#000000]">
         <div className="max-w-[1440px] mx-auto px-6 h-28 md:h-32 flex items-center justify-between">
           <Link href="/" className="font-semibold text-sm min-[420px]:text-base sm:text-lg tracking-tight"><BrandName bigLogoOnly={108} /></Link>
@@ -237,6 +238,7 @@ export default async function ItemPage({ params }: Props) {
       <SimilarItems title="Más vendidos" items={similar} />
 
       <SiteFooter hideMessageForm />
+      <MobileBottomBar />
     </div>
   );
 }
