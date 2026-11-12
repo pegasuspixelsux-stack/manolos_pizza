@@ -187,7 +187,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       <section
         aria-label="Promos"
         aria-hidden={hero !== 'show'}
-        className={`${hero === 'gone' ? 'hidden' : ''} ${hero === 'leaving' ? '-translate-y-full opacity-0 transition-[transform,opacity] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none' : ''} flex flex-col justify-end md:justify-center bg-transparent min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-[calc(max(0.5rem,1.75rem-5svh)+4.5rem+env(safe-area-inset-bottom))] md:pb-0`}
+        className={`${hero === 'gone' ? 'hidden' : ''} ${hero === 'leaving' ? '-translate-y-full opacity-0 transition-[transform,opacity] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none' : ''} flex flex-col justify-end md:justify-center bg-transparent min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-[calc(max(0.25rem,1.75rem-7svh)+4.5rem+env(safe-area-inset-bottom))] md:pb-0`}
       >
         {/* Phones: square promo slideshow (one full tile plus a sliver of the next) */}
         <div className="md:hidden flex-1 flex flex-col justify-center">
@@ -209,10 +209,10 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           <button
             type="button"
             onClick={enterMenu}
-            className="relative w-full max-w-md lg:max-w-lg rounded-full bg-white text-[#000000] pl-16 pr-20 py-4 lg:py-5 text-lg lg:text-xl font-semibold tracking-tight shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-transform hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="relative w-full max-w-md lg:max-w-lg h-[58px] lg:h-auto rounded-full bg-white text-[#000000] pl-14 pr-16 lg:pl-16 lg:pr-20 lg:py-5 text-lg lg:text-xl font-semibold tracking-tight shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-transform hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             Ordenar ahora
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-[#000000] text-white flex items-center justify-center" aria-hidden="true">
+            <span className="absolute right-1 lg:right-2 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-[#000000] text-white flex items-center justify-center" aria-hidden="true">
               <ArrowRight className="w-6 h-6 lg:w-7 lg:h-7" />
             </span>
           </button>

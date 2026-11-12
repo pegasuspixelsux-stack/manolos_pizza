@@ -115,23 +115,23 @@ export default function BuyBox({
       </div>
       {onPhoto ? (
         // One translucent glass pill: quantity stepper on the left, the add-to-cart button inside it on the right.
-        <div className="flex items-center rounded-full bg-white/50 backdrop-blur-md border border-white/15 p-1 text-white">
+        <div className="flex items-center gap-1 -mx-3.5 md:mx-0 rounded-full bg-white/15 backdrop-blur-xl border border-white/30 p-1 text-white shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
           <div className="flex items-center shrink-0">
             <button
               type="button"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               disabled={qty <= 1}
               aria-label="Disminuir cantidad"
-              className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-30"
+              className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/15 disabled:opacity-30"
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="w-6 text-center text-sm font-medium" aria-live="polite" aria-label={`Cantidad (${quantityNounPlural(mode)})`}>{qty}</span>
+            <span className="w-7 text-center text-sm font-medium" aria-live="polite" aria-label={`Cantidad (${quantityNounPlural(mode)})`}>{qty}</span>
             <button
               type="button"
               onClick={() => setQty((q) => Math.min(999, q + 1))}
               aria-label="Aumentar cantidad"
-              className="w-9 h-9 rounded-full flex items-center justify-center"
+              className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/15"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -139,7 +139,7 @@ export default function BuyBox({
           <button
             type="submit"
             disabled={!inStock}
-            className="flex-1 min-w-0 ml-1 bg-white text-[#000000] py-2.5 px-3 rounded-full text-xs font-medium leading-tight transition-all hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 min-w-0 h-12 bg-white text-[#000000] px-3 rounded-full text-sm font-semibold leading-tight transition-all hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {!inStock ? 'Sin stock' : `Agregar al carrito · ${formatMoney(unitPrice * qty)}`}
           </button>
