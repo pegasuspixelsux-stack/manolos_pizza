@@ -14,6 +14,8 @@ export interface StoredLine {
   qty: number;
   /** Size, toppings and flavor picked for a pizza / empanada line; its `total` is the unit price. */
   selection?: OrderSelection;
+  /** Customer's instructions for this item ("sin cebolla", "bien cocida"…). */
+  note?: string;
 }
 
 interface CartState {
@@ -21,7 +23,7 @@ interface CartState {
   /** Total number of units in the cart (for the badge). */
   count: number;
   /** Adds `qty` of a product; adding the same product in the same unit again increases its quantity. */
-  add: (item: HomeProperty, qty?: number, selection?: OrderSelection) => void;
+  add: (item: HomeProperty, qty?: number, selection?: OrderSelection, note?: string) => void;
   changeQty: (key: string, delta: number) => void;
   remove: (key: string) => void;
   clear: () => void;
@@ -32,9 +34,10 @@ interface CartState {
 const STORAGE_KEY = 'merkado-cart';
 const CartContext = createContext<CartState | null>(null);
 
-const lineKey = (item: HomeProperty, sel?: OrderSelection) =>
+const lineKey = (item: HomeProperty, sel?: OrderSelection, note?: string) =>
   `${item.id}|${item.pricingMode ?? 'por_kilo'}` +
-  (sel ? `|${sel.sizeLabel ?? ''}|${sel.flavor ?? ''}|${[...sel.includedToppings].sort().join(',')}|${[...sel.toppings].sort().join(',')}` : '');
+  (sel ? `|${sel.sizeLabel ?? ''}|${sel.flavor ?? ''}|${[...sel.includedToppings].sort().join(',')}|${[...sel.toppings].sort().join(',')}` : '') +
+  (note ? `|${note}` : '');
 
 function readStored(): StoredLine[] {
   try {
@@ -81,12 +84,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     prevClient.current = clientId;
   }, [clientId]);
 
-  const add = useCallback((item: HomeProperty, qty = 1, selection?: OrderSelection) => {
-    const key = lineKey(item, selection);
+  const add = useCallback((item: HomeProperty, qty = 1, selection?: OrderSelection, noteText?: string) => {
+    const note = noteText?.trim() || undefined;
+    const key = lineKey(item, selection, note);
     setLines((ls) =>
       ls.some((l) => l.key === key)
-        ? ls.map((l) => (l.key === key ? { ...l, qty: Math.min(999, l.qty + qty), item, selection } : l))
-        : [...ls, { key, item, qty: Math.min(999, qty), selection }],
+        ? ls.map((l) => (l.key === key ? { ...l, qty: Math.min(999, l.qty + qty), item, selection, note } : l))
+        : [...ls, { key, item, qty: Math.min(999, qty), selection, note }],
     );
   }, []);
   const changeQty = useCallback(

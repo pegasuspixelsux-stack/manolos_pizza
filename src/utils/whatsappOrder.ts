@@ -7,6 +7,8 @@ export interface OrderMessageLine {
   /** Price of one unit (already includes extra toppings). */
   unitPrice: number;
   selection?: OrderSelection;
+  /** Customer's instructions for this item. */
+  note?: string;
 }
 
 export type Fulfillment = 'delivery' | 'pickup' | 'dinein';
@@ -47,6 +49,7 @@ function itemLines(l: OrderMessageLine, index: number): string[] {
     );
   }
   if (s) out.push(`   Precio base: ${formatMoney(s.basePrice)}`);
+  if (l.note) out.push(`   Instrucciones: ${l.note}`);
   out.push(`   Cantidad: ${l.qty} × ${formatMoney(l.unitPrice)}`);
   out.push(`   Total del ítem: ${formatMoney(l.unitPrice * l.qty)}`);
   return out;

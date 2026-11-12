@@ -25,7 +25,7 @@ export default function ClientPortal() {
     let cancelled = false;
     void openWithToken(token).then((r) => {
       if (cancelled) return;
-      if (r === 'ok') router.replace('/items');
+      if (r === 'ok') router.replace('/');
       else setResult(r);
     });
     return () => {

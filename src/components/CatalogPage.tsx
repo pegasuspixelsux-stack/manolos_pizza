@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ArrowRight, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
 import { typeLabels } from '@/src/utils/format';
 import PropertyImage from '@/src/components/PropertyImage';
@@ -16,6 +16,8 @@ import MobileNavMenu from '@/src/components/MobileNavMenu';
 import InstallButton from '@/src/components/InstallButton';
 import MobileBottomBar from '@/src/components/MobileBottomBar';
 import HomeSections from '@/src/components/HomeSections';
+import HeroImageScroller from '@/src/components/HeroImageScroller';
+import PromoHeroSlider from '@/src/components/PromoHeroSlider';
 import { CategoryPills, getCategories } from '@/src/components/ItemsShowcase';
 
 type Sort = 'relevance' | 'price-asc' | 'price-desc' | 'name';
@@ -44,7 +46,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   const items = baseItems;
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
-  // Footer links open the catalog already filtered: /items?category=<id>.
+  // Footer links open the catalog already filtered: /?category=<id>.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const c = params.get('category');
@@ -132,7 +134,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   const scrollToItems = () => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
 
   return (
-    <div className="page-slide-up min-h-screen pb-14 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
+    <div className="page-slide-up min-h-screen pb-24 md:pb-0 bg-[#2E0505] text-white selection:bg-white selection:text-[#480A0A] font-sans antialiased">
       {/* --- Category pills (no top navigation) --- */}
       <header className="sticky top-0 z-50 bg-[#2E0505] text-white">
         <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
@@ -149,40 +151,68 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
           <img src={logo || DEFAULT_LOGO} alt="Manolo's Pizza" className="h-24 w-24 md:h-[108px] md:w-[108px] object-contain" /></Link>
           <SiteNavLinks light />
           <div className="flex items-center gap-1">
-            <span className="hidden lg:contents"><InstallButton /></span>
             <CartButton />
           </div>
         </div>
-        {/* Category pills  */}
-        <div>
-          <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
-            <Link href="/" className="shrink-0 inline-flex items-center gap-1.5 text-sm text-white/85 hover:text-white transition-colors">
-              <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Inicio
-            </Link>
-            <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} className="mx-auto" />
-            {/* Desktop: the search sits on the right of this row */}
-            <form
-              role="search"
-              aria-label="Buscar en el menú"
-              onSubmit={(e) => {
-                e.preventDefault();
-                scrollToItems();
-              }}
-              className="hidden md:flex shrink-0 w-64 lg:w-72 items-center gap-2 rounded-full border border-white/25 px-4 h-10"
-            >
-              <Search className="w-4 h-4 text-white/70 shrink-0" aria-hidden="true" />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => change(setQuery)(e.target.value)}
-                placeholder="Buscar…"
-                aria-label="Buscar artículos por nombre, categoría o precio"
-                className="min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/50 outline-none"
-              />
-            </form>
-          </div>
-        </div>
       </header>
+
+      {/* Hero: fills the first screen (header + slideshow + order button = 100% of the viewport height) */}
+      <section
+        aria-label="Promos"
+        className="flex flex-col justify-center bg-[#2E0505] min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-24 md:pb-0"
+      >
+        {/* Phones: square promo slideshow (one full tile plus a sliver of the next) */}
+        <div className="md:hidden">
+          <HeroImageScroller
+            className="px-[10px] scroll-pl-[10px] [&_[role=listitem]]:w-[calc(100%-42px)]"
+            dotsClassName="mt-3 mb-0"
+            autoPlayMs={2000}
+          />
+        </div>
+
+        {/* Desktop: full-width promo slider */}
+        <PromoHeroSlider />
+
+        <div className="shrink-0 px-[10px] pt-4 pb-3 lg:py-6 flex justify-center">
+          <button
+            type="button"
+            onClick={scrollToItems}
+            className="relative w-full max-w-md lg:max-w-lg rounded-full bg-white text-[#2E0505] pl-16 pr-20 py-4 lg:py-5 text-lg lg:text-xl font-semibold tracking-tight shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-transform hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            Ordenar ahora
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-[#2E0505] text-white flex items-center justify-center" aria-hidden="true">
+              <ArrowRight className="w-6 h-6 lg:w-7 lg:h-7" />
+            </span>
+          </button>
+        </div>
+      </section>
+
+      {/* Category pills  */}
+      <div className="bg-[#2E0505]">
+        <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
+          <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} className="mx-auto" />
+          {/* Desktop: the search sits on the right of this row */}
+          <form
+            role="search"
+            aria-label="Buscar en el menú"
+            onSubmit={(e) => {
+              e.preventDefault();
+              scrollToItems();
+            }}
+            className="hidden md:flex shrink-0 w-64 lg:w-72 items-center gap-2 rounded-full border border-white/25 px-4 h-10"
+          >
+            <Search className="w-4 h-4 text-white/70 shrink-0" aria-hidden="true" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => change(setQuery)(e.target.value)}
+              placeholder="Buscar…"
+              aria-label="Buscar artículos por nombre, categoría o precio"
+              className="min-w-0 flex-1 bg-transparent text-sm text-white placeholder:text-white/50 outline-none"
+            />
+          </form>
+        </div>
+      </div>
 
       <h1 className="sr-only">Menú</h1>
 
@@ -361,15 +391,25 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
               </div>
 
               <div className="absolute top-3 right-3 md:top-5 md:right-5 z-10 flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => addToCart(prop)}
-                  disabled={prop.inStock === false}
-                  aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
-                  className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
+                {prop.href ? (
+                  <Link
+                    href={prop.href}
+                    aria-label={`Elegir ${prop.title}`}
+                    className="relative z-[6] w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => addToCart(prop)}
+                    disabled={prop.inStock === false}
+                    aria-label={prop.inStock === false ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
+                    className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <div className="relative z-10 text-white pointer-events-none">
@@ -415,7 +455,8 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                   const soldOut = prop.inStock === false;
                   return (
                     <div key={prop.id}>
-              <div className="flex items-center gap-3 overflow-hidden bg-white/10 pr-2.5">
+              <div className="relative flex items-center gap-3 overflow-hidden bg-white/10 pr-2.5">
+                {prop.href && <Link href={prop.href} aria-label={`Ver ${prop.title}`} className="absolute inset-0 z-[5]" />}
                 {prop.href ? (
                   <Link
                     href={prop.href}
@@ -446,15 +487,25 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => addToCart(prop)}
-                    disabled={soldOut}
-                    aria-label={soldOut ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
-                    className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition disabled:opacity-40"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+                  {prop.href && !soldOut ? (
+                    <Link
+                      href={prop.href}
+                      aria-label={`Elegir ${prop.title}`}
+                      className="relative z-[6] w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => addToCart(prop)}
+                      disabled={soldOut}
+                      aria-label={soldOut ? `${prop.title} está sin stock` : `Agregar ${prop.title} al carrito`}
+                      className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:bg-white/30 active:scale-95 transition disabled:opacity-40"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
                     </div>

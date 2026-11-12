@@ -98,9 +98,9 @@ export default function SiteFooter({ hideMessageForm = false }: { hideMessageFor
           <p className="text-sm md:text-xs uppercase tracking-widest text-white/75 font-semibold">Menú</p>
           <ul className="space-y-3 text-sm text-white font-light">
             {categories.slice(0, 4).map((c) => (
-              <li key={c.id}><Link href={`/items?category=${encodeURIComponent(c.id)}`} className={linkClass}>{c.name}</Link></li>
+              <li key={c.id}><Link href={`/?category=${encodeURIComponent(c.id)}`} className={linkClass}>{c.name}</Link></li>
             ))}
-            <li><Link href="/items" className={`${linkClass} font-medium`}>Ver todo el menú →</Link></li>
+            <li><Link href="/" className={`${linkClass} font-medium`}>Ver todo el menú →</Link></li>
           </ul>
         </div>
 
@@ -108,10 +108,10 @@ export default function SiteFooter({ hideMessageForm = false }: { hideMessageFor
         <div className="space-y-4">
           <p className="text-sm md:text-xs uppercase tracking-widest text-white/75 font-semibold">Empresa</p>
           <ul className="space-y-3 text-sm text-white font-light">
-            <li><Link href="/inicio#vision" className={linkClass}>Quiénes somos</Link></li>
-            <li><Link href="/inicio#faq" className={linkClass}>Preguntas frecuentes</Link></li>
-            <li><Link href="/inicio#contact" className={linkClass}>Mayoristas</Link></li>
-            <li><Link href="/inicio#contact" className={linkClass}>Contacto</Link></li>
+            <li><Link href="/#vision" className={linkClass}>Quiénes somos</Link></li>
+            <li><Link href="/#faq" className={linkClass}>Preguntas frecuentes</Link></li>
+            <li><Link href="/#contact" className={linkClass}>Mayoristas</Link></li>
+            <li><Link href="/#contact" className={linkClass}>Contacto</Link></li>
           </ul>
         </div>
 

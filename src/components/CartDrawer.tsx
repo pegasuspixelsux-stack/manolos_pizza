@@ -22,6 +22,8 @@ export interface CartLine {
   key?: string;
   /** Size, toppings and flavor of a pizza / empanada line. */
   selection?: OrderSelection;
+  /** Customer's instructions for this item. */
+  note?: string;
 }
 
 /** One line of text describing a selection, e.g. "½ metro · Gusto: Panceta · Extra: Jamón". */
@@ -128,7 +130,7 @@ export default function CartDrawer({
     setFormError(null);
 
     const text = buildOrderMessage(
-      lines.map((l) => ({ title: l.item.title, qty: l.qty, unitPrice: lineUnit(l), selection: l.selection })),
+      lines.map((l) => ({ title: l.item.title, qty: l.qty, unitPrice: lineUnit(l), selection: l.selection, note: l.note })),
       {
         orderNumber,
         name,
@@ -170,7 +172,7 @@ export default function CartDrawer({
         form.notes.trim() && `Instrucciones especiales: ${form.notes.trim()}`,
       ];
       for (const line of lines) {
-        const { item, qty, selection } = line;
+        const { item, qty, selection, note } = line;
         const unit = lineUnit(line);
         batch.set(doc(collection(db, 'leads')), {
           orderId,
@@ -188,6 +190,7 @@ export default function CartDrawer({
           channel: 'WhatsApp',
           message: [
             `${item.title}${selection ? ` (${describeSelection(selection)})` : ''} - ${quantityLabel(qty, item.pricingMode)} @ ${priceWithShortUnit(unit, item.pricingMode)} · Subtotal: ${formatMoney(unit * qty)}`,
+            note && `Instrucciones del ítem: ${note}`,
             ...deliveryLines,
           ]
             .filter(Boolean)
@@ -250,6 +253,7 @@ export default function CartDrawer({
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{item.title}</p>
                         {selection && <p className="text-xs text-white/75 leading-snug">{describeSelection(selection)}</p>}
+                        {line.note && <p className="text-xs text-white/75 leading-snug italic">“{line.note}”</p>}
                         <p className="text-xs text-white/75">
                           {priceWithShortUnit(unit, item.pricingMode)}
                         </p>

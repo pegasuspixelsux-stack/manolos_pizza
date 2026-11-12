@@ -339,7 +339,7 @@ export default function ItemsShowcase({
 
       {/* Load more + count + link to the full catalogue */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 items-center gap-4 text-sm">
-        <Link href="/items" className="justify-self-center md:justify-self-start inline-flex items-center gap-2 font-medium text-white hover:text-white/80 transition-colors">
+        <Link href="/" className="justify-self-center md:justify-self-start inline-flex items-center gap-2 font-medium text-white hover:text-white/80 transition-colors">
           <span>Ver todo el menú</span>
           <ArrowUpRight className="w-4 h-4" />
         </Link>

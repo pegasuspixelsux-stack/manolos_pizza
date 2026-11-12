@@ -130,7 +130,7 @@ export default async function ItemPage({ params }: Props) {
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/70 from-25% via-black/35 via-55% to-transparent" aria-hidden="true" />
           <div className="absolute inset-x-0 top-0 -bottom-0.5 bg-gradient-to-t from-[#2E0505] from-22% via-[#2E0505]/95 via-36% to-transparent to-58%" aria-hidden="true" />
           <Link
-            href="/items"
+            href="/"
             className="absolute top-[7.75rem] left-4 z-10 inline-flex items-center gap-2 text-sm font-medium text-white bg-black/40 backdrop-blur px-3 py-1.5 rounded-full"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Menú
@@ -173,7 +173,7 @@ export default async function ItemPage({ params }: Props) {
         </div>
 
         <Link
-          href="/items"
+          href="/"
           className="hidden md:inline-flex md:col-span-2 justify-self-start md:mt-[20svh] md:-mb-10 items-center gap-2 text-sm font-medium text-white/75 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Volver al Menú

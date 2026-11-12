@@ -120,7 +120,7 @@ export default function FavoritesPage() {
           <div className="rounded-2xl bg-transparent px-6 py-10 text-center text-sm space-y-3">
             <p className="font-medium">Todavía no marcaste favoritos.</p>
             <p className="text-white/75 font-light">Tocá el corazón en cualquier producto para guardarlo acá.</p>
-            <Link href="/items" className="inline-block rounded-full bg-white text-[#2E0505] px-6 py-2.5 text-xs font-medium hover:bg-white/90 transition-colors">
+            <Link href="/" className="inline-block rounded-full bg-white text-[#2E0505] px-6 py-2.5 text-xs font-medium hover:bg-white/90 transition-colors">
               Ver el menú
             </Link>
           </div>
@@ -132,11 +132,11 @@ export default function FavoritesPage() {
                 const q = qtyOf(id);
                 return (
                   <li key={id} className="flex items-center gap-3 p-4">
-                    <Link href={item.href ?? '/items'} className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0">
+                    <Link href={item.href ?? '/'} className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0">
                       <PropertyImage demoFallback src={item.image} alt={item.title} variant="thumb" sizes="64px" />
                     </Link>
                     <div className="flex-1 min-w-0">
-                      <Link href={item.href ?? '/items'} className="text-sm font-medium truncate block hover:underline">{item.title}</Link>
+                      <Link href={item.href ?? '/'} className="text-sm font-medium truncate block hover:underline">{item.title}</Link>
                       <p className="text-xs text-white/75">Hoy: {priceWithShortUnit(unitPriceOf(item), item.pricingMode)}</p>
                       <div className="mt-2 flex items-center gap-2">
                         <button type="button" onClick={() => change(id, -1)} disabled={q <= 1} aria-label={`Disminuir ${item.title}`} className="w-7 h-7 rounded-full bg-transparent flex items-center justify-center disabled:opacity-30">

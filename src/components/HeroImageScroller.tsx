@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ImageIcon } from 'lucide-react';
 import { useBusiness } from '@/src/context/BusinessContext';
 import { useHeroFolderImages } from '@/src/context/HeroImagesContext';
@@ -19,10 +19,13 @@ export default function HeroImageScroller({
   placeholders = 3,
   className = '',
   dotsClassName = 'mt-3 mb-4 md:mb-5',
+  autoPlayMs = 0,
 }: {
   placeholders?: number;
   className?: string;
   dotsClassName?: string;
+  /** Advance to the next slide every this many ms (looping back to the first); 0 = off. Pauses while the user is touching it. */
+  autoPlayMs?: number;
 }) {
   const business = useBusiness();
   const folderImages = useHeroFolderImages();
@@ -43,12 +46,24 @@ export default function HeroImageScroller({
     setActive(atEnd ? count - 1 : Math.min(count - 1, Math.round(el.scrollLeft / (s || 1))));
   }, [count]);
 
+  const [paused, setPaused] = useState(false);
+
   const goTo = (i: number) => ref.current?.scrollTo({ left: i * (step() + GAP), behavior: 'smooth' });
+
+  useEffect(() => {
+    if (!autoPlayMs || paused || count < 2) return;
+    const t = setInterval(() => goTo(active >= count - 1 ? 0 : active + 1), autoPlayMs);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- goTo only reads refs
+  }, [autoPlayMs, paused, count, active]);
 
   return (
     <>
       <div
         ref={ref}
+        onPointerDown={() => setPaused(true)}
+        onPointerUp={() => setPaused(false)}
+        onPointerCancel={() => setPaused(false)}
         onScroll={onScroll}
         role="list"
         aria-label="Galería de fotos"

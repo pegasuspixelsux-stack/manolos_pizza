@@ -45,7 +45,7 @@ export default function MobileNavMenu({ glass, align = 'right' }: { glass?: bool
           aria-label="Menú principal"
           className={`absolute ${align === 'left' ? 'left-0' : 'right-0'} top-full mt-2 w-56 rounded-[12px] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.35)] py-2 z-50`}
         >
-          {[{ href: '/', label: 'Inicio' }, ...navLinks, { href: '/dashboard', label: 'Administración' }].map((l) => (
+          {[...navLinks, { href: '/dashboard', label: 'Administración' }].map((l) => (
             <Link key={l.label} href={l.href} onClick={() => setOpen(false)} className={linkClass}>
               {l.label}
             </Link>

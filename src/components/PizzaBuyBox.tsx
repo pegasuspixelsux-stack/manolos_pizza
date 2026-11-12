@@ -48,6 +48,7 @@ export default function PizzaBuyBox({
   const [flavor, setFlavor] = useState(product.flavors?.[0] ?? '');
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [note, setNote] = useState('');
 
   const includedCount = product.includedToppings ?? 0;
   const size = sizes?.find((s) => s.id === sizeId) ?? sizes?.[0];
@@ -97,6 +98,7 @@ export default function PizzaBuyBox({
       },
       qty,
       selection,
+      note,
     );
     setAdded(true);
   };
@@ -216,6 +218,21 @@ export default function PizzaBuyBox({
         </div>
       </div>
 
+      {!onAdd && (
+        <div>
+          <label htmlFor="item-note" className={labelClass}>Instrucciones (opcional)</label>
+          <textarea
+            id="item-note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={2}
+            maxLength={300}
+            placeholder="Ej.: sin cebolla, bien cocida, cortada en cuadrados…"
+            className="w-full resize-none rounded-xl border border-white/25 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-white"
+          />
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={!inStock || missingIncluded}
@@ -244,7 +261,7 @@ export default function PizzaBuyBox({
             >
               Ver carrito y pedir
             </button>
-            <Link href="/items" className="flex-1 text-center border border-white/30 py-3 rounded-full text-sm font-medium hover:bg-white">
+            <Link href="/" className="flex-1 text-center border border-white/30 py-3 rounded-full text-sm font-medium hover:bg-white">
               Seguir pidiendo
             </Link>
           </div>

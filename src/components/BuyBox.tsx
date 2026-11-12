@@ -42,6 +42,7 @@ export default function BuyBox({
 
   const { add, setOpen } = useCart();
   const [added, setAdded] = useState<{ qty: number; mode: PricingMode } | null>(null);
+  const [note, setNote] = useState('');
 
   const addToCart = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +64,8 @@ export default function BuyBox({
         inStock: true,
       },
       qty,
+      undefined,
+      note,
     );
     setAdded({ qty, mode });
   };
@@ -83,7 +86,7 @@ export default function BuyBox({
             Cerrar pedido
           </button>
           <Link
-            href="/items"
+            href="/"
             className="flex-1 text-center border border-white/30 py-3.5 rounded-full text-sm font-medium hover:bg-white transition-all"
           >
             Seguir comprando
@@ -98,6 +101,18 @@ export default function BuyBox({
 
   return (
     <form onSubmit={addToCart} className="space-y-5">
+      <div>
+        <label htmlFor="item-note" className={labelClass}>Instrucciones (opcional)</label>
+        <textarea
+          id="item-note"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows={2}
+          maxLength={300}
+          placeholder="Ej.: sin cebolla, bien cocida, cortada en cuadrados…"
+          className="w-full resize-none rounded-xl border border-white/25 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-white"
+        />
+      </div>
       {onPhoto ? (
         // One translucent glass pill: quantity stepper on the left, the add-to-cart button inside it on the right.
         <div className="flex items-center rounded-full bg-white/50 backdrop-blur-md border border-white/15 p-1 text-white">
