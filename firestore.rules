@@ -57,7 +57,7 @@ service cloud.firestore {
         && (!('looseAllowed' in p) || p.looseAllowed is bool)
         && (!('boxPrice' in p) || (p.boxPrice is number && p.boxPrice >= 0))
         && (!('unitPrice' in p) || (p.unitPrice is number && p.unitPrice >= 0))
-        && (!('pricingMode' in p) || p.pricingMode in ['por_kilo', 'por_caja', 'por_atado', 'por_unidad', 'por_bolson'])
+        && (!('pricingMode' in p) || p.pricingMode in ['por_kilo', 'por_caja', 'por_atado', 'por_unidad', 'por_bolson', 'por_cuarto', 'por_medio', 'por_tres_cuartos', 'por_metro'])
         && p.agentId is string;
     }
 

@@ -6,8 +6,8 @@ import { X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import ImageUpload from '../ImageUpload';
 import PropertyImage from '../PropertyImage';
-import { DELIVERY_AREAS, PRICING_MODES, type DeliveryArea, type PricingMode, type Property, type PropertyInput, type PropertyPhoto } from '../../types/firestore';
-import { unitLabels, weightUnits, pricingModeLabels, pricingSuffix } from '../../utils/format';
+import { DELIVERY_AREAS, PRICING_CHOICES, type DeliveryArea, type PricingMode, type Property, type PropertyInput, type PropertyPhoto } from '../../types/firestore';
+import { pricingModeLabels, pricingSuffix } from '../../utils/format';
 import { useCategories } from '../../hooks/useCategories';
 import { getActiveProperties } from '../../services/dbService';
 import { MAX_PROMOS } from '../../lib/promos';
@@ -39,11 +39,11 @@ interface FormState {
 const emptyForm: FormState = {
   title: '',
   description: '',
-  weight: '',
-  unit: 'kg',
+  weight: '1',
+  unit: 'each',
   price: '',
   wholesalePrice: '',
-  pricingMode: 'por_kilo',
+  pricingMode: 'por_unidad',
   boxWeight: '',
   unitWeight: '',
   boxUnits: '',
@@ -106,28 +106,8 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
     if (!form.photo) return 'Subí una imagen.';
     if (!form.title.trim()) return 'Agregá un título.';
     if (!form.description.trim()) return 'Agregá una descripción.';
-    const weight = Number(form.weight);
-    if (form.weight === '' || Number.isNaN(weight) || weight <= 0) return 'Ingresá un peso mayor a 0.';
     const price = Number(form.price);
     if (form.price === '' || Number.isNaN(price) || price < 0) return 'Ingresá un precio válido.';
-    if (form.wholesalePrice !== '') {
-      const w = Number(form.wholesalePrice);
-      if (Number.isNaN(w) || w < 0) return 'Ingresá un precio mayorista válido.';
-      if (w > price) return 'El precio mayorista no puede ser mayor al minorista.';
-    }
-    for (const [value, label] of [
-      [form.boxWeight, 'el peso por caja'],
-      [form.unitWeight, 'el peso por unidad'],
-    ] as const) {
-      if (value !== '' && !(Number(value) > 0)) return `Ingresá ${label} (mayor a 0).`;
-    }
-    if (form.boxUnits !== '' && !(Number.isInteger(Number(form.boxUnits)) && Number(form.boxUnits) >= 1)) return 'Las unidades por caja deben ser un número entero de 1 o más.';
-    for (const [value, label] of [
-      [form.boxPrice, 'el precio por caja'],
-      [form.unitPrice, 'el precio por unidad'],
-    ] as const) {
-      if (value !== '' && !(Number(value) >= 0)) return `Ingresá ${label} válido.`;
-    }
     if (form.deliveryAreas.length === 0) return 'Elegí al menos una zona de entrega.';
     if (!form.category) return 'Elegí una categoría.';
     if (form.onSale) {
@@ -162,17 +142,18 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
         title: form.title.trim(),
         description: form.description.trim(),
         type: form.category,
-        weight: Number(form.weight),
-        unit: form.unit,
+        weight: Number(form.weight) > 0 ? Number(form.weight) : 1,
+        unit: form.unit || 'each',
         price: Number(form.price),
-        wholesalePrice: form.wholesalePrice === '' ? undefined : Number(form.wholesalePrice),
+        wholesalePrice: undefined,
         pricingMode: form.pricingMode,
-        boxWeight: form.boxWeight === '' ? undefined : Number(form.boxWeight),
-        unitWeight: form.unitWeight === '' ? undefined : Number(form.unitWeight),
-        boxUnits: form.boxUnits === '' ? undefined : Number(form.boxUnits),
-        looseAllowed: form.looseAllowed ? true : undefined,
-        boxPrice: form.boxPrice === '' ? undefined : Number(form.boxPrice),
-        unitPrice: form.unitPrice === '' ? undefined : Number(form.unitPrice),
+        // One price only: no wholesale price, boxes or unit prices.
+        boxWeight: undefined,
+        unitWeight: undefined,
+        boxUnits: undefined,
+        looseAllowed: undefined,
+        boxPrice: undefined,
+        unitPrice: undefined,
         deliveryAreas: form.deliveryAreas,
         inStock: form.inStock,
         // null clears a sale when editing (undefined keys are dropped by the service)
@@ -240,75 +221,21 @@ export default function PropertyForm({ initial, submitLabel, onSubmit }: Propert
           <textarea id="i-desc" rows={4} className={`${inputClass} resize-none`} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Origen, sabor, cómo se cultiva y se empaca…" />
         </div>
 
-        <div className="grid grid-cols-3 gap-4 md:gap-6">
-          <div className="col-span-2">
-            <label htmlFor="i-weight" className={labelClass}>Peso del paquete</label>
-            <input id="i-weight" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.weight} onChange={(e) => set('weight', e.target.value)} placeholder="12" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+          <div>
+            <label htmlFor="i-price" className={labelClass}>Precio ($ {pricingSuffix(form.pricingMode)})</label>
+            <input id="i-price" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="400" />
           </div>
           <div>
-            <label htmlFor="i-unit" className={labelClass}>Unidad</label>
-            <select id="i-unit" className={inputClass} value={form.unit} onChange={(e) => set('unit', e.target.value)}>
-              {weightUnits.map((u) => <option key={u} value={u}>{unitLabels[u]}</option>)}
+            <label htmlFor="i-mode" className={labelClass}>El precio es</label>
+            <select id="i-mode" className={inputClass} value={form.pricingMode} onChange={(e) => set('pricingMode', e.target.value as PricingMode)}>
+              {/* An item saved with an older unit keeps showing it until it is changed. */}
+              {!PRICING_CHOICES.includes(form.pricingMode) && <option value={form.pricingMode}>{pricingModeLabels[form.pricingMode]}</option>}
+              {PRICING_CHOICES.map((m) => <option key={m} value={m}>{pricingModeLabels[m]}</option>)}
             </select>
           </div>
         </div>
-
-        <div>
-          <label htmlFor="i-mode" className={labelClass}>Modalidad de precio</label>
-          <select id="i-mode" className={inputClass} value={form.pricingMode} onChange={(e) => set('pricingMode', e.target.value as PricingMode)}>
-            {PRICING_MODES.map((m) => <option key={m} value={m}>{pricingModeLabels[m]}</option>)}
-          </select>
-          <p className="text-xs text-[#515154] mt-1.5">Los precios de abajo son por esta unidad. Si el peso del paquete está en kg, el sitio muestra también el equivalente (por kilo o por caja).</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-          <div>
-            <label htmlFor="i-price" className={labelClass}>Precio minorista ($ {pricingSuffix(form.pricingMode)})</label>
-            <input id="i-price" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="180" />
-          </div>
-          <div>
-            <label htmlFor="i-wholesale" className={labelClass}>Precio mayorista ($ {pricingSuffix(form.pricingMode)}, opcional)</label>
-            <input id="i-wholesale" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.wholesalePrice} onChange={(e) => set('wholesalePrice', e.target.value)} placeholder="150" />
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div>
-            <span className={labelClass}>Caja y unidades</span>
-            <p className="text-xs text-[#515154] -mt-1">
-              Los clientes mayoristas piden cajas. Indicá cuántas {form.pricingMode === 'por_atado' ? 'atados' : 'unidades'} trae la caja y cuánto pesa: el precio por unidad y por caja se calculan solos desde el precio de arriba, o fijá un precio propio.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:gap-6">
-            <div>
-              <label htmlFor="i-boxw" className={labelClass}>Peso por caja (kg)</label>
-              <input id="i-boxw" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.boxWeight} onChange={(e) => set('boxWeight', e.target.value)} placeholder="10" />
-            </div>
-            <div>
-              <label htmlFor="i-unitw" className={labelClass}>Peso por unidad (kg)</label>
-              <input id="i-unitw" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.unitWeight} onChange={(e) => set('unitWeight', e.target.value)} placeholder="0.25" />
-            </div>
-            <div>
-              <label htmlFor="i-boxu" className={labelClass}>{form.pricingMode === 'por_atado' ? 'Atados por caja' : 'Unidades por caja'}</label>
-              <input id="i-boxu" type="number" min={1} step={1} inputMode="numeric" className={inputClass} value={form.boxUnits} onChange={(e) => set('boxUnits', e.target.value)} placeholder="12" />
-            </div>
-            <div>
-              <label htmlFor="i-boxp" className={labelClass}>Precio por caja ($)</label>
-              <input id="i-boxp" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.boxPrice} onChange={(e) => set('boxPrice', e.target.value)} placeholder="Automático" />
-            </div>
-            <div>
-              <label htmlFor="i-unitp" className={labelClass}>Precio por unidad ($)</label>
-              <input id="i-unitp" type="number" min={0} step="any" inputMode="decimal" className={inputClass} value={form.unitPrice} onChange={(e) => set('unitPrice', e.target.value)} placeholder="Automático" />
-            </div>
-          </div>
-          <label className="flex items-start gap-3 rounded-xl bg-[#F5F5F7] px-4 py-3 text-sm cursor-pointer">
-            <input type="checkbox" className="mt-0.5" checked={form.looseAllowed} onChange={(e) => set('looseAllowed', e.target.checked)} />
-            <span>
-              <span className="font-medium">Se puede pedir suelto (excepción)</span>
-              <span className="block text-xs text-[#515154] mt-0.5">Por defecto los clientes piden cajas. Con esto también pueden pedir por unidad (o atado) este producto.</span>
-            </span>
-          </label>
-        </div>
+        <p className="text-xs text-[#515154] -mt-3">Un solo precio por artículo: por unidad, o por ¼, ½, ¾ o 1 metro.</p>
 
         <fieldset>
           <legend className={labelClass}>Zona de entrega</legend>

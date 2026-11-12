@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Mail, MessageCircle, Phone, Printer } from 'lucide-react';
-import OrderModal, { orderStatusLabels } from './dashboard/OrderModal';
+import OrderModal, { orderBoxClass, orderStatusClass, orderStatusLabels } from './dashboard/OrderModal';
 import { getProperty, updateLeadDetails, updateLeadStatus } from '../services/dbService';
 import { useDrivers } from '../hooks/useDrivers';
 import { isAssignable } from '../services/driversService';
@@ -110,7 +110,7 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
           {error}
         </p>
       )}
-      <ul className="divide-y divide-[#000000]/5">
+      <ul className="space-y-3 p-3 md:p-4">
         {groups.map((group) => {
           const lead = group.primary;
           const names = group.lines.map((l) => titleFor(l.propertyId)).filter(Boolean);
@@ -125,7 +125,7 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
           const notes = deliveryNotes(lead.message);
 
           return (
-            <li key={group.key} className="p-5 space-y-3">
+            <li key={group.key} className={`p-5 space-y-3 rounded-2xl border ${orderBoxClass[group.status]}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-medium truncate">{lead.clientName || 'Sin nombre'}</p>
@@ -137,9 +137,7 @@ export default function LeadList({ leads, agentName, emptyText = 'Todavía no ha
                   value={group.status}
                   onChange={(e) => setStatus(group, e.target.value as LeadStatus)}
                   aria-label={`Estado del pedido de ${lead.clientName || lead.email}`}
-                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs outline-none cursor-pointer ${
-                    group.status === 'new' ? 'bg-[#1D1D1F] text-white' : 'bg-[#F5F5F7] text-[#1D1D1F]'
-                  }`}
+                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium outline-none cursor-pointer ${orderStatusClass[group.status]}`}
                 >
                   {statuses.map((st) => (
                     <option key={st.value} value={st.value}>

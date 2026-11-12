@@ -14,8 +14,11 @@
 export type Currency = 'USD' | 'UYU';
 
 /** What a price is "per": kilo, caja, atado, unidad or bolsón. */
-export const PRICING_MODES = ['por_kilo', 'por_caja', 'por_atado', 'por_unidad', 'por_bolson'] as const;
+export const PRICING_MODES = ['por_kilo', 'por_caja', 'por_atado', 'por_unidad', 'por_bolson', 'por_cuarto', 'por_medio', 'por_tres_cuartos', 'por_metro'] as const;
 export type PricingMode = (typeof PRICING_MODES)[number];
+
+/** What the dashboard offers for the single price of an item: per unit, or per fraction of a metro. */
+export const PRICING_CHOICES: readonly PricingMode[] = ['por_unidad', 'por_cuarto', 'por_medio', 'por_tres_cuartos', 'por_metro'];
 
 /** Departments we deliver to. Every item lists the ones it is delivered to. */
 export const DELIVERY_AREAS = ['Maldonado', 'Montevideo', 'Canelones'] as const;

@@ -6,6 +6,7 @@ import { useLeads } from '@/src/hooks/useLeads';
 import LeadList from '@/src/components/LeadList';
 import AddOrder from '@/src/components/dashboard/AddOrder';
 import { PageHeader, cardClass } from '@/src/components/dashboard/ui';
+import { orderStatusClass } from '@/src/components/dashboard/OrderModal';
 import type { LeadStatus } from '@/src/types/firestore';
 import { groupOrders, withoutPartialOrder } from '@/src/utils/orders';
 import { seedDemoOrders } from '@/src/services/dbService';
@@ -90,7 +91,7 @@ export default function LeadsPage() {
             onClick={() => setFilter(f.value)}
             aria-pressed={filter === f.value}
             className={`text-sm font-medium px-5 py-2.5 rounded-full transition-colors ${
-              filter === f.value ? 'bg-[#1D1D1F] text-white' : 'bg-white border border-[#000000]/5 hover:bg-[#F5F5F7]'
+              filter === f.value ? 'bg-[#1D1D1F] text-white' : f.value === 'all' ? 'bg-white border border-[#000000]/5 hover:bg-[#F5F5F7]' : `${orderStatusClass[f.value]} opacity-70 hover:opacity-100`
             }`}
           >
             {f.label} <span className="opacity-60 ml-1">{count(f.value)}</span>

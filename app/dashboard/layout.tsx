@@ -12,9 +12,12 @@ export const metadata: Metadata = {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <RequireAuth>
-        <DashboardShell>{children}</DashboardShell>
-      </RequireAuth>
+      {/* The dashboard is always light, whatever the site's theme (the loading screen included). */}
+      <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F]">
+        <RequireAuth>
+          <DashboardShell>{children}</DashboardShell>
+        </RequireAuth>
+      </div>
     </AuthProvider>
   );
 }

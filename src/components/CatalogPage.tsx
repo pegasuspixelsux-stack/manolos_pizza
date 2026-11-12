@@ -161,7 +161,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   );
 
   return (
-    <div className="min-h-screen pb-24 md:pb-0 bg-[#000000] text-white selection:bg-white selection:text-[#000000] font-sans antialiased">
+    <div className="min-h-screen pb-24 md:pb-0 bg-transparent text-white selection:bg-white selection:text-[#000000] font-sans antialiased">
       {/* --- Category pills (no top navigation) --- */}
       <header className="sticky top-0 z-50 bg-[#000000] text-white">
         <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
@@ -187,7 +187,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       <section
         aria-label="Promos"
         aria-hidden={hero !== 'show'}
-        className={`${hero === 'gone' ? 'hidden' : ''} ${hero === 'leaving' ? '-translate-y-full opacity-0 transition-[transform,opacity] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none' : ''} flex flex-col justify-end md:justify-center bg-[#000000] min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:pb-0`}
+        className={`${hero === 'gone' ? 'hidden' : ''} ${hero === 'leaving' ? '-translate-y-full opacity-0 transition-[transform,opacity] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none' : ''} flex flex-col justify-end md:justify-center bg-transparent min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:pb-0`}
       >
         {/* Phones: square promo slideshow (one full tile plus a sliver of the next) */}
         <div className="md:hidden flex-1 flex flex-col justify-center">
@@ -221,7 +221,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
 
       <div key={hero === 'gone' ? 'menu-in' : 'menu'} className={hero === 'gone' ? 'page-slide-up' : ''}>
       {/* Category pills  */}
-      <div className="bg-[#000000]">
+      <div>
         <div className="max-w-[1440px] mx-auto px-[10px] h-12 lg:h-14 flex items-center gap-2">
           <CategoryPills categories={categories} value={category} onChange={(id) => change(setCategory)(id)} className="mx-auto" />
           {/* Desktop: the search sits on the right of this row */}

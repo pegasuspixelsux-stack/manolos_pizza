@@ -28,6 +28,10 @@ export const pricingModeLabels: Record<PricingMode, string> = {
   por_atado: 'Por atado',
   por_unidad: 'Por unidad',
   por_bolson: 'Por bolsón',
+  por_cuarto: 'Por ¼ metro',
+  por_medio: 'Por ½ metro',
+  por_tres_cuartos: 'Por ¾ metro',
+  por_metro: 'Por 1 metro',
 };
 
 /** What follows a price: "$ 180 / kg", "$ 540 por caja"… */
@@ -37,6 +41,10 @@ const priceSuffix: Record<PricingMode, string> = {
   por_atado: 'por atado',
   por_unidad: 'por unidad',
   por_bolson: 'por bolsón',
+  por_cuarto: 'por ¼ metro',
+  por_medio: 'por ½ metro',
+  por_tres_cuartos: 'por ¾ metro',
+  por_metro: 'por 1 metro',
 };
 
 /** Compact form for order lines: "$ 540/caja". */
@@ -46,6 +54,10 @@ const priceSuffixShort: Record<PricingMode, string> = {
   por_atado: '/atado',
   por_unidad: '/unidad',
   por_bolson: '/bolsón',
+  por_cuarto: '/¼ metro',
+  por_medio: '/½ metro',
+  por_tres_cuartos: '/¾ metro',
+  por_metro: '/metro',
 };
 
 const quantityNouns: Record<PricingMode, [string, string]> = {
@@ -54,6 +66,10 @@ const quantityNouns: Record<PricingMode, [string, string]> = {
   por_atado: ['Atado', 'Atados'],
   por_unidad: ['Unidad', 'Unidades'],
   por_bolson: ['Bolsón', 'Bolsones'],
+  por_cuarto: ['¼ metro', '¼ metro'],
+  por_medio: ['½ metro', '½ metro'],
+  por_tres_cuartos: ['¾ metro', '¾ metro'],
+  por_metro: ['Metro', 'Metros'],
 };
 
 /** "2 Cajas", "5 Kilos", "10 Atados": the unit badge shown in the cart and on orders. */

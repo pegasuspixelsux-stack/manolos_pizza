@@ -78,7 +78,7 @@ function clean<T>(value: T): T {
 
 /** Items saved before pricing modes existed are sold por kilo. */
 function toPricingMode(value: unknown): PricingMode {
-  return (PRICING_MODES as readonly unknown[]).includes(value) ? (value as PricingMode) : 'por_kilo';
+  return (PRICING_MODES as readonly unknown[]).includes(value) ? (value as PricingMode) : 'por_unidad';
 }
 
 /** Items saved before delivery areas existed are delivered to Maldonado. */

@@ -25,6 +25,26 @@ export const orderStatusLabels: Record<LeadStatus, string> = {
   suspended: 'Suspendido',
 };
 
+/** Status colors: new = red, in process (aceptado / confirmado / asignado) = yellow, completed = green, suspended = grey. */
+export const orderStatusClass: Record<LeadStatus, string> = {
+  new: 'bg-red-600 text-white',
+  contacted: 'bg-yellow-300 text-[#1D1D1F]',
+  closed: 'bg-yellow-300 text-[#1D1D1F]',
+  assigned: 'bg-yellow-300 text-[#1D1D1F]',
+  completed: 'bg-green-600 text-white',
+  suspended: 'bg-[#D2D2D7] text-[#1D1D1F]',
+};
+
+/** The box around each order in the list, tinted by status (same colors as the badges). */
+export const orderBoxClass: Record<LeadStatus, string> = {
+  new: 'bg-red-50 border-red-300',
+  contacted: 'bg-yellow-50 border-yellow-300',
+  closed: 'bg-yellow-50 border-yellow-300',
+  assigned: 'bg-yellow-50 border-yellow-300',
+  completed: 'bg-green-50 border-green-300',
+  suspended: 'bg-[#F5F5F7] border-[#D2D2D7]',
+};
+
 const FIRESTORE_ID = /^[A-Za-z0-9]{20}$/;
 
 const esc = (v: string) =>
@@ -362,9 +382,7 @@ ${customerNote || notes.trim() ? `<div class="sep"></div><div><b>NOTAS</b></div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span
-              className={`rounded-full px-3 py-1.5 text-xs font-medium ${
-                status === 'new' ? 'bg-[#1D1D1F] text-white' : status === 'contacted' ? 'bg-amber-50 text-amber-700' : status === 'suspended' ? 'bg-red-50 text-red-700' : status === 'assigned' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'
-              }`}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium ${orderStatusClass[status]}`}
             >
               {orderStatusLabels[status]}
             </span>
