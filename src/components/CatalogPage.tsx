@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { HomeProperty } from '@/src/lib/homeData';
@@ -151,10 +151,22 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
     }, 400);
   };
 
+  // The hero fills exactly what is left under the sticky header, whatever its real height on this device.
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const set = () => document.documentElement.style.setProperty('--hdr', `${el.offsetHeight}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const tagline = (
     <div className="px-[10px] text-left">
-      <p className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight leading-tight">{heroTitle || 'La auténtica pizza por metro de Maldonado'}</p>
-      <p className="mt-2 text-sm md:text-base text-white/75">
+      <p className="text-[clamp(1.125rem,5.4vw,1.5rem)] md:text-2xl lg:text-3xl font-semibold tracking-tight leading-tight">{heroTitle || 'La auténtica pizza por metro de Maldonado'}</p>
+      <p className="mt-[1.2svh] max-md:[@media(max-height:700px)]:hidden text-[clamp(0.8125rem,3.6vw,0.9375rem)] md:text-base text-white/75">
         {heroText || 'Hecha al momento con masa de fermentación lenta. Delivery en Maldonado y Punta del Este: pedí acá, elegí tus ítems y completá tus datos de entrega y pago.'}
       </p>
     </div>
@@ -163,7 +175,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
   return (
     <div className="min-h-screen pb-24 md:pb-0 bg-transparent text-white selection:bg-white selection:text-[#000000] font-sans antialiased">
       {/* --- Category pills (no top navigation) --- */}
-      <header className="sticky top-0 z-50 bg-[#000000] text-white">
+      <header ref={headerRef} className="sticky top-0 z-50 bg-[#000000] text-white">
         <div className="bg-black text-white text-center text-[11px] sm:text-xs font-medium tracking-wide py-1.5 px-4 sm:px-6 leading-snug">
           <span className="sm:hidden">Pizza por metro hecha al momento · Delivery en Maldonado</span>
           <span className="hidden sm:inline">Pizza por metro hecha al momento. Delivery en Maldonado: pedí acá, elegí tus ítems y completá tus datos.</span>
@@ -187,16 +199,16 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       <section
         aria-label="Promos"
         aria-hidden={hero !== 'show'}
-        className={`${hero === 'gone' ? 'hidden' : ''} ${hero === 'leaving' ? '-translate-y-full opacity-0 transition-[transform,opacity] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none' : ''} flex flex-col justify-end md:justify-center bg-transparent min-h-[calc(100svh-134px)] md:min-h-[calc(100svh-156px)] lg:h-[calc(100svh-156px)] pb-[calc(max(0.25rem,1.75rem-7svh)+4.5rem+env(safe-area-inset-bottom))] md:pb-0`}
+        className={`${hero === 'gone' ? 'hidden' : ''} ${hero === 'leaving' ? '-translate-y-full opacity-0 transition-[transform,opacity] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none' : ''} flex flex-col justify-center bg-transparent min-h-[calc(100svh-var(--hdr,134px))] lg:h-[calc(100svh-var(--hdr,156px))] pb-[calc(max(0.25rem,1.75rem-7svh)+58px+1rem+env(safe-area-inset-bottom))] md:pb-0`}
       >
         {/* Phones: square promo slideshow (one full tile plus a sliver of the next) */}
-        <div className="md:hidden flex-1 flex flex-col justify-center">
+        <div className="md:hidden">
           <HeroImageScroller slides={slides}
-            className="px-[10px] scroll-pl-[10px] [&_[role=listitem]]:w-[calc(100%-42px)]"
+            className="px-[10px] scroll-pl-[10px] [&_[role=listitem]]:w-[max(130px,min(calc(100%-42px),calc(100svh-var(--hdr,134px)-340px)))]"
             dotsClassName="mt-3 mb-0"
             autoPlayMs={2000}
           />
-          <div className="mt-4">{tagline}</div>
+          <div className="mt-[2.5svh]">{tagline}</div>
         </div>
 
         {/* Desktop: full-width promo slider */}
@@ -205,7 +217,7 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
         {/* Tablet and desktop: same tagline under the slider */}
         <div className="hidden md:block shrink-0 pt-4">{tagline}</div>
 
-        <div className="shrink-0 px-[10px] pt-4 pb-0 md:pb-3 lg:py-6 flex justify-center md:translate-y-[5svh]">
+        <div className="shrink-0 px-[10px] pt-[2.5svh] pb-0 md:pt-4 md:pb-3 lg:py-6 flex justify-center">
           <button
             type="button"
             onClick={enterMenu}
