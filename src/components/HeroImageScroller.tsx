@@ -36,7 +36,7 @@ export default function HeroImageScroller({
   const folderImages = useHeroFolderImages();
   // Photos from Ajustes win; otherwise every image in public/hero_images; otherwise placeholders.
   const heroImages = slides ? slides.map((s) => s.src) : business.heroImages.length > 0 ? business.heroImages : folderImages;
-  const count = heroImages.length > 0 ? heroImages.length : slides ? 0 : placeholders;
+  const count = heroImages.length > 0 ? heroImages.length : placeholders;
 
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -93,7 +93,7 @@ export default function HeroImageScroller({
                 </div>
               );
             })
-          : slides ? [] : Array.from({ length: placeholders }, (_, i) => (
+          : Array.from({ length: placeholders }, (_, i) => (
               <div key={i} role="listitem" className={`${tile} flex flex-col items-center justify-center gap-1.5 text-white/70`}>
                 <ImageIcon className="w-[4.5rem] h-[4.5rem] md:w-[5.25rem] md:h-[5.25rem]" aria-hidden="true" />
                 <span className="text-[11px] font-medium tabular-nums">{i + 1}</span>

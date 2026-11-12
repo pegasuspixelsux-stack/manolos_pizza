@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import type { PromoSlide } from '@/src/lib/promos';
 
 const INTERVAL_MS = 5000;
@@ -11,8 +11,8 @@ const INTERVAL_MS = 5000;
  * Desktop-only full-width promo hero (fills the space above the order button): square slides at the full height of the strip, so each promo shows uncropped, auto-advancing, with arrows and dots.
  * Slides are the dashboard items marked for the promo slider; each opens its item page.
  */
-export default function PromoHeroSlider({ slides }: { slides: PromoSlide[] }) {
-  const count = slides.length;
+export default function PromoHeroSlider({ slides, placeholders = 3 }: { slides: PromoSlide[]; placeholders?: number }) {
+  const count = slides.length > 0 ? slides.length : placeholders;
 
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -58,6 +58,12 @@ export default function PromoHeroSlider({ slides }: { slides: PromoSlide[] }) {
         onScroll={onScroll}
         className="flex h-full w-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
+        {slides.length === 0 && Array.from({ length: placeholders }, (_, i) => (
+          <div key={i} className="h-full aspect-square shrink-0 snap-start flex flex-col items-center justify-center gap-2 bg-white/10 text-white/70">
+            <ImageIcon className="w-20 h-20" aria-hidden="true" />
+            <span className="text-sm font-medium tabular-nums">Promo {i + 1}</span>
+          </div>
+        ))}
         {slides.map((slide, i) => {
           const img = (
             // eslint-disable-next-line @next/next/no-img-element

@@ -191,16 +191,16 @@ export default function CatalogPage({ items: baseItems }: { items: HomeProperty[
       >
         {/* Phones: square promo slideshow (one full tile plus a sliver of the next) */}
         <div className="md:hidden flex-1 flex flex-col justify-center">
-          {slides.length > 0 && <HeroImageScroller slides={slides}
+          <HeroImageScroller slides={slides}
             className="px-[10px] scroll-pl-[10px] [&_[role=listitem]]:w-[calc(100%-42px)]"
             dotsClassName="mt-3 mb-0"
             autoPlayMs={2000}
-          />}
+          />
           <div className="mt-4">{tagline}</div>
         </div>
 
         {/* Desktop: full-width promo slider */}
-        {slides.length > 0 ? <PromoHeroSlider slides={slides} /> : <div className="hidden lg:block flex-1" />}
+        <PromoHeroSlider slides={slides} />
 
         {/* Tablet and desktop: same tagline under the slider */}
         <div className="hidden md:block shrink-0 pt-4">{tagline}</div>
