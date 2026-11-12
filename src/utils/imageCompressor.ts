@@ -11,8 +11,20 @@ export interface CompressOptions {
 
 const ONE_MB = 1024 * 1024;
 
-function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob | null> {
-  return new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
+function canvasToBlob(canvas: HTMLCanvasElement, mime: string, quality: number): Promise<Blob | null> {
+  return new Promise((resolve) => canvas.toBlob(resolve, mime, quality));
+}
+
+/**
+ * WebP when the browser can encode it. Safari on iPhone cannot (it silently returns PNG), so there we keep PNG for
+ * PNG sources (logos with transparency) and use JPEG for everything else. Cloudinary serves WebP/AVIF either way.
+ */
+async function pickOutputType(file: File): Promise<string> {
+  const probe = document.createElement('canvas');
+  probe.width = probe.height = 1;
+  const blob = await canvasToBlob(probe, 'image/webp', 0.8);
+  if (blob?.type === 'image/webp') return 'image/webp';
+  return file.type === 'image/png' ? 'image/png' : 'image/jpeg';
 }
 
 async function loadBitmap(file: File): Promise<ImageBitmap> {
@@ -21,7 +33,7 @@ async function loadBitmap(file: File): Promise<ImageBitmap> {
 }
 
 /**
- * Compresses an image in the browser to WebP and keeps it under `maxBytes`
+ * Compresses an image in the browser (WebP, or JPEG/PNG where WebP is not supported) and keeps it under `maxBytes`
  * (1 MB by default). It lowers the quality first, then shrinks the dimensions,
  * so large photos still end up under the limit. Run this before uploading to
  * Firebase Storage to save bandwidth.
@@ -46,6 +58,7 @@ export async function compressImageToWebP(
     throw new Error(`"${file.name}" no es una imagen.`);
   }
 
+  const mime = await pickOutputType(file);
   const bitmap = await loadBitmap(file);
   try {
     let scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
@@ -60,17 +73,19 @@ export async function compressImageToWebP(
       canvas.height = height;
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Este navegador no tiene canvas disponible.');
+      if (mime === 'image/jpeg') {
+        ctx.fillStyle = '#fff'; // JPEG has no transparency
+        ctx.fillRect(0, 0, width, height);
+      }
       ctx.drawImage(bitmap, 0, 0, width, height);
 
       for (let quality = initialQuality; quality >= minQuality - 1e-6; quality -= 0.1) {
-        const blob = await canvasToBlob(canvas, quality);
+        const blob = await canvasToBlob(canvas, mime, quality);
         if (!blob) throw new Error('No se pudo codificar la imagen.');
-        if (blob.type !== 'image/webp') {
-          throw new Error('This browser cannot encode WebP images.');
-        }
         if (blob.size <= maxBytes) {
           return toFile(blob, file.name);
         }
+        if (mime === 'image/png') break; // PNG ignores quality: go straight to a smaller size
       }
 
       scale *= 0.8; // still too big at minimum quality: reduce dimensions and retry
@@ -91,8 +106,9 @@ export function compressImages(files: File[], options?: CompressOptions): Promis
 
 function toFile(blob: Blob, originalName: string): File {
   const baseName = originalName.replace(/\.[^.]+$/, '') || 'photo';
-  return new File([blob], `${baseName}.webp`, {
-    type: 'image/webp',
+  const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/png' ? 'png' : 'jpg';
+  return new File([blob], `${baseName}.${ext}`, {
+    type: blob.type,
     lastModified: Date.now(),
   });
 }

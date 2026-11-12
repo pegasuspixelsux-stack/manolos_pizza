@@ -199,7 +199,7 @@ export default function ImageUpload({
             <span>
               <span className="font-medium">Hacé clic para subir</span> o arrastrá una foto acá
             </span>
-            <span className="text-xs text-[#515154]">Se convierte automáticamente a WebP, de menos de 1 MB</span>
+            <span className="text-xs text-[#515154]">Se optimiza automáticamente, de menos de 1 MB</span>
           </>
         )}
         <input
