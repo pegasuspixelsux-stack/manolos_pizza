@@ -77,12 +77,13 @@ export default function AdminLoginPage() {
           'url(https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2000&auto=format&fit=crop)',
       }}
     >
-      {/* Brand, top-left corner */}
+      {/* Logo only (3x), top-left corner */}
       <Link
         href="/"
-        className="absolute top-8 left-8 z-20 text-lg font-semibold tracking-tight drop-shadow"
+        aria-label="Manolo's Pizza"
+        className="absolute top-6 left-6 z-20 drop-shadow"
       >
-        <BrandName />
+        <BrandName bigLogoOnly={108} />
       </Link>
 
       {/* Photo credit, bottom-left corner */}
